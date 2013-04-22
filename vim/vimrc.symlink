@@ -10,6 +10,8 @@ Bundle 'gmarik/vundle'
 
 Bundle 'kien/ctrlp.vim'
 Bundle 'altercation/vim-colors-solarized'
+Bundle 'plasticboy/vim-markdown'
+Bundle 'scrooloose/nerdcommenter'
 
 filetype plugin indent on     " required!
 
@@ -20,4 +22,15 @@ set background=dark
 let g:solarized_termcolors=256
 colorscheme solarized
 
+" Default indent settings
+set shiftwidth=2
+set softtabstop=2
+set expandtab
+set autoindent
 
+" No folding for markdown
+let g:vim_markdown_folding_disabled=1
+
+" Commenting
+map <leader>/ <plug>NERDCommenterToggle<CR>
+imap <leader>/ <Esc><plug>NERDCommenterToggle<CR>i
