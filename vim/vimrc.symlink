@@ -1,6 +1,8 @@
 set nocompatible               " be iMproved
 filetype off                   " required!
 
+set t_Co=256
+
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
@@ -8,10 +10,13 @@ call vundle#rc()
 " required! 
 Bundle 'gmarik/vundle'
 
-Bundle 'kien/ctrlp.vim'
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'scrooloose/nerdcommenter'
+Bundle 'kien/ctrlp.vim'
+Bundle 'vim-ruby/vim-ruby'
+Bundle 'tpope/vim-endwise'
+Bundle 'pangloss/vim-javascript'
 
 filetype plugin indent on     " required!
 
@@ -28,9 +33,20 @@ set softtabstop=2
 set expandtab
 set autoindent
 
+" line numbers
+set number
+set cursorline
+
 " No folding for markdown
 let g:vim_markdown_folding_disabled=1
+
+" Tab Completion
+set complete=.,b,u,]
+imap <Tab> <C-P>
 
 " Commenting
 map <leader>/ <plug>NERDCommenterToggle<CR>
 imap <leader>/ <Esc><plug>NERDCommenterToggle<CR>i
+
+" Highlight searches
+map <leader>hs <Esc>:set hlsearch!<CR>
