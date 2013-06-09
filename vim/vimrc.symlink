@@ -18,6 +18,10 @@ Bundle 'kien/ctrlp.vim'
 Bundle 'vim-ruby/vim-ruby'
 Bundle 'tpope/vim-endwise'
 Bundle 'pangloss/vim-javascript'
+Bundle 'taglist.vim'
+Bundle 'kchmck/vim-coffee-script'
+Bundle 'nono/vim-handlebars'
+Bundle 'jeetsukumaran/vim-buffergator'
 
 " Auto completeness
 Bundle "MarcWeber/vim-addon-mw-utils"
