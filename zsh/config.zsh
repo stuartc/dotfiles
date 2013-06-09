@@ -37,6 +37,7 @@ setopt HIST_REDUCE_BLANKS
 setopt complete_aliases
 
 zle -N newtab
+set -o emacs
 
 # bindkey '^[^[[D' backward-word
 # bindkey '^[^[[C' forward-word
