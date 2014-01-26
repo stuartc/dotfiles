@@ -30,9 +30,20 @@ Bundle "tomtom/tlib_vim"
 Bundle "honza/vim-snippets"
 Bundle "garbas/vim-snipmate"
 
+" git
+Bundle 'tpope/vim-fugitive'
+
 Bundle "ervandew/supertab"
 
 call vundle#end()
+"
+" Pretty line
+Bundle 'bling/vim-airline'
+set laststatus=2
+let g:airline_theme='badwolf'
+let g:airline_powerline_fonts=1  
+let g:airline_enable_fugitive=1
+
 filetype plugin indent on     " required!
 
 syntax enable
@@ -51,6 +62,7 @@ set autoindent
 " line numbers
 set number
 "set cursorline
+set colorcolumn=81
 
 " No folding for markdown
 let g:vim_markdown_folding_disabled=1
