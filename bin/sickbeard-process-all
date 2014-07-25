@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+for f in /mnt/media/Downloads/nzbs/complete/tv/*
+do
+  echo "Processing $f"
+  sudo -u sabnzbd "/opt/sickbeard/autoProcessTV/sabToSickBeard.py" $f
+done
