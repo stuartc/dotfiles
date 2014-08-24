@@ -25,7 +25,6 @@ setopt HIST_VERIFY
 setopt SHARE_HISTORY # share history between sessions ???
 setopt EXTENDED_HISTORY # add timestamps to history
 setopt PROMPT_SUBST
-setopt CORRECT
 setopt COMPLETE_IN_WORD
 
 setopt APPEND_HISTORY # adds history
@@ -40,10 +39,14 @@ setopt complete_aliases
 zle -N newtab
 set -o emacs
 
-# bindkey '^[^[[D' backward-word
-# bindkey '^[^[[C' forward-word
-# bindkey '^[[5D' beginning-of-line
-# bindkey '^[[5C' end-of-line
+#bindkey '^[[D' backward-word
+bindkey 'OD' backward-word
+#bindkey '^[[C' forward-word
+bindkey '0C' forward-word
+#bindkey '^[[5D' beginning-of-line
+bindkey '^A' beginning-of-line
+#bindkey '^[[5C' end-of-line
+bindkey '^E' end-of-line
 # bindkey '^[[3~' delete-char
 # bindkey '^[^N' newtab
 # bindkey '^?' backward-delete-char
