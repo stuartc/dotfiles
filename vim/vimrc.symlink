@@ -1,10 +1,11 @@
 set nocompatible               " be iMproved
 filetype off                   " required!
 
+set encoding=utf-8
 set t_Co=256
 
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+set rtp+=~/.vim/bundle/vundle
+call vundle#begin()
 
 " let Vundle manage Vundle
 " required! 
@@ -31,6 +32,7 @@ Bundle "garbas/vim-snipmate"
 
 Bundle "ervandew/supertab"
 
+call vundle#end()
 filetype plugin indent on     " required!
 
 syntax enable
