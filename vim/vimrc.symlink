@@ -2,7 +2,8 @@ set nocompatible               " be iMproved
 filetype off                   " required!
 
 set encoding=utf-8
-set t_Co=256
+" Might not need this, if the env correctly sets $TERM
+"set t_Co=256
 
 set rtp+=~/.vim/bundle/vundle
 call vundle#begin()
@@ -12,6 +13,7 @@ call vundle#begin()
 Bundle 'gmarik/vundle'
 
 Bundle 'altercation/vim-colors-solarized'
+Bundle 'chriskempson/tomorrow-theme', {'rtp': 'vim/'}
 Bundle 'plasticboy/vim-markdown'
 Bundle "scrooloose/nerdtree"
 Bundle 'scrooloose/nerdcommenter'
@@ -21,6 +23,7 @@ Bundle 'tpope/vim-endwise'
 Bundle 'pangloss/vim-javascript'
 Bundle 'taglist.vim'
 Bundle 'kchmck/vim-coffee-script'
+Bundle 'mtscout6/vim-cjsx'
 Bundle 'nono/vim-handlebars'
 Bundle 'jeetsukumaran/vim-buffergator'
 
@@ -44,14 +47,11 @@ let g:airline_theme='badwolf'
 let g:airline_powerline_fonts=1  
 let g:airline_enable_fugitive=1
 
+syntax enable
 filetype plugin indent on     " required!
 
-syntax enable
-
-" Solorized theme
-set background=dark
-let g:solarized_termcolors=256
-colorscheme solarized
+" Tomorrow Night Theme
+colorscheme Tomorrow-Night-Eighties
 
 " Default indent settings
 set shiftwidth=2
@@ -61,7 +61,7 @@ set autoindent
 
 " line numbers
 set number
-"set cursorline
+set cursorline
 set colorcolumn=81
 
 " No folding for markdown
@@ -71,9 +71,24 @@ let g:vim_markdown_folding_disabled=1
 map <leader>/ <plug>NERDCommenterToggle<CR>
 imap <leader>/ <Esc><plug>NERDCommenterToggle<CR>i
 
+" Avoid using Esc
+imap jj <Esc>
+
+" CTags
+" Look for hidden tags file
+set tags=./.tags,.tags
+
 " Highlight searches
 map <leader>hs <Esc>:set hlsearch!<CR>
 
 " Nerdtree should open even if no file was specified
 autocmd vimenter * if !argc() | NERDTree | endif
 map <leader>n :NERDTreeToggle<CR>
+
+" MacVim stuff
+set guifont=Droid\ Sans\ Mono\ for\ Powerline:h15 
+
+" Remove the scroll bars
+" and native window tab bar
+" So no eLr etc.
+set guioptions=gm
