@@ -85,6 +85,11 @@ map <leader>hs <Esc>:set hlsearch!<CR>
 autocmd vimenter * if !argc() | NERDTree | endif
 map <leader>n :NERDTreeToggle<CR>
 
+" Git/Fugitive
+map <leader>gs :Gstatus<CR>
+map <leader>gd :Gdiff<CR>
+map <leader>gb :Gblame<CR>
+
 " MacVim stuff
 set guifont=Droid\ Sans\ Mono\ for\ Powerline:h15 
 
