@@ -2,4 +2,5 @@
 .svn
 *~
 *.swp
-*.rbc
+*.rbctags
+gems.tags
