@@ -104,11 +104,20 @@ imap jj <Esc>
 set tags=./.tags,.tags
 nnoremap <leader>. :CtrlPTag<cr>
 
+" Create the parent path for a new file.
+" :e spec/models/namespace/obj_spec.rb
+" <leader>mkpd => `mkdir -p spec/models/namespace`
+nmap <leader>mkpd :call MakeParentDirectory()<CR>
+function! MakeParentDirectory()
+  exec "!mkdir -p %:h" 
+  echom 'Created parent directory: ' . expand('%:h')
+endfunction
+
 " Highlight searches
 map <leader>hs <Esc>:set hlsearch!<CR>
 
 " Nerdtree should open even if no file was specified
-autocmd vimenter * if !argc() | NERDTree | endif
+" autocmd vimenter * if !argc() | NERDTree | endif
 map <leader>n :NERDTreeToggle<CR>
 
 " Git/Fugitive
@@ -136,7 +145,7 @@ nnoremap <silent>∆ :set paste<CR>m`o<Esc>``:set nopaste<CR>
 nnoremap <silent>˚ :set paste<CR>m`O<Esc>``:set nopaste<CR>
 
 " MacVim stuff
-set guifont=Droid\ Sans\ Mono\ for\ Powerline:h15 
+set guifont=Droid\ Sans\ Mono\ for\ Powerline:h14
 
 " Remove the scroll bars
 " and native window tab bar
