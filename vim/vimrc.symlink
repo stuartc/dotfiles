@@ -5,7 +5,7 @@ set encoding=utf-8
 " Might not need this, if the env correctly sets $TERM
 "set t_Co=256
 
-set rtp+=~/.vim/bundle/vundle
+set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 " let Vundle manage Vundle
@@ -47,14 +47,14 @@ Bundle 'tpope/vim-fugitive'
 
 Bundle "ervandew/supertab"
 
-call vundle#end()
-"
-" Pretty line
 Bundle 'bling/vim-airline'
+
+call vundle#end()
+
+" Pretty line
 set laststatus=2
 let g:airline_theme='badwolf'
 let g:airline_powerline_fonts=1  
-let g:airline_enable_fugitive=1
 
 " Do JSX formatting for .js files as well.
 let g:jsx_ext_required = 0
