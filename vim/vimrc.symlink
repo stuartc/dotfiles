@@ -37,8 +37,8 @@ Bundle 'groenewege/vim-less'
 " Auto completeness
 Bundle "MarcWeber/vim-addon-mw-utils"
 Bundle "tomtom/tlib_vim"
-Bundle "honza/vim-snippets"
 Bundle "garbas/vim-snipmate"
+Bundle "honza/vim-snippets"
 Bundle "tpope/vim-surround"
 
 " git
