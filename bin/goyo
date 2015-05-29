@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#
+# Goyo.vim shorthand
+# 
+set -e
+
+mvim +:Goyo +:Limelight \
+  "+:set syntax=markdown" \
+  "+:set spell" \
+  "+:set linebreak" \
+  "+:set guifont=Droid\ Sans\ Mono\ for\ Powerline:h16" \
+  $@

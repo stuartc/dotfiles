@@ -49,6 +49,8 @@ Bundle "ervandew/supertab"
 
 Bundle 'bling/vim-airline'
 
+Bundle 'junegunn/goyo.vim'
+Bundle 'junegunn/limelight.vim'
 call vundle#end()
 
 " Pretty line
