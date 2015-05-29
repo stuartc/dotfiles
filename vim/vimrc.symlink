@@ -80,6 +80,8 @@ set softtabstop=2
 set expandtab
 set autoindent
 
+let NERDSpaceDelims=1
+
 " line numbers
 set number
 set cursorline
@@ -94,8 +96,6 @@ let g:markdown_fenced_languages = ['coffee', 'css', 'erb=eruby', 'javascript', '
 map <leader>/ <plug>NERDCommenterToggle<CR>
 imap <leader>/ <Esc><plug>NERDCommenterToggle<CR>i
 
-" Avoid using Esc
-imap jj <Esc>
 
 " CTags
 " Look for hidden tags file
@@ -131,6 +131,9 @@ nmap <Leader>hu <Plug>GitGutterRevertHunk
 map <leader>ag :Ag 
 
 map <leader>R! :so $MYVIMRC<CR>
+
+" Avoid using Esc
+imap jj <Esc>
 
 " Learn to use h,j,k,l!
 noremap <Up> <NOP>
