@@ -14,8 +14,7 @@ Bundle 'gmarik/vundle'
 
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'chriskempson/tomorrow-theme', {'rtp': 'vim/'}
-Bundle 'plasticboy/vim-markdown'
-Bundle 'jtratner/vim-flavored-markdown'
+Bundle 'tpope/vim-markdown'
 Bundle "scrooloose/nerdtree"
 Bundle 'scrooloose/nerdcommenter'
 Bundle 'kien/ctrlp.vim'
@@ -87,10 +86,8 @@ set colorcolumn=81
 
 " No folding for markdown
 let g:vim_markdown_folding_disabled=1
-augroup markdown
-    au!
-    au BufNewFile,BufRead *.md,*.markdown setlocal filetype=ghmarkdown
-augroup END
+" Markdown
+let g:markdown_fenced_languages = ['coffee', 'css', 'erb=eruby', 'javascript', 'js=javascript', 'json=javascript', 'ruby', 'sass', 'xml']
 
 " Commenting
 map <leader>/ <plug>NERDCommenterToggle<CR>
