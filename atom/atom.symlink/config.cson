@@ -1,0 +1,16 @@
+"*":
+  core:
+    disabledPackages: [
+      "language-gfm"
+    ]
+    themes: [
+      "one-dark-ui"
+      "tomorrow-night-eighties-syntax"
+    ]
+  editor:
+    fontFamily: "Droid Sans Mono for Powerline"
+    showIndentGuide: true
+  "exception-reporting":
+    userId: "d67c3d74-5ada-b694-0496-2eafea75c91d"
+  welcome:
+    showOnStartup: false
