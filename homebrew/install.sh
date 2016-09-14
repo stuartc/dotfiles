@@ -14,6 +14,21 @@ then
 fi
 
 # Install homebrew packages
-brew install grc coreutils spark
+brew install \
+  git \
+  grc \
+  coreutils \
+  spark \
+  ag \
+  erlang \
+  kubernetes-cli \
+  tmux \
+  rbenv \
+  ruby-build \
+  node \
+  heroku \
+  exenv \
+  elixir-build
 
+# brew cask install flowdock skype harvest spectacle little-snitch skitch iterm2 alfred whatsapp dropbox google-chrome firefox
 exit 0
