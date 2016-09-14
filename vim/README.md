@@ -4,18 +4,20 @@ VIM
 101
 ---
 
-Toggle case "HellO" to "hELLo" with g~ then a movement.
-Uppercase "HellO" to "HELLO" with gU then a movement.
-Lowercase "HellO" to "hello" with gu then a movement.
+Toggle case "HellO" to "hELLo" with `g~` then a movement.  
+Uppercase "HellO" to "HELLO" with `gU` then a movement.  
+Lowercase "HellO" to "hello" with `gu` then a movement.  
 Alternatively, you can visually select text then press ~ to toggle case, or U to convert to uppercase, or u to convert to lowercase.
 
 Commenting
 ----------
 
   Comment selection or current line (matches indentation)  
+
     <leader>c
 
   Comment selection (left aligned style)  
+
     <leader>cl
 
 Switching Buffers
