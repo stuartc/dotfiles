@@ -39,6 +39,8 @@ setopt complete_aliases
 zle -N newtab
 set -o emacs
 
+bindkey    "^[[3~"          delete-char
+bindkey    "^[3;5~"         delete-char
 bindkey '[D' backward-word
 #bindkey 'OD' backward-word
 bindkey '[C' forward-word
