@@ -76,3 +76,11 @@ Git
 
     ]c
     [c
+
+CtrlP
+-----
+
+  Clear all CtrlP caches
+
+    <Leader>rp
+

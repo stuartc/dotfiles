@@ -1,4 +1,6 @@
 set nocompatible               " be iMproved
+set ttyfast
+set lazyredraw
 filetype off                   " required!
 
 set encoding=utf-8
@@ -13,6 +15,7 @@ call vundle#begin()
 Plugin 'gmarik/vundle'
 
 Plugin 'wkentaro/conque.vim'
+Plugin 'editorconfig/editorconfig-vim' 
 
 " Plugin 'kristijanhusak/vim-hybrid-material'
 Plugin 'chriskempson/tomorrow-theme', {'rtp': 'vim/'}
@@ -95,18 +98,30 @@ let g:airline_powerline_fonts=1
 " Do JSX formatting for .js files as well.
 let g:jsx_ext_required = 0
 
-let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
+" Format using prettier
+autocmd FileType javascript.jsx,javascript setlocal formatprg=prettier\ --stdin
+
+let g:ctrlp_user_command = 'ag %s -i -l --nocolor --nogroup --hidden
   \ --ignore .git
+  \ --ignore .swp
+  \ --ignore .swo
   \ --ignore .svn
   \ --ignore .hg
   \ --ignore .DS_Store
   \ --ignore node_modules
   \ --ignore docs
   \ --ignore doc
-  \ --ignore "**/*.pyc"
+  \ --ignore="**/*.pyc"
+  \ --ignore="**/*.beam"
   \ -g ""'
 
-let g:ag_prg='ag -S --nocolor --nogroup --column --ignore node_modules --ignore doc --ignore "./public/stylesheets/*"'
+let g:ag_prg='ag -S --nocolor --nogroup --column
+      \ --ignore "**/*.beam" 
+      \ --ignore .swp
+      \ --ignore .swo
+      \ --ignore node_modules 
+      \ --ignore doc 
+      \ --ignore "./public/stylesheets/*"'
 
 syntax enable
 filetype plugin indent on     " required!
@@ -173,6 +188,7 @@ nmap <leader>gb :Gblame<CR>
 nmap <Leader>ha <Plug>GitGutterStageHunk
 nmap <Leader>hu <Plug>GitGutterRevertHunk
 
+nmap <Leader>rp :ClearAllCtrlPCaches<CR>
 
 " Ag
 map <leader>ag :Ag 
@@ -195,6 +211,9 @@ nnoremap <silent><C-k> m`:silent -g/\m^\s*$/d<CR>``:noh<CR>
 nnoremap <silent><A-j> :set paste<CR>m`o<Esc>``:set nopaste<CR>
 nnoremap <silent>∆ :set paste<CR>m`o<Esc>``:set nopaste<CR>
 nnoremap <silent>˚ :set paste<CR>m`O<Esc>``:set nopaste<CR>
+
+" Read .vimrc from the current directory
+set exrc
 
 " MacVim stuff
 set guifont=Droid\ Sans\ Mono\ for\ Powerline:h14
