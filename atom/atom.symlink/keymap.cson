@@ -30,5 +30,11 @@
 # If you are unfamiliar with CSON, you can read more about it in the
 # Atom Flight Manual:
 # https://atom.io/docs/latest/using-atom-basic-customization#cson
-'atom-text-editor.vim-mode.insert-mode':
-  'j j': 'vim-mode:activate-normal-mode'
+'atom-text-editor.vim-mode-plus.insert-mode':
+  'j j': 'vim-mode-plus:activate-normal-mode'
+'atom-text-editor.vim-mode-plus.normal-mode':
+  'ctrl-j': 'editor:newline-below'
+  'ctrl-k': 'editor:newline-above'
+'.fuzzy-finder atom-text-editor[mini]':
+  'ctrl-v': 'pane:split-right'
+  'ctrl-s': 'pane:split-down'
