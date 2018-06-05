@@ -1,1 +1,2 @@
-alias migrate='rake db:migrate db:test:clone'
+alias migrate='rake db:migrate db:test:prepare'
+alias be='bundle exec'

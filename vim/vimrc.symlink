@@ -19,7 +19,8 @@ Plugin 'editorconfig/editorconfig-vim'
 
 " Plugin 'kristijanhusak/vim-hybrid-material'
 Plugin 'chriskempson/tomorrow-theme', {'rtp': 'vim/'}
-Plugin 'tpope/vim-markdown'
+Plugin 'godlygeek/tabular'
+Plugin 'plasticboy/vim-markdown'
 Plugin 'shime/vim-livedown'
 Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/nerdcommenter'
@@ -31,6 +32,7 @@ Plugin 'tpope/vim-endwise'
 " ======
 
 Plugin 'vim-ruby/vim-ruby'
+Plugin 'deepredsky/vim-rubocop'
 " Javascript
 
 " Plugin 'ternjs/tern_for_vim'
@@ -43,6 +45,7 @@ Plugin 'rschmukler/pangloss-vim-indent'
 Plugin 'mxw/vim-jsx'
 " Plugin 'mtscout6/vim-cjsx'
 Plugin 'kchmck/vim-coffee-script'
+Plugin 'slim-template/vim-slim'
 Plugin 'mustache/vim-mustache-handlebars'
 let g:mustache_abbreviations = 1
 
@@ -62,6 +65,7 @@ Plugin 'mutewinter/taskpaper.vim'
 
 " Other
 " =====
+Plugin 'vim-syntastic/syntastic'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'taglist.vim'
 Plugin 'jeetsukumaran/vim-buffergator'
@@ -83,8 +87,6 @@ Plugin 'ervandew/supertab'
 
 Plugin 'bling/vim-airline'
 
-Plugin 'xolox/vim-misc'
-Plugin 'xolox/vim-notes'
 Plugin 'junegunn/goyo.vim'
 Plugin 'junegunn/limelight.vim'
 
@@ -109,6 +111,7 @@ let g:ctrlp_user_command = 'ag %s -i -l --nocolor --nogroup --hidden
   \ --ignore .hg
   \ --ignore .DS_Store
   \ --ignore node_modules
+  \ --ignore dist
   \ --ignore docs
   \ --ignore doc
   \ --ignore="**/*.pyc"
@@ -120,6 +123,7 @@ let g:ag_prg='ag -S --nocolor --nogroup --column
       \ --ignore .swp
       \ --ignore .swo
       \ --ignore node_modules 
+      \ --ignore dist 
       \ --ignore doc 
       \ --ignore "./public/stylesheets/*"'
 
@@ -129,7 +133,7 @@ filetype plugin indent on     " required!
 colorscheme Tomorrow-Night-Eighties
 
 " Vim Notes
-let g:notes_directories = ['~/Dropbox/PlainText']
+let g:notes_directories = ['~/Dropbox (Personal)/Journals']
 let g:notes_conceal_code = 0
 
 " Default indent settings
@@ -158,6 +162,17 @@ let g:markdown_fenced_languages = [
 map <leader>/ <plug>NERDCommenterToggle<CR>
 imap <leader>/ <Esc><plug>NERDCommenterToggle<CR>i
 
+" Syntastic
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_ruby_checkers = ['mri']
+let g:syntastic_ignore_files = ['\c\.hbs$']
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 0
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
 
 " CTags
 " Look for hidden tags file
