@@ -1,0 +1,109 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'csv'
+require 'optparse'
+
+# Pivotal Parse
+# =============
+#
+# Gives a sexy markdown output for your standup notes.
+# Select a few stories, and then click CSV export at the top.
+#
+# Install:
+# Either copy the script or:
+# ```
+# curl -L https://gist.githubusercontent.com/stuartc/1e00d2d0eddf4e44675eacb30f3a52d5/raw -O /usr/local/bin/pivotal_parse
+# chmod +x /usr/local/bin/pivotal_parse
+# ```
+# Usage:
+#
+# ```
+# $ pivotal_parse ~/Downloads/pivotal_xyz.csv
+# # or
+# $ pivotal_parse ~/Downloads/pivotal_xyz.csv | pbcopy
+# # or
+# $ pivotal_parse | pbcopy
+# ```
+
+class Story
+  def initialize(attrs)
+    @attrs = attrs
+  end
+
+  def title
+    @attrs['Title'][0..150]
+  end
+
+  def url
+    @attrs['URL']
+  end
+
+  def labels
+    @attrs['Labels']
+  end
+
+  def estimate
+    @attrs['Estimate']
+  end
+
+  def title_link
+    link = "[#{title}](#{url})"
+    return "~~#{link}~~" if finished?
+
+    link
+  end
+
+  def finished?
+    %w[finished delivered].include? current_state
+  end
+
+  def current_state
+    @attrs['Current State']
+  end
+
+  def to_s
+    <<~STORY
+      - #{title_link}  
+        _**#{estimate}pt.**_ _#{labels}_  
+    STORY
+  end
+end
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = 'Usage: pivotal_parse [options] [file]'
+  opts.on('-d', '--date', 'Add date heading') do |d|
+    options[:date] = d
+  end
+  opts.on('-y', '--yesterday', 'Add yesterday I did section') do |y|
+    options[:yesterday] = y
+  end
+  opts.on('-t', '--today', "Add today I'm doing section") do |t|
+    options[:today] = t
+  end
+end.parse!
+
+begin
+  raise 'Pick either -y or -t.' if options.key?(:yesterday) && options.key?(:today)
+
+  file_name =
+    ARGV[-1] ||
+    File.join(
+      File.expand_path('~/Downloads/'),
+      Dir.entries(File.expand_path('~/Downloads/'))
+          .select { |f| /\w+_\d{8}_\d{4}.csv$/.match f }
+          .sort[-1]
+    )
+
+  puts Time.now.strftime("## %A %-d %b\n\n") if options[:date]
+  puts "**What I did yesterday**\n\n" if options[:yesterday]
+  puts "**What I'm doing today**\n\n" if options[:today]
+
+  CSV.read(file_name, headers: true).map(&Story.method(:new)).each do |story|
+    puts story
+  end
+rescue StandardError => e
+  puts e.message
+  exit 1
+end

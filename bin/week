@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Week Journal
+# 
+# Opens the current weeks Journal
+# $ week
+# Open previous or next weeks journl
+# $ week -1
+# $ week +1
+set -e 
+
+current=$(date +"%U")
+if [[ $1 ]]; then
+  current=$(expr $current $(sed -E "s/.*(-)([0-9]+).*/\1 \2/" <<< $1))
+fi
+
+$EDITOR "$HOME/Dropbox (Personal)/Journals/$(date +"%Y").$current.md" 1> /dev/null &
