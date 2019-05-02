@@ -14,4 +14,6 @@ if [[ "$OSTYPE" == "linux-gnu" ]]
 then
   alias ls="ls --color"
   alias ll="ls -al"
+  alias pbcopy="xsel -ib"
+  alias pbpaste="xsel -ob"
 fi

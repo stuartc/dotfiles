@@ -40,9 +40,4 @@ done
 
 unset config_files
 
-export PATH="/usr/local/heroku/bin:$PATH"
-
-# tabtab source for electron-forge package
-# uninstall by removing these lines or running `tabtab uninstall electron-forge`
-[[ -f /Users/stuart/Sourcecode/SameWave/SameWaveClient/node_modules/tabtab/.completions/electron-forge.zsh ]] && . /Users/stuart/Sourcecode/SameWave/SameWaveClient/node_modules/tabtab/.completions/electron-forge.zsh
-export PATH="$HOME/.yarn/bin:$PATH"
+export PATH="$HOME/.local/bin:/usr/local/heroku/bin:$HOME/.yarn/bin:$PATH"

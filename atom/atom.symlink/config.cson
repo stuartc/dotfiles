@@ -2,18 +2,24 @@
   Zen:
     softWrap: true
     width: 120
+  "atom-beautify":
+    general:
+      _analyticsUserId: "eb452ae5-d541-4293-b197-73f7e510cec0"
   core:
+    autoHideMenuBar: true
     disabledPackages: [
       "language-gfm"
+      "ex-mode"
     ]
+    restorePreviousWindowsOnStart: "no"
     telemetryConsent: "limited"
     themes: [
       "one-dark-ui"
       "tomorrow-night-eighties-syntax"
     ]
   editor:
-    fontFamily: "Droid Sans Mono for Powerline"
-    fontSize: 15
+    fontFamily: "Ubuntu Mono"
+    fontSize: 21
     showIndentGuide: true
   "exception-reporting":
     userId: "d67c3d74-5ada-b694-0496-2eafea75c91d"
@@ -27,5 +33,12 @@
     prettierOptions:
       printWidth: 120
       singleQuote: true
+  "proto-repl": {}
   welcome:
     showOnStartup: false
+".clojure.source":
+  editor:
+    autoIndent: false
+    autoIndentOnPaste: false
+    nonWordCharacters: "()\"':,;~@#$%^&{}[]`"
+    tabType: "soft"

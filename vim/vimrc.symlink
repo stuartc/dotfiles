@@ -5,7 +5,7 @@ filetype off                   " required!
 
 set encoding=utf-8
 " Might not need this, if the env correctly sets $TERM
-"set t_Co=256
+" set t_Co=256
 
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
@@ -19,6 +19,8 @@ Plugin 'editorconfig/editorconfig-vim'
 
 " Plugin 'kristijanhusak/vim-hybrid-material'
 Plugin 'chriskempson/tomorrow-theme', {'rtp': 'vim/'}
+" Plugin 'kaicataldo/material.vim'
+" Plugin 'tjammer/blayu.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'shime/vim-livedown'
@@ -52,6 +54,14 @@ let g:mustache_abbreviations = 1
 " Elixir
 Plugin 'elixir-lang/vim-elixir'
 Plugin 'slashmili/alchemist.vim'
+
+" Clojure
+Plugin 'guns/vim-sexp'
+Plugin 'guns/vim-clojure-static'
+Plugin 'bhurlow/vim-parinfer'
+Plugin 'tpope/vim-fireplace'
+Plugin 'venantius/vim-cljfmt'
+" Plugin 'tpope/vim-salve'
 
 " SQL
 Plugin 'exu/pgsql.vim'
@@ -92,9 +102,11 @@ Plugin 'junegunn/limelight.vim'
 
 call vundle#end()
 
+colorscheme Tomorrow-Night-Eighties
+
 " Pretty line
 set laststatus=2
-" let g:airline_theme='molokai'
+" let g:airline_theme='material'
 let g:airline_powerline_fonts=1  
 
 " Do JSX formatting for .js files as well.
@@ -129,8 +141,6 @@ let g:ag_prg='ag -S --nocolor --nogroup --column
 
 syntax enable
 filetype plugin indent on     " required!
-
-colorscheme Tomorrow-Night-Eighties
 
 " Vim Notes
 let g:notes_directories = ['~/Dropbox (Personal)/Journals']
@@ -237,3 +247,5 @@ set guifont=Droid\ Sans\ Mono\ for\ Powerline:h14
 " and native window tab bar
 " So no eLr etc.
 set guioptions=gm
+
+
