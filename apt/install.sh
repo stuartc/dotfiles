@@ -17,6 +17,7 @@ sudo add-apt-repository \
    stable"
 
 # $(lsb_release -cs) replace bionic on CE 19.0 release
+# sudo apt-add-repository --yes --update ppa:ansible/ansible
 
 last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
 now=$(date +%s)
@@ -37,7 +38,8 @@ sudo apt-get install \
   vim \
   docker-ce \
   docker-ce-cli \
-  containerd.io
+  containerd.io \
+  ansible
 
 
 sudo chsh -s /usr/bin/zsh $USER
@@ -76,8 +78,9 @@ if [ ! $(which pipenv) ]; then
   pip install --user pipenv poetry
 fi
 
-# mkdir -p ~/.config/Code/User
-# ln -s $ZSH/VSCode/settings.json ~/.config/Code/User/settings.json
-# ln -s $ZSH/VSCode/keybindings.json ~/.config/Code/User/keybindings.json
-# ln -s $ZSH/VSCode/snippets ~/.config/Code/User/snippets
+mkdir -p ~/.config/Code/User
+
+ln -sf $ZSH/vscode/settings.json ~/.config/Code/User/settings.json
+# ln -s $ZSH/vscode/keybindings.json ~/.config/Code/User/keybindings.json
+#ln -s $ZSH/vscode/snippets ~/.config/Code/User/snippets
 

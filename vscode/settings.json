@@ -69,5 +69,6 @@
   "files.watcherExclude": {
     "**/deps/**": true
   },
-  "workbench.activityBar.visible": false
+  "workbench.activityBar.visible": false,
+  "window.menuBarVisibility": "toggle"
 }
