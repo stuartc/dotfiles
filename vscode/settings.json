@@ -1,0 +1,73 @@
+{
+  "window.titleBarStyle": "custom",
+  "editor.rulers": [80, 120],
+  "vim.easymotion": true,
+  "vim.sneak": true,
+  "vim.incsearch": true,
+  "vim.useSystemClipboard": true,
+  "vim.useCtrlKeys": true,
+  "vim.hlsearch": true,
+  "vim.insertModeKeyBindings": [
+    {
+      "before": [
+        "j",
+        "j"
+      ],
+      "after": [
+        "<Esc>"
+      ]
+    }
+  ],
+  "vim.normalModeKeyBindingsNonRecursive": [
+    {
+      "before": [
+        "<leader>",
+        "d"
+      ],
+      "after": [
+        "d",
+        "d"
+      ]
+    },
+    {
+      "before": [
+        "<C-n>"
+      ],
+      "commands": [
+        ":nohl"
+      ]
+    },
+    {
+      "before": [
+        "Z",
+        "Z"
+      ],
+      "commands": [
+        ":wq"
+      ]
+    },
+    {
+      "before": [
+        "leader",
+        "n"
+      ],
+      "commands": [
+        ":nohl",
+      ]
+    }
+  ],
+  "vim.handleKeys": {
+    "<C-a>": false,
+    "<C-b>": false,
+    "<C-f>": false
+  },
+  "window.zoomLevel": 1,
+  "editor.minimap.enabled": false,
+  "explorer.confirmDragAndDrop": false,
+  "editor.acceptSuggestionOnEnter": "smart",
+  "prettier.printWidth": 120,
+  "files.watcherExclude": {
+    "**/deps/**": true
+  },
+  "workbench.activityBar.visible": false
+}
