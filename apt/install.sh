@@ -2,7 +2,21 @@
 set -e
 source ~/.zshrc && true
 
-sudo chsh -s /usr/bin/zsh $USER
+sudo apt-get install -y \
+  apt-transport-https \
+  ca-certificates \
+  curl \
+  gnupg-agent \
+  software-properties-common
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   bionic \
+   stable"
+
+# $(lsb_release -cs) replace bionic on CE 19.0 release
 
 last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
 now=$(date +%s)
@@ -18,11 +32,15 @@ sudo apt-get install \
   coreutils \
   silversearcher-ag \
   tmux \
-  curl \
   python3-distutils \
   python3 \
-  vim
+  vim \
+  docker-ce \
+  docker-ce-cli \
+  containerd.io
 
+
+sudo chsh -s /usr/bin/zsh $USER
 
 #   erlang \
 #   kubernetes-cli \
@@ -42,7 +60,11 @@ echo "Installing NVM"
   git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`
 ) && \. "$NVM_DIR/nvm.sh"
 
-
+[ ! -d ~/.rbenv ] && git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+[ ! -d ~/.rbenv/plugins ] && (
+  mkdir -p "$(rbenv root)"/plugins
+  git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
+)
 
 if [ ! $(which pip) ]; then
   echo "Installing PIP"
@@ -50,4 +72,12 @@ if [ ! $(which pip) ]; then
   python3 /tmp/get-pip.py --user
 fi
 
-pip install --user pipenv poetry
+if [ ! $(which pipenv) ]; then
+  pip install --user pipenv poetry
+fi
+
+# mkdir -p ~/.config/Code/User
+# ln -s $ZSH/VSCode/settings.json ~/.config/Code/User/settings.json
+# ln -s $ZSH/VSCode/keybindings.json ~/.config/Code/User/keybindings.json
+# ln -s $ZSH/VSCode/snippets ~/.config/Code/User/snippets
+
