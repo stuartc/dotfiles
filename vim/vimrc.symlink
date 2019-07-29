@@ -56,12 +56,18 @@ Plugin 'elixir-lang/vim-elixir'
 Plugin 'slashmili/alchemist.vim'
 
 " Clojure
-Plugin 'guns/vim-sexp'
-Plugin 'guns/vim-clojure-static'
-Plugin 'bhurlow/vim-parinfer'
-Plugin 'tpope/vim-fireplace'
-Plugin 'venantius/vim-cljfmt'
+" Plugin 'guns/vim-sexp'
+" Plugin 'guns/vim-clojure-static'
+" Plugin 'bhurlow/vim-parinfer'
+" Plugin 'tpope/vim-fireplace'
+" Plugin 'venantius/vim-cljfmt'
 " Plugin 'tpope/vim-salve'
+
+" Python
+Plugin 'python/black'
+
+" Terraform
+Plugin 'hashivim/vim-terraform'
 
 " SQL
 Plugin 'exu/pgsql.vim'
@@ -139,6 +145,7 @@ let g:ag_prg='ag -S --nocolor --nogroup --column
       \ --ignore doc 
       \ --ignore "./public/stylesheets/*"'
 
+let python_highlight_all=1
 syntax enable
 filetype plugin indent on     " required!
 

@@ -69,6 +69,24 @@
   "files.watcherExclude": {
     "**/deps/**": true
   },
-  "workbench.activityBar.visible": false,
-  "window.menuBarVisibility": "toggle"
+  "workbench.activityBar.visible": true,
+  "window.menuBarVisibility": "hidden",
+  "workbench.statusBar.visible": true,
+  "[python]": {},
+  "python.formatting.provider": "black",
+  "editor.formatOnSave": true,
+  "python.dataScience.sendSelectionToInteractiveWindow": true,
+  "editor.fontFamily": "'Ubuntu Mono derivative Powerline', 'monospace', monospace, 'Droid Sans Fallback'",
+  "editor.fontSize": 16,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "python.dataScience.askForKernelRestart": false,
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "python.analysis.logLevel": "Warning",
+  "python.autoComplete.addBrackets": true,
+  "python.jediEnabled": false,
+  "python.venvPath": "~/.cache/pypoetry/virtualenvs"
 }
