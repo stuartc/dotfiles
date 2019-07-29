@@ -28,14 +28,18 @@ fi
 sudo apt-get install \
   git \
   zsh \
+  nfs-common cifs-utils \
   build-essential \
+  autoconf automake libtool pkg-config \
   grc \
   coreutils \
   silversearcher-ag \
   tmux \
   python3-distutils \
+  python3-dev \
   python3 \
   vim \
+  exuberant-ctags \
   docker-ce \
   docker-ce-cli \
   containerd.io \
