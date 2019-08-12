@@ -31,6 +31,7 @@ sudo apt-get install \
   nfs-common cifs-utils \
   build-essential \
   autoconf automake libtool pkg-config \
+  xsel \
   grc \
   coreutils \
   silversearcher-ag \

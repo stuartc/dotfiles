@@ -82,6 +82,7 @@ Plugin 'mutewinter/taskpaper.vim'
 " Other
 " =====
 Plugin 'vim-syntastic/syntastic'
+let g:syntastic_python_pylint_exec = 'python3 -m pylint'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'taglist.vim'
 Plugin 'jeetsukumaran/vim-buffergator'
