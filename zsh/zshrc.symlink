@@ -1,5 +1,3 @@
-skip_global_compinit=1
-
 # shortcut to this dotfiles path is $ZSH
 export ZSH=$HOME/.dotfiles
 
@@ -30,7 +28,8 @@ do
 done
 
 # initialize autocomplete here, otherwise functions won't be loaded
-# autoload -U compinit
+autoload -U compinit
+compinit
 
 # load every completion after autocomplete loads
 for file in ${(M)config_files:#*/completion.zsh}
@@ -39,5 +38,14 @@ do
 done
 
 unset config_files
+
+# Better history
+# # Credits to https://coderwall.com/p/jpj_6q/zsh-better-history-searching-with-arrow-keys
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey "^[[A" up-line-or-beginning-search # Up
+bindkey "^[[B" down-line-or-beginning-search # Down"]]]]"
 
 export PATH="$HOME/.local/bin:/usr/local/heroku/bin:$HOME/.yarn/bin:$PATH"
