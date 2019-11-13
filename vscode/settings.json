@@ -1,6 +1,5 @@
 {
   "window.titleBarStyle": "custom",
-  "editor.rulers": [80, 120],
   "vim.easymotion": true,
   "vim.sneak": true,
   "vim.incsearch": true,
@@ -52,7 +51,7 @@
         "n"
       ],
       "commands": [
-        ":nohl",
+        ":nohl"
       ]
     }
   ],
@@ -63,8 +62,17 @@
   },
   "window.zoomLevel": 1,
   "editor.minimap.enabled": false,
-  "explorer.confirmDragAndDrop": false,
   "editor.acceptSuggestionOnEnter": "smart",
+  "editor.formatOnSave": true,
+  "editor.fontFamily": "'Ubuntu Mono derivative Powerline', 'monospace', monospace, 'Droid Sans Fallback'",
+  "editor.fontSize": 16,
+  "editor.suggest.localityBonus": true,
+  "editor.snippetSuggestions": "bottom",
+  "editor.rulers": [
+    80,
+    120
+  ],
+  "explorer.confirmDragAndDrop": false,
   "prettier.printWidth": 120,
   "files.watcherExclude": {
     "**/deps/**": true
@@ -74,10 +82,7 @@
   "workbench.statusBar.visible": true,
   "[python]": {},
   "python.formatting.provider": "black",
-  "editor.formatOnSave": true,
   "python.dataScience.sendSelectionToInteractiveWindow": true,
-  "editor.fontFamily": "'Ubuntu Mono derivative Powerline', 'monospace', monospace, 'Droid Sans Fallback'",
-  "editor.fontSize": 16,
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -88,5 +93,20 @@
   "python.analysis.logLevel": "Warning",
   "python.autoComplete.addBrackets": true,
   "python.jediEnabled": false,
-  "python.venvPath": "~/.cache/pypoetry/virtualenvs"
+  "python.venvPath": "~/.cache/pypoetry/virtualenvs",
+  "terraform.indexing": {
+    "enabled": false,
+    "liveIndexing": false,
+    "delay": 500,
+    "exclude": [
+      ".terraform/**/*",
+      "**/.terraform/**/*"
+    ]
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+  "workbench.colorTheme": "Visual Studio Dark",
+  "workbench.enableExperiments": false,
+  "git.ignoreMissingGitWarning": true
 }
