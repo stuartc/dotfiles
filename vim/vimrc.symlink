@@ -26,7 +26,7 @@ Plugin 'plasticboy/vim-markdown'
 Plugin 'shime/vim-livedown'
 Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/nerdcommenter'
-Plugin 'kien/ctrlp.vim'
+Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'FelikZ/ctrlp-py-matcher'
 Plugin 'tpope/vim-endwise'
 
@@ -64,7 +64,8 @@ Plugin 'slashmili/alchemist.vim'
 " Plugin 'tpope/vim-salve'
 
 " Python
-Plugin 'python/black'
+Plugin 'dimbleby/black.vim'
+Plugin 'davidhalter/jedi-vim'
 
 " Terraform
 Plugin 'hashivim/vim-terraform'
@@ -86,7 +87,7 @@ let g:syntastic_python_pylint_exec = 'python3 -m pylint'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'taglist.vim'
 Plugin 'jeetsukumaran/vim-buffergator'
-Plugin 'rking/ag.vim'
+Plugin 'mileszs/ack.vim'
 
 " Auto completeness
 Plugin 'MarcWeber/vim-addon-mw-utils'
@@ -137,7 +138,8 @@ let g:ctrlp_user_command = 'ag %s -i -l --nocolor --nogroup --hidden
   \ --ignore="**/*.beam"
   \ -g ""'
 
-let g:ag_prg='ag -S --nocolor --nogroup --column
+if executable('ag')
+  let g:ackprg = 'ag -S --vimgrep --nocolor --nogroup --column
       \ --ignore "**/*.beam" 
       \ --ignore .swp
       \ --ignore .swo
@@ -145,6 +147,7 @@ let g:ag_prg='ag -S --nocolor --nogroup --column
       \ --ignore dist 
       \ --ignore doc 
       \ --ignore "./public/stylesheets/*"'
+endif
 
 let python_highlight_all=1
 syntax enable
@@ -197,6 +200,13 @@ let g:syntastic_check_on_wq = 0
 set tags=./.tags,.tags
 nnoremap <leader>. :CtrlPTag<cr>
 
+cnoreabbrev Ack Ack!
+nnoremap <Leader>ag :Ack!<Space>
+
+" map gn :bn<cr>
+" map gp :bp<cr>
+" map gd :bd<cr> 
+
 " Create the parent path for a new file.
 " :e spec/models/namespace/obj_spec.rb
 " <leader>mkpd => `mkdir -p spec/models/namespace`
@@ -211,6 +221,7 @@ map <leader>hs <Esc>:set hlsearch!<CR>
 
 " Nerdtree should open even if no file was specified
 " autocmd vimenter * if !argc() | NERDTree | endif
+let g:jedi#usages_command = "<leader>u"
 map <leader>n :NERDTreeToggle<CR>
 
 " Git/Fugitive
@@ -223,9 +234,6 @@ nmap <Leader>hu <Plug>GitGutterRevertHunk
 
 nmap <Leader>rp :ClearAllCtrlPCaches<CR>
 
-" Ag
-map <leader>ag :Ag 
-
 map <leader>R! :so $MYVIMRC<CR>
 
 " Avoid using Esc
@@ -237,12 +245,26 @@ noremap <Down> <NOP>
 noremap <Left> <NOP>
 noremap <Right> <NOP>
 
+set clipboard=unnamed
+
+" " Copy to clipboard
+vnoremap  <leader>y  "+y
+nnoremap  <leader>Y  "+yg_
+nnoremap  <leader>y  "+y
+nnoremap  <leader>yy  "+yy
+
+" " Paste from clipboard
+nnoremap <leader>p "+p
+nnoremap <leader>P "+P
+vnoremap <leader>p "+p
+vnoremap <leader>P "+P
+
 " Ctrl-j/k deletes blank line below/above, and Alt-j/k inserts.
 " http://vim.wikia.com/wiki/Quickly_adding_and_deleting_empty_lines
 nnoremap <silent><C-j> m`:silent +g/\m^\s*$/d<CR>``:noh<CR>
 nnoremap <silent><C-k> m`:silent -g/\m^\s*$/d<CR>``:noh<CR>
 nnoremap <silent><A-j> :set paste<CR>m`o<Esc>``:set nopaste<CR>
-nnoremap <silent>∆ :set paste<CR>m`o<Esc>``:set nopaste<CR>
+nnoremap <silent><A-k> :set paste<CR>m`o<Esc>``:set nopaste<CR>
 nnoremap <silent>˚ :set paste<CR>m`O<Esc>``:set nopaste<CR>
 
 " Read .vimrc from the current directory

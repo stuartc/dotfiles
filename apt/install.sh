@@ -26,25 +26,40 @@ if [ $((now - last_update)) -gt 3600 ]; then
 fi
 
 sudo apt-get install \
-  git \
-  zsh \
-  nfs-common cifs-utils \
+  ansible \
+  autoconf \
+  automake \
   build-essential \
-  autoconf automake libtool pkg-config \
-  xsel \
-  grc \
+  containerd.io \
   coreutils \
-  silversearcher-ag \
-  tmux \
-  python3-distutils \
-  python3-dev \
-  python3 \
-  vim \
-  exuberant-ctags \
+  curl \
   docker-ce \
   docker-ce-cli \
-  containerd.io \
-  ansible
+  exuberant-ctags \
+  git \
+  grc \
+  libbz2-dev \
+  libffi-dev \
+  libncurses-dev \
+  libreadline-dev \
+  libsqlite3-dev \
+  libssl-dev \
+  libtool
+  libtool \
+  libxslt-dev \
+  libyaml-dev \
+  nfs-common cifs-utils \
+  pkg-config \
+  python3 \
+  python3-dev \
+  python3-distutils \
+  silversearcher-ag \
+  tmux \
+  unixodbc-dev \
+  unzip
+  vim \
+  xsel \
+  zsh
 
 
 sudo chsh -s /usr/bin/zsh $USER
@@ -57,31 +72,8 @@ sudo chsh -s /usr/bin/zsh $USER
 #   heroku \
 #   exenv \
 #   elixir-build
-
-echo "Installing NVM"
-[ ! -d ~/.nvm ] && git clone https://github.com/nvm-sh/nvm.git ~/.nvm
-
-(
-  cd "$NVM_DIR"
-  git fetch --tags origin
-  git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`
-) && \. "$NVM_DIR/nvm.sh"
-
-[ ! -d ~/.rbenv ] && git clone https://github.com/rbenv/rbenv.git ~/.rbenv
-[ ! -d ~/.rbenv/plugins ] && (
-  mkdir -p "$(rbenv root)"/plugins
-  git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
-)
-
-if [ ! $(which pip) ]; then
-  echo "Installing PIP"
-  curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
-  python3 /tmp/get-pip.py --user
-fi
-
-if [ ! $(which pipenv) ]; then
-  pip install --user pipenv poetry
-fi
+echo "Installing asdf"
+[ ! -d ~/.nvm ] && git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.6
 
 mkdir -p ~/.config/Code/User
 

@@ -60,28 +60,24 @@
     "<C-b>": false,
     "<C-f>": false
   },
-  "window.zoomLevel": 1,
+  "window.zoomLevel": 0,
   "editor.minimap.enabled": false,
   "editor.acceptSuggestionOnEnter": "smart",
-  "editor.formatOnSave": true,
   "editor.fontFamily": "'Ubuntu Mono derivative Powerline', 'monospace', monospace, 'Droid Sans Fallback'",
   "editor.fontSize": 16,
   "editor.suggest.localityBonus": true,
-  "editor.snippetSuggestions": "bottom",
   "editor.rulers": [
     80,
     120
   ],
   "explorer.confirmDragAndDrop": false,
-  "prettier.printWidth": 120,
+  "prettier.printWidth": 81,
   "files.watcherExclude": {
     "**/deps/**": true
   },
   "workbench.activityBar.visible": true,
   "window.menuBarVisibility": "hidden",
   "workbench.statusBar.visible": true,
-  "[python]": {},
-  "python.formatting.provider": "black",
   "python.dataScience.sendSelectionToInteractiveWindow": true,
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -106,7 +102,15 @@
   "[html]": {
     "editor.defaultFormatter": "vscode.html-language-features"
   },
-  "workbench.colorTheme": "Visual Studio Dark",
+  "workbench.colorTheme": "Monokai Pro",
   "workbench.enableExperiments": false,
-  "git.ignoreMissingGitWarning": true
+  "git.ignoreMissingGitWarning": true,
+  "workbench.iconTheme": "Monokai Pro Icons",
+  "editor.fontLigatures": false,
+  "[markdown]": {},
+  "ruby.format": "rubocop",
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "editor.formatOnSave": true,
 }
