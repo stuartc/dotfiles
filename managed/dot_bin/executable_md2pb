@@ -1,0 +1,338 @@
+#!/usr/bin/env bash
+
+# md2pb - Convert markdown to rich text format for Slack/Discord/etc
+#
+# DESCRIPTION:
+#   Converts markdown to both plain text and HTML formats, then places both on the
+#   macOS clipboard. This allows pasting rich formatted text into apps like Slack,
+#   Discord, or any app that accepts HTML clipboard data.
+#
+# USAGE:
+#   md2pb [FILE]
+#   echo "**bold text**" | md2pb
+#   md2pb README.md
+#
+# REQUIREMENTS:
+#   - macOS (uses osascript and pbcopy)
+#   - pandoc (brew install pandoc)
+#
+# EXAMPLES:
+#   # From stdin
+#   echo "# Header\n**Bold** and *italic* text" | md2pb
+#
+#   # From file
+#   md2pb my-notes.md
+#
+#   # With llm tool
+#   llm logs -n 1 -r | md2pb
+#
+# AUTHOR: Stuart Corbishley
+# DATE: 2025-06-26
+
+set -euo pipefail
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_error() {
+  echo -e "${RED}❌ Error: $1${NC}" >&2
+}
+
+print_success() {
+  echo -e "${GREEN}✅ $1${NC}"
+}
+
+print_warning() {
+  echo -e "${YELLOW}⚠️  Warning: $1${NC}"
+}
+
+print_info() {
+  echo -e "$1"
+}
+
+# Check if we're on macOS
+check_macos() {
+  if [[ "$OSTYPE" != "darwin"* ]]; then
+    print_error "This script requires macOS (uses osascript and pbcopy)"
+    print_info "Current OS: $OSTYPE"
+    exit 1
+  fi
+}
+
+# Check if pandoc is installed
+check_pandoc() {
+  if ! command -v pandoc &>/dev/null; then
+    print_error "pandoc is required but not installed"
+    print_info ""
+    print_info "Install with:"
+    print_info "  brew install pandoc"
+    print_info ""
+    print_info "Or visit: https://pandoc.org/installing.html"
+    exit 1
+  fi
+}
+
+# Show usage
+show_usage() {
+  echo "Usage: md2pb [OPTIONS] [FILE]"
+  echo ""
+  echo "Convert markdown to rich text format for clipboard"
+  echo ""
+  echo "Options:"
+  echo "  --debug-html=FILE    Save HTML output to FILE for debugging"
+  echo "  --debug-text=FILE    Save plain text output to FILE for debugging"
+  echo "  --style=STYLE        Formatting style: slack (default), normal, or gdoc"
+  echo "  -h, --help          Show this help message"
+  echo ""
+  echo "Arguments:"
+  echo "  FILE    Markdown file to convert (optional, uses stdin if not provided)"
+  echo ""
+  echo "Examples:"
+  echo "  echo \"**bold text**\" | md2pb"
+  echo "  md2pb README.md"
+  echo "  md2pb --style=normal README.md"
+  echo "  md2pb --style=gdoc README.md"
+  echo "  md2pb --debug-html=output.html --debug-text=output.txt README.md"
+  echo "  llm logs -n 1 -r | md2pb"
+}
+
+# Main conversion function
+convert_markdown_to_clipboard() {
+  local input_source="$1"
+  local debug_html_file="$2"
+  local debug_text_file="$3"
+  local style="$4"
+
+  local tmpdir=""
+  local tmphtml=""
+  local tmptext=""
+  local tmpfilter=""
+
+  # Cleanup function
+  cleanup() {
+    rm -rf "${tmpdir:-}"
+  }
+  trap cleanup EXIT
+
+  # Create temporary directory and files
+  tmpdir=$(mktemp -d /tmp/markdown-clipboard.XXXXXX)
+  tmphtml="$tmpdir/output.html"
+  tmptext="$tmpdir/output.txt"
+  tmpfilter="$tmpdir/filter.lua"
+  tmpgdocfilter="$tmpdir/gdoc-filter.lua"
+
+  # Create lua filter for Slack formatting
+  cat >"$tmpfilter" <<'EOF'
+function Header(elem)
+  -- Convert headers to bold text for Slack/Discord
+  local content = pandoc.utils.stringify(elem.content)
+  return {
+    pandoc.Para{pandoc.LineBreak()},
+    pandoc.Para{pandoc.Strong{pandoc.Str(content)}}
+  }
+end
+
+function Para(elem)
+  return {
+    pandoc.Para{pandoc.LineBreak()},
+    elem
+  }
+end
+EOF
+
+  # Create lua filter for Google Docs formatting
+  cat >"$tmpgdocfilter" <<'EOF'
+function Code(elem)
+  -- Convert inline code to regular span with monospace font
+  return pandoc.Span(elem.text, {style="font-family:monospace"})
+end
+
+function CodeBlock(elem)
+  -- Convert code blocks to regular div with monospace font and preserve whitespace
+  local content = elem.text
+  return pandoc.Div(pandoc.Para(pandoc.Str(content)), {style="font-family:monospace;white-space:pre-wrap"})
+end
+EOF
+
+  # Configure markdown format based on style
+  local markdown_extensions=(
+    "markdown"
+    "+lists_without_preceding_blankline"
+    "+strikeout"
+    "+autolink_bare_uris"
+    "+task_lists"
+    "-smart"
+  )
+  local markdown_format
+  markdown_format=$(
+    IFS=""
+    echo "${markdown_extensions[*]}"
+  )
+
+  local pandoc_html_args=()
+
+  if [[ "$style" == "slack" ]]; then
+    pandoc_html_args+=("--lua-filter=$tmpfilter")
+  elif [[ "$style" == "gdoc" ]]; then
+    # Apply code conversion filter for Google Docs compatibility
+    pandoc_html_args+=("--lua-filter=$tmpgdocfilter")
+  fi
+
+  pandoc_html_args+=("-t" "html" "--standalone" "--css" "data:text/css,body{font-size:inherit !important;} code,pre{font-size:inherit !important; color:inherit !important; background:inherit !important; font-weight:inherit !important;}")
+
+  # Convert to both formats
+  if [[ "$input_source" == "stdin" ]]; then
+    # Read from stdin
+    local content
+    content=$(cat)
+
+    if [[ -z "$content" ]]; then
+      print_error "No input provided"
+      exit 1
+    fi
+
+    echo "$content" | pandoc -f "$markdown_format" -t plain >"$tmptext"
+    echo "$content" | pandoc -f "$markdown_format" "${pandoc_html_args[@]}" >"$tmphtml"
+  else
+    # Read from file
+    if [[ ! -f "$input_source" ]]; then
+      print_error "File not found: $input_source"
+      exit 1
+    fi
+
+    if [[ ! -r "$input_source" ]]; then
+      print_error "Cannot read file: $input_source"
+      exit 1
+    fi
+
+    pandoc -f "$markdown_format" -t plain "$input_source" >"$tmptext"
+    pandoc -f "$markdown_format" "${pandoc_html_args[@]}" "$input_source" >"$tmphtml"
+  fi
+
+  # Set plain text version first (this is the key!)
+  if ! pbcopy <"$tmptext"; then
+    print_error "Failed to copy plain text to clipboard"
+    exit 1
+  fi
+
+  # Add HTML format to existing clipboard
+  if ! osascript \
+    -e "set htmlData to (read POSIX file \"$tmphtml\" as «class HTML»)" \
+    -e 'set currentClip to the clipboard as record' \
+    -e 'set the clipboard to (currentClip & {«class HTML»:htmlData})' \
+    2>/dev/null; then
+    print_error "Failed to add HTML format to clipboard"
+    exit 1
+  fi
+
+  # Save HTML to debug file if requested
+  if [[ -n "$debug_html_file" ]]; then
+    if cp "$tmphtml" "$debug_html_file"; then
+      print_info "🐛 HTML debug output saved to: $debug_html_file"
+    else
+      print_warning "Failed to save HTML debug output to: $debug_html_file"
+    fi
+  fi
+
+  # Save plain text to debug file if requested
+  if [[ -n "$debug_text_file" ]]; then
+    if cp "$tmptext" "$debug_text_file"; then
+      print_info "🐛 Plain text debug output saved to: $debug_text_file"
+    else
+      print_warning "Failed to save plain text debug output to: $debug_text_file"
+    fi
+  fi
+
+  # Show success message with preview
+  local line_count word_count
+  line_count=$(wc -l <"$tmptext" | tr -d ' ')
+  word_count=$(wc -w <"$tmptext" | tr -d ' ')
+
+  print_success "Markdown converted and copied to clipboard"
+  print_info "📊 Stats: $line_count lines, $word_count words"
+  print_info "📋 Ready to paste into Slack, Discord, or other rich text apps"
+}
+
+# Main script logic
+main() {
+  local debug_html_file=""
+  local debug_text_file=""
+  local input_file=""
+  local style="slack"
+
+  # Parse command line arguments
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+    -h | --help | help)
+      show_usage
+      exit 0
+      ;;
+    --debug-html=*)
+      debug_html_file="${1#*=}"
+      if [[ -z "$debug_html_file" ]]; then
+        print_error "--debug-html requires a filename"
+        exit 1
+      fi
+      shift
+      ;;
+    --debug-text=*)
+      debug_text_file="${1#*=}"
+      if [[ -z "$debug_text_file" ]]; then
+        print_error "--debug-text requires a filename"
+        exit 1
+      fi
+      shift
+      ;;
+    --style=*)
+      style="${1#*=}"
+      if [[ "$style" != "slack" && "$style" != "normal" && "$style" != "gdoc" ]]; then
+        print_error "Style must be 'slack', 'normal', or 'gdoc', got: $style"
+        exit 1
+      fi
+      shift
+      ;;
+    -*)
+      print_error "Unknown option: $1"
+      echo ""
+      show_usage
+      exit 1
+      ;;
+    *)
+      if [[ -n "$input_file" ]]; then
+        print_error "Too many input files specified"
+        echo ""
+        show_usage
+        exit 1
+      fi
+      input_file="$1"
+      shift
+      ;;
+    esac
+  done
+
+  # Check system requirements
+  check_macos
+  check_pandoc
+
+  # Determine input source
+  if [[ -z "$input_file" ]]; then
+    # No input file, check if stdin has data
+    if [[ -t 0 ]]; then
+      print_error "No input provided"
+      echo ""
+      show_usage
+      exit 1
+    fi
+    convert_markdown_to_clipboard "stdin" "$debug_html_file" "$debug_text_file" "$style"
+  else
+    # Input file specified
+    convert_markdown_to_clipboard "$input_file" "$debug_html_file" "$debug_text_file" "$style"
+  fi
+}
+
+# Run main function with all arguments
+main "$@"

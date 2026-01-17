@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 FILE.pdf"
+  exit 2
+fi
+
+file="$1"
+if [ ! -f "$file" ]; then
+  echo "File not found: $file" >&2
+  exit 2
+fi
+
+# Ask for password (hidden)
+read -rsp "Password for $file: " pw
+echo
+
+# Temporary output
+tmp="$(mktemp "${file}.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
+
+# Use qpdf: --password='PROMPT' would prompt interactively, but we already have the pw
+# qpdf exits with 3 for warnings (which are OK), 2 for errors
+set +e
+qpdf --password="$pw" --decrypt "$file" "$tmp"
+exit_code=$?
+set -e
+
+if [ $exit_code -eq 2 ]; then
+  echo "qpdf failed with errors" >&2
+  exit 2
+elif [ $exit_code -ne 0 ] && [ $exit_code -ne 3 ]; then
+  echo "qpdf failed with unexpected exit code: $exit_code" >&2
+  exit $exit_code
+fi
+
+# optional: keep a backup instead of replacing
+# cp -a "$file" "${file}.bak"
+
+# atomic replace
+mv -f "$tmp" "$file"
+trap - EXIT
+echo "Replaced $file with decrypted version."

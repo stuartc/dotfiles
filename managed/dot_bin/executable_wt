@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+exec $PROJECTS/wt/dist/wt-macos-arm64 $@

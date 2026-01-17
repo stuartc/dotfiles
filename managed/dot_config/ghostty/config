@@ -1,0 +1,8 @@
+font-family = "FiraCode Nerd Font Mono Ret"
+cursor-style = block
+shell-integration-features = no-cursor
+theme = "Catppuccin Macchiato"
+font-size = 15
+
+unfocused-split-opacity = 1
+macos-option-as-alt = true

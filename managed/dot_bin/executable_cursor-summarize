@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+#
+# cursor-summarize - Generate comprehensive summaries of Cursor AI chat exports
+#
+# DESCRIPTION:
+#   This script analyzes Cursor AI chat export files (.txt format) and generates
+#   detailed technical summaries using Claude 4 Sonnet. It includes intelligent
+#   caching to avoid reprocessing identical files, saving both time and API costs.
+#
+# USAGE:
+#   cursor-summarize <cursor_chat_export.txt>
+#
+# FEATURES:
+#   - Comprehensive analysis of technical conversations
+#   - Intelligent caching based on file content hash
+#   - Token usage reporting
+#   - Clean output suitable for piping to files
+#   - Status messages to stderr (won't interfere with piped output)
+#
+# REQUIREMENTS:
+#   - llm CLI tool (install with: uv add llm)
+#   - llm-anthropic plugin (install with: llm install llm-anthropic)
+#   - jq for JSON processing
+#   - shasum for file hashing
+#   - Anthropic API key configured (llm keys set anthropic)
+#
+# EXAMPLES:
+#   # Basic usage
+#   cursor-summarize my_chat_export.txt
+#
+#   # Save to file
+#   cursor-summarize my_chat_export.txt > summary.md
+#
+#   # View token usage in terminal while saving output
+#   cursor-summarize my_chat_export.txt > summary.md
+#   # Token usage appears on stderr, so it shows in terminal
+#
+# CACHING:
+#   The script automatically caches results based on file content. If you run
+#   the same file again (even with a different filename), it will return the
+#   cached result instantly without consuming API tokens.
+#
+
+set -euo pipefail
+
+# System prompt for the LLM
+SYSTEM_PROMPT=$(
+  cat <<EOF
+You are a technical lead reviewing a development session transcript. 
+Today's date is $(date +%Y-%m-%d).
+
+You provide clear, well-structured analysis that helps teams understand what 
+happened during development sessions. Use proper markdown formatting for 
+readability, including headers, bullet points, and code blocks where 
+appropriate. Be thorough but concise, focusing on actionable insights and 
+technical details that matter for future work.
+
+Your summaries should be professional yet accessible, helping both technical 
+and non-technical stakeholders understand the development progress and 
+outcomes.
+EOF
+)
+readonly SYSTEM_PROMPT
+
+# Main analysis prompt
+MAIN_PROMPT=$(
+  cat <<'EOF'
+Analyze this Cursor chat export and create a detailed technical summary:
+
+**Session Overview:**
+- Duration and scope of the session
+- Primary objectives or problems being solved
+
+**Technical Details:**
+- Languages, frameworks, or tools involved
+- Key code changes or architectural decisions
+- Performance considerations or optimizations discussed
+
+**Outcomes:**
+- What was successfully implemented or fixed
+- Any new issues discovered
+- Next steps or recommendations
+
+**Knowledge Transfer:**
+- Important concepts or patterns that emerged
+- Lessons learned or best practices identified
+- Documentation or guides that should be created
+
+Keep the summary comprehensive but well-organized for future reference.
+EOF
+)
+readonly MAIN_PROMPT
+
+# Function to find cached conversation by file hash
+find_cached_conversation() {
+  local file_hash="$1"
+
+  llm logs list --json 2>/dev/null | jq -r \
+    --arg filehash "$file_hash" '
+    .[] 
+    | select(.prompt_fragments[]? | select(.hash? == $filehash)) 
+    | .conversation_id
+  ' 2>/dev/null | head -n1
+}
+
+# Function to get cached response
+get_cached_response() {
+  local conversation_id="$1"
+
+  llm logs list --cid "$conversation_id" --response 2>/dev/null
+}
+
+# Function to show token usage from latest log entry
+show_token_usage() {
+  local log_entry
+  log_entry=$(llm logs list -n 1 --json 2>/dev/null)
+
+  if [ -n "$log_entry" ]; then
+    local input_tokens output_tokens total_tokens
+    input_tokens=$(echo "$log_entry" | jq -r '.usage.input_tokens // "unknown"' 2>/dev/null)
+    output_tokens=$(echo "$log_entry" | jq -r '.usage.output_tokens // "unknown"' 2>/dev/null)
+    total_tokens=$(echo "$log_entry" | jq -r '.usage.total_tokens // "unknown"' 2>/dev/null)
+
+    if [ "$input_tokens" != "unknown" ] && [ "$output_tokens" != "unknown" ]; then
+      echo "Token usage: ${input_tokens} input + ${output_tokens} output = ${total_tokens} total" >&2
+    fi
+  fi
+}
+
+# Main script logic
+main() {
+  local chat_file="$1"
+
+  # Validate input
+  if [ -z "$chat_file" ]; then
+    echo "Usage: $0 <cursor_chat_export.txt>"
+    exit 1
+  fi
+
+  if [ ! -f "$chat_file" ]; then
+    echo "Error: File '$chat_file' not found"
+    exit 1
+  fi
+
+  # Generate file hash for caching
+  local file_hash
+  file_hash=$(shasum -a 256 "$chat_file" | cut -d' ' -f1)
+
+  # Check for cached analysis
+  local cached_conversation
+  cached_conversation=$(find_cached_conversation "$file_hash")
+
+  if [ -n "$cached_conversation" ]; then
+    echo "Found cached analysis (ID: $cached_conversation)" >&2
+    echo "Returning cached result..." >&2
+    echo ""
+
+    get_cached_response "$cached_conversation"
+
+    echo "" >&2
+    echo "Used cached result - no tokens consumed" >&2
+    return 0
+  fi
+
+  # No cache found, process with LLM
+  echo "Processing with LLM..." >&2
+
+  llm -m claude-4-sonnet -f "$chat_file" -s "$SYSTEM_PROMPT" "$MAIN_PROMPT"
+
+  show_token_usage
+}
+
+# Run main function with all arguments
+main "$@"

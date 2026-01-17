@@ -1,0 +1,75 @@
+#! /usr/bin/env bash
+set -e
+
+HOSTNAME=$(hostname -s)
+
+# Check if we're just exporting environment variables
+EXPORT_ONLY=false
+for arg in "$@"; do
+  if [ "$arg" = "export" ]; then
+    EXPORT_ONLY=true
+    break
+  fi
+done
+
+if [ "$EXPORT_ONLY" = false ]; then
+  EXCLUDE_FILE="$(mktemp)"
+
+  echo "Creating exclude file $EXCLUDE_FILE..."
+  cat <<EOF >"$EXCLUDE_FILE"
+.elixir_ls
+_build
+deps
+finance/metabase
+node_modules
+Photos\ Library.photoslibrary
+tmp
+.terraform
+priv/plts
+.venv
+__pycache__
+EOF
+fi
+
+export RESTIC_READ_CONCURRENCY=5
+export RESTIC_PACK_SIZE=64
+
+# Check if credentials are already available
+if [ -n "$RESTIC_REPOSITORY" ] && [ -n "$RESTIC_PASSWORD" ]; then
+  echo "RESTIC_REPOSITORY and RESTIC_PASSWORD already set, skipping credential retrieval from rbw"
+else
+  echo "Getting Backblaze B2 credentials..."
+  source <(rbw get backblaze.com --raw |
+    jq -r '.fields[] | "export \(.name)=\"\(.value)\""')
+fi
+
+# Check that RESTIC_[REPOSITORY|PASSWORD] and B2_ACCOUNT_[ID|KEY] are set
+for var in RESTIC_REPOSITORY RESTIC_PASSWORD B2_ACCOUNT_ID B2_ACCOUNT_KEY; do
+  eval "value=\$$var"
+  if [ -z "$value" ]; then
+    echo "Error: $var is not set"
+    exit 1
+  fi
+done
+
+if [ "$EXPORT_ONLY" = true ]; then
+  echo "Environment variables exported. You can now use restic commands directly."
+  echo "Note: You should source this script (e.g., 'source restic_backup export') for variables to persist in your shell."
+  return 0 2>/dev/null || exit 0
+fi
+
+# TODO backup .ssh directory?
+
+restic backup \
+  -H "$HOSTNAME" \
+  --exclude-file "$EXCLUDE_FILE" \
+  --limit-upload 10000 \
+  --compression max \
+  ~/Sourcecode \
+  ~/.local/share/chezmoi \
+  ~/.config \
+  ~/.private \
+  ~/.zsh_history \
+  ~/Documents \
+  ~/Pictures \
+  "$@"

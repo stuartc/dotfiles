@@ -1,0 +1,75 @@
+# Local/private config goes in the include
+[include]
+        path = ~/.gitconfig.local
+[hub]
+        protocol = https
+[alias]
+        co = checkout
+        st = status
+        br = branch
+        rbom = rebase origin/main
+        promote = !$ZSH/bin/git-promote
+        wtf     = !$ZSH/bin/git-wtf
+        rank-contributors = !$ZSH/bin/git-rank-contributors
+        count   = !git shortlog -sn
+[color]
+        diff = auto
+        status = auto
+        branch = auto
+        ui = true
+[core]
+        excludesfile = ~/.gitignore
+        editor = nvim
+[apply]
+        whitespace = nowarn
+[mergetool]
+        keepBackup = false
+[difftool]
+        prompt = false
+[help]
+        autocorrect = 1
+[push]
+        # Push current branch to remote branch with same name (default since Git 2.0)
+        default = simple
+        # Automatically setup remote tracking when pushing new branches
+        autoSetupRemote = true
+        # Push annotated tags when pushing commits
+        followTags = true
+[credential]
+        helper = osxkeychain
+[pull]
+        # Only allow fast-forward merges (prevents accidental merge commits)
+        ff = only
+        # Alternative: use 'rebase = true' if you prefer rebasing on pull
+[init]
+        defaultBranch = main
+[rebase]
+        instructionFormat = (%an <%ae>) %s
+        # Automatically stash/unstash when rebasing
+        autoStash = true
+        # Automatically handle fixup! and squash! commits during interactive rebase
+        autoSquash = true
+        # Update dependent branches when rebasing (Git 2.38+)
+        updateRefs = true
+[fetch]
+        # Remove deleted remote branches from local tracking
+        prune = true
+        # Also prune deleted tags
+        pruneTags = true
+[merge]
+        # Show original code + both changes in conflicts (clearer than diff3)
+        conflictStyle = zdiff3
+[diff]
+        # Better diff algorithm, especially for moved code
+        algorithm = histogram
+        # Highlight moved lines in diffs
+        colorMoved = default
+[rerere]
+        # Reuse recorded resolution - remember how you resolved conflicts
+        enabled = true
+[commit]
+        # Show diff in commit message editor
+        verbose = true
+[branch]
+        # Sort branches by most recently used
+        sort = -committerdate

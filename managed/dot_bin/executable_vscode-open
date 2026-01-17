@@ -1,0 +1,81 @@
+#!/bin/bash
+# Fast VS Code opener - switches to existing window or opens new one
+# Usage: vscode-open [--debug] <project-path> [project-name]
+
+DEBUG=false
+if [[ "$1" == "--debug" ]]; then
+    DEBUG=true
+    shift
+fi
+
+PROJECT_PATH="${1:-$PWD}"
+PROJECT_NAME="${2:-$(basename "$PROJECT_PATH")}"
+
+debug_log() {
+    if $DEBUG; then
+        local msg="[$(date +%s.%N)] $*"
+        echo "$msg" >&2
+        # Also log to file when called from environments without stderr (like Raycast)
+        # Enable with --debug flag (see RAYCAST.md)
+        echo "$msg" >> "$HOME/.vscode-open.log"
+    fi
+}
+
+time_diff() {
+    local start=$1
+    local end=$2
+    echo "scale=3; $end - $start" | bc
+}
+
+START_TIME=$(date +%s.%N)
+debug_log "START: vscode-open '$PROJECT_PATH' '$PROJECT_NAME'"
+
+# Fast path: if VS Code is running, try to find and activate the window
+debug_log "Checking if VS Code is running..."
+PGREP_START=$(date +%s.%N)
+if pgrep -f "Visual Studio Code.app" > /dev/null 2>&1; then
+    PGREP_END=$(date +%s.%N)
+    debug_log "✓ VS Code running ($(time_diff $PGREP_START $PGREP_END)s)"
+
+    debug_log "Attempting AppleScript window switch..."
+    APPLESCRIPT_START=$(date +%s.%N)
+    if osascript - "$PROJECT_NAME" 2>/dev/null <<'APPLESCRIPT'
+on run argv
+    set projectName to item 1 of argv
+    tell application "System Events"
+        tell process "Code"
+            set foundWindow to false
+            repeat with w in windows
+                if name of w contains projectName then
+                    perform action "AXRaise" of w
+                    set frontmost to true
+                    set foundWindow to true
+                    exit repeat
+                end if
+            end repeat
+            if not foundWindow then
+                error "Window not found"
+            end if
+        end tell
+    end tell
+end run
+APPLESCRIPT
+    then
+        APPLESCRIPT_END=$(date +%s.%N)
+        debug_log "✓ Window switched via AppleScript ($(time_diff $APPLESCRIPT_START $APPLESCRIPT_END)s)"
+        END_TIME=$(date +%s.%N)
+        debug_log "TOTAL: $(time_diff $START_TIME $END_TIME)s"
+        exit 0
+    else
+        APPLESCRIPT_END=$(date +%s.%N)
+        debug_log "✗ Window not found ($(time_diff $APPLESCRIPT_START $APPLESCRIPT_END)s)"
+    fi
+else
+    PGREP_END=$(date +%s.%N)
+    debug_log "✗ VS Code not running ($(time_diff $PGREP_START $PGREP_END)s)"
+fi
+
+# Fallback: open with code command
+debug_log "Falling back to 'code' command"
+CODE_START=$(date +%s.%N)
+exec code "$PROJECT_PATH"

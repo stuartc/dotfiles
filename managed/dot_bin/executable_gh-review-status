@@ -1,0 +1,383 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_NAME="gh-review-status"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/gh-review-status"
+CACHE_FILE="$CACHE_DIR/review-prs.json"
+LOCK_FILE="$CACHE_DIR/update.lock"
+CACHE_MAX_AGE=300  # 5 minutes
+
+# Colors for output
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[0;33m'
+readonly BLUE='\033[0;34m'
+readonly PURPLE='\033[0;35m'
+readonly CYAN='\033[0;36m'
+readonly GREY='\033[0;90m'
+readonly GREY_ITALIC='\033[3;90m'
+readonly NC='\033[0m' # No Color
+
+supports_hyperlinks() {
+    # Check for terminals known to support OSC 8 hyperlinks
+    case "${TERM_PROGRAM:-}" in
+        iTerm.app|vscode|WezTerm)
+            return 0
+            ;;
+    esac
+
+    case "${VTE_VERSION:-}" in
+        [5-9][0-9][0-9][0-9]*)  # VTE >= 5000 (GNOME Terminal, etc.)
+            return 0
+            ;;
+    esac
+
+    # Check for specific terminal emulators
+    if [[ -n "${KITTY_WINDOW_ID:-}" ]] || [[ -n "${ALACRITTY_SOCKET:-}" ]]; then
+        return 0
+    fi
+
+    return 1
+}
+
+usage() {
+    cat << EOF
+Usage: $SCRIPT_NAME [OPTIONS] [COMMAND]
+
+COMMANDS:
+    list        Show tabular output of PRs requesting review (default)
+    status      Show brief status for Starship prompt
+    update      Force update cache (background safe)
+
+OPTIONS:
+    -q, --quiet     Write JSON cache and exit (for background updates)
+    -h, --help      Show this help
+
+EXAMPLES:
+    $SCRIPT_NAME                    # Show table of PRs
+    $SCRIPT_NAME --quiet            # Update cache silently
+    $SCRIPT_NAME status             # Get Starship status
+    $SCRIPT_NAME update             # Force cache update
+
+Cache location: $CACHE_FILE
+EOF
+}
+
+log() {
+    echo "[$(date '+%H:%M:%S')] $*" >&2
+}
+
+ensure_cache_dir() {
+    mkdir -p "$CACHE_DIR"
+}
+
+is_cache_stale() {
+    if [[ ! -f "$CACHE_FILE" ]]; then
+        return 0  # No cache = stale
+    fi
+
+    local cache_age
+    cache_age=$(($(date +%s) - $(stat -f%m "$CACHE_FILE" 2>/dev/null || stat -c%Y "$CACHE_FILE" 2>/dev/null || echo 0)))
+    [[ $cache_age -gt $CACHE_MAX_AGE ]]
+}
+
+acquire_lock() {
+    local timeout=10
+    local count=0
+
+    while [[ -f "$LOCK_FILE" ]] && [[ $count -lt $timeout ]]; do
+        sleep 1
+        ((count++))
+    done
+
+    if [[ $count -ge $timeout ]]; then
+        log "Lock timeout, removing stale lock"
+        rm -f "$LOCK_FILE"
+    fi
+
+    echo $$ > "$LOCK_FILE"
+}
+
+release_lock() {
+    rm -f "$LOCK_FILE"
+}
+
+fetch_review_prs() {
+    local temp_file
+    temp_file=$(mktemp)
+
+    # Fetch PRs requesting our review with detailed JSON
+    if ! gh search prs \
+        --review-requested=@me \
+        --state=open \
+        --json="number,title,repository,url,createdAt,author,isDraft" \
+        --limit=50 > "$temp_file"; then
+        log "Failed to fetch PRs from GitHub"
+        rm -f "$temp_file"
+        return 1
+    fi
+
+    # Add timestamp and move to cache location
+    {
+        echo "{"
+        echo "  \"updated_at\": \"$(date -Iseconds)\","
+        echo "  \"prs\": $(cat "$temp_file")"
+        echo "}"
+    } > "$CACHE_FILE"
+
+    rm -f "$temp_file"
+    log "Cache updated with $(jq '.prs | length' "$CACHE_FILE") PRs"
+}
+
+update_cache() {
+    local quiet_mode=false
+    [[ "${1:-}" == "--quiet" ]] && quiet_mode=true
+
+    ensure_cache_dir
+
+    if ! $quiet_mode && ! is_cache_stale; then
+        return 0  # Cache is fresh
+    fi
+
+    if ! command -v gh >/dev/null 2>&1; then
+        log "Error: gh CLI not found"
+        return 1
+    fi
+
+    if ! gh auth status >/dev/null 2>&1; then
+        log "Error: Not authenticated with GitHub CLI"
+        return 1
+    fi
+
+    acquire_lock
+    trap release_lock EXIT
+
+    # Double-check staleness after acquiring lock
+    if ! $quiet_mode && ! is_cache_stale; then
+        return 0
+    fi
+
+    if $quiet_mode; then
+        log "Updating PR review cache..."
+    fi
+
+    fetch_review_prs
+}
+
+hyperlink() {
+    local text="$1"
+    local url="$2"
+    printf '\e]8;;%s\e\\%s\e]8;;\e\\' "$url" "$text"
+}
+
+humanize_time_ago() {
+    local created_date="$1"
+    local now=$(date +%s)
+    local created=$(date -d "$created_date" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$created_date" +%s 2>/dev/null || echo "$now")
+    local diff=$((now - created))
+
+    local days=$((diff / 86400))
+    local hours=$((diff / 3600))
+    local minutes=$((diff / 60))
+
+    if [[ $days -gt 0 ]]; then
+        if [[ $days -eq 1 ]]; then
+            echo "1 day ago"
+        else
+            echo "$days days ago"
+        fi
+    elif [[ $hours -gt 0 ]]; then
+        if [[ $hours -eq 1 ]]; then
+            echo "1 hour ago"
+        else
+            echo "$hours hours ago"
+        fi
+    elif [[ $minutes -gt 0 ]]; then
+        if [[ $minutes -eq 1 ]]; then
+            echo "1 minute ago"
+        else
+            echo "$minutes minutes ago"
+        fi
+    else
+        echo "just now"
+    fi
+}
+
+format_table() {
+    local data
+    if [[ ! -f "$CACHE_FILE" ]]; then
+        echo "No cached data available. Run with --quiet first to populate cache."
+        return 1
+    fi
+
+    data=$(jq -r '.prs[]' "$CACHE_FILE" 2>/dev/null) || {
+        echo "Invalid cache data"
+        return 1
+    }
+
+    if [[ $(echo "$data" | jq -s length) -eq 0 ]]; then
+        echo -e "${GREEN}🎉 No PRs waiting for your review!${NC}"
+        return 0
+    fi
+
+    echo -e "${CYAN}PRs requesting your review:${NC}"
+    echo ""
+
+    # Get terminal width for alignment
+    local term_width
+    term_width=$(tput cols 2>/dev/null || echo 80)
+
+    echo "$data" | jq -r '
+        .number as $num |
+        .repository.nameWithOwner as $repo |
+        .title as $title |
+        .url as $url |
+        .createdAt as $created |
+        .author.login as $author |
+        .isDraft as $draft |
+        ($created | strptime("%Y-%m-%dT%H:%M:%SZ") | strftime("%b %d")) as $date |
+        "\($repo)#\($num)|\($date)|\($created)|\($title)|\($url)|\($author)|\($draft)"
+    ' | while IFS='|' read -r repo_id date created_iso title url author is_draft; do
+        local time_ago
+        time_ago=$(humanize_time_ago "$created_iso")
+
+        # PR header with date on same line, right-aligned
+        # Calculate visible lengths (excluding color codes)
+        local date_visible="($time_ago) $date"
+        local repo_id_length=${#repo_id}
+        local date_length=${#date_visible}
+
+        # Calculate padding between PR ID and date
+        local spacing=$((term_width - repo_id_length - date_length))
+        if [[ $spacing -lt 2 ]]; then
+            spacing=2  # Minimum 2 spaces
+        fi
+
+        # Print PR ID, padding, then date
+        if supports_hyperlinks; then
+            printf '%b%s%b%*s%b(%s)%b %s\n' \
+                "$YELLOW" "$(hyperlink "$repo_id" "$url")" "$NC" \
+                "$spacing" "" \
+                "$GREY" "$time_ago" "$NC" "$date"
+        else
+            printf '%b%s%b%*s%b(%s)%b %s\n' \
+                "$YELLOW" "$repo_id" "$NC" \
+                "$spacing" "" \
+                "$GREY" "$time_ago" "$NC" "$date"
+        fi
+
+        # Title
+        printf '%s\n' "$title"
+
+        # Draft status (left) and Author (right) on same line
+        local draft_text=""
+        local draft_length=0
+        if [[ "$is_draft" == "true" ]]; then
+            draft_text="draft"
+            draft_length=${#draft_text}
+        fi
+
+        local author_text="by @${author}"
+        local author_length=${#author_text}
+
+        # Calculate padding between draft and author
+        local meta_padding=$((term_width - draft_length - author_length))
+        if [[ $meta_padding -lt 1 ]]; then
+            meta_padding=1
+        fi
+
+        if [[ -n "$draft_text" ]]; then
+            printf '%b%s%b%*s%b%s%b\n' \
+                "$GREY_ITALIC" "$draft_text" "$NC" \
+                "$meta_padding" "" \
+                "$PURPLE" "$author_text" "$NC"
+        else
+            printf '%*s%b%s%b\n' "$((term_width - author_length))" "" "$PURPLE" "$author_text" "$NC"
+        fi
+
+        # Only show URL if hyperlinks are not supported
+        if ! supports_hyperlinks; then
+            printf '%b%s%b\n' "$BLUE" "$url" "$NC"
+        fi
+
+        printf '\n'
+    done
+}
+
+get_status_line() {
+    ensure_cache_dir
+
+    if [[ ! -f "$CACHE_FILE" ]]; then
+        return 0  # No output if no cache
+    fi
+
+    local count
+    count=$(jq -r '.prs | length' "$CACHE_FILE" 2>/dev/null || echo "0")
+
+    if [[ "$count" == "0" ]]; then
+        return 0  # No output for zero PRs
+    fi
+
+    # Simple indicator for Starship
+    echo "PR:$count"
+}
+
+force_update() {
+    ensure_cache_dir
+    rm -f "$CACHE_FILE"  # Force stale
+    update_cache
+    echo "Cache force updated"
+}
+
+main() {
+    local quiet_mode=false
+    local command="list"
+
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -q|--quiet)
+                quiet_mode=true
+                shift
+                ;;
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            status|list|update)
+                command="$1"
+                shift
+                ;;
+            *)
+                echo "Unknown option: $1" >&2
+                usage >&2
+                exit 1
+                ;;
+        esac
+    done
+
+    if $quiet_mode; then
+        update_cache --quiet
+        return $?
+    fi
+
+    case "$command" in
+        list)
+            # Update cache if stale, then show table
+            update_cache
+            format_table
+            ;;
+        status)
+            # Only show status, don't update cache (performance critical)
+            get_status_line
+            ;;
+        update)
+            force_update
+            ;;
+    esac
+}
+
+# Handle background execution and errors gracefully
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

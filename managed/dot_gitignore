@@ -1,0 +1,7 @@
+# Global gitignore patterns for all repositories
+# This file is managed by chezmoi
+
+# Claude handoffs (typically not committed)
+# Can be overridden in individual repos with !.claude/handoffs/ in repo .gitignore
+# Or force-add specific files with: git add -f .claude/handoffs/file
+.claude/handoffs/

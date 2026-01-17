@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Strip trailing blank lines from a file (but keep all other content intact)
+strip_trailing_blank_lines() {
+  # Portable sed: delete trailing blank/whitespace-only lines
+  sed -e :a -e '/^[[:space:]]*$/{$d;N;ba' -e '}' "$1" 2>/dev/null || true
+}
+
+first=1
+for f in "$@"; do
+  [ -f "$f" ] || continue
+
+  # Exactly one blank line before headers for files after the first
+  if [ $first -eq 0 ]; then
+    echo
+  fi
+
+  echo "# $f"
+  # Print content with trailing blank lines removed.
+  # sed prints lines with a newline, so the content ends properly.
+  strip_trailing_blank_lines "$f"
+
+  first=0
+done

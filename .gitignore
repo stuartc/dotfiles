@@ -1,0 +1,5 @@
+# Local Claude Code config
+.claude/
+
+# Temporary test scripts
+test-*.sh

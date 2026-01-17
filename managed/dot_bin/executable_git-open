@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+open $(git remote get-url origin | sed -e 's/:/\//' -e 's/^git@/https:\/\//' -e 's/.git$//')
