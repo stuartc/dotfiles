@@ -7,6 +7,12 @@ if [[ -n $DOTFILES_DIR ]]; then
   fpath=($DOTFILES_DIR/functions $fpath)
   # Load all the functions
   autoload -U $DOTFILES_DIR/functions/*(:t)
+
+  # Per-project history - up arrow prioritizes commands from current project
+  # https://github.com/ivan-cukic/zsh-per-project-history
+  if [[ -f "$DOTFILES_DIR/plugins/per-project-history.plugin.zsh" ]]; then
+    source "$DOTFILES_DIR/plugins/per-project-history.plugin.zsh"
+  fi
 fi
 
 # Initialize completion system
@@ -117,7 +123,9 @@ source <(fzf --zsh)
 #   printf '\e[?1004l' 2>/dev/null
 # fi
 
-eval "$(zoxide init zsh)"
+if command -v zoxide &> /dev/null; then
+  eval "$(zoxide init zsh --cmd cd)"
+fi
 
 eval "$(starship init zsh)"
 
