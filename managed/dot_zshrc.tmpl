@@ -135,7 +135,7 @@ _tmux_wrappers_enabled() {
 
 if _tmux_wrappers_enabled; then
   # Default commands to wrap (can be overridden before this runs)
-  : ${TMUX_WRAP_COMMANDS:=(claude nvim)}
+  (( ${#TMUX_WRAP_COMMANDS[@]} )) || TMUX_WRAP_COMMANDS=(claude nvim)
 
   _tmux_wrap() {
     local cmd="$1"
