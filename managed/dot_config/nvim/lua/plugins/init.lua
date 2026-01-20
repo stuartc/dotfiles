@@ -89,19 +89,17 @@ return {
     opts = {},
   },
 
-  -- Claude Code IDE integration (uses native terminal, not snacks)
+  -- Claude Code IDE integration (external terminal via lock file discovery)
   {
     "coder/claudecode.nvim",
-    cmd = { "ClaudeCode", "ClaudeCodeOpen", "ClaudeCodeClose" },
+    event = "VeryLazy",  -- Load at startup for auto_start
     keys = {
-      { "<leader>cc", "<cmd>ClaudeCode<cr>", desc = "Claude toggle" },
-      { "<leader>co", "<cmd>ClaudeCodeOpen<cr>", desc = "Claude open" },
-      { "<leader>cx", "<cmd>ClaudeCodeClose<cr>", desc = "Claude close" },
       { "<leader>cs", mode = "v", "<cmd>ClaudeCodeSend<cr>", desc = "Claude send selection" },
     },
     opts = {
+      auto_start = true,  -- Start WebSocket server when Neovim launches
       terminal = {
-        provider = "native",
+        provider = "none",  -- Disable Neovim terminal; use external terminal (iTerm2, tmux)
       },
     },
   },
