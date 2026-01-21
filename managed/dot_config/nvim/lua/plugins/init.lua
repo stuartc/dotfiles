@@ -89,6 +89,13 @@ return {
     opts = {},
   },
 
+  -- Multiple cursors (select word, Ctrl+n for next match)
+  {
+    "mg979/vim-visual-multi",
+    branch = "master",
+    event = "VeryLazy",
+  },
+
   -- Claude Code IDE integration (external terminal via lock file discovery)
   {
     "coder/claudecode.nvim",
