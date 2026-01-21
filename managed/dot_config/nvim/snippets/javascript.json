@@ -1,0 +1,52 @@
+{
+  "console.log": {
+    "prefix": "log",
+    "body": ["console.log($1)"],
+    "description": "console.log"
+  },
+  "console.log variable": {
+    "prefix": "clg",
+    "body": ["console.log('$1:', $1)"],
+    "description": "console.log with label"
+  },
+  "console.error": {
+    "prefix": "cle",
+    "body": ["console.error($1)"],
+    "description": "console.error"
+  },
+  "console.warn": {
+    "prefix": "clw",
+    "body": ["console.warn($1)"],
+    "description": "console.warn"
+  },
+  "arrow function": {
+    "prefix": "afn",
+    "body": ["const $1 = ($2) => {", "\t$0", "}"],
+    "description": "arrow function"
+  },
+  "async arrow function": {
+    "prefix": "aafn",
+    "body": ["const $1 = async ($2) => {", "\t$0", "}"],
+    "description": "async arrow function"
+  },
+  "import": {
+    "prefix": "imp",
+    "body": ["import { $2 } from '$1'"],
+    "description": "import statement"
+  },
+  "import default": {
+    "prefix": "impd",
+    "body": ["import $2 from '$1'"],
+    "description": "import default"
+  },
+  "export default": {
+    "prefix": "expd",
+    "body": ["export default $1"],
+    "description": "export default"
+  },
+  "try catch": {
+    "prefix": "tc",
+    "body": ["try {", "\t$1", "} catch (error) {", "\t$0", "}"],
+    "description": "try catch block"
+  }
+}
