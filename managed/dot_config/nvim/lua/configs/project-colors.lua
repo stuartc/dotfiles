@@ -130,7 +130,7 @@ end
 function M.apply()
   local color = M.get_color()
   set_iterm_tab(color)
-  set_folder_icon(color)
+  -- set_folder_icon(color)
 end
 
 return M
