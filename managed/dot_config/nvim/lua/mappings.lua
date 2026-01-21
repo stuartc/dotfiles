@@ -114,6 +114,7 @@ vim.keymap.del("n", "<leader>n")
 local map = vim.keymap.set
 
 -- General
+map("n", "<leader>X", "<cmd>tabclose<cr>", { desc = "Close current tab" })
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jj", "<ESC>")
 map("n", "<leader>ln", "<cmd>set nu!<cr>", { desc = "Toggle line numbers" })
