@@ -124,7 +124,12 @@ source <(fzf --zsh)
 # fi
 
 if command -v zoxide &> /dev/null; then
-  eval "$(zoxide init zsh --cmd cd)"
+  if [[ -n "$CLAUDECODE" ]]; then
+    # In Claude Code, don't replace cd to avoid snapshot issues
+    eval "$(zoxide init zsh)"
+  else
+    eval "$(zoxide init zsh --cmd cd)"
+  fi
 fi
 
 eval "$(starship init zsh)"

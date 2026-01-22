@@ -2,6 +2,7 @@ require "nvchad.mappings"
 
 -- Remove NvChad defaults that are too easy to hit accidentally
 vim.keymap.del("n", "<leader>n")
+vim.keymap.del("n", "<leader>pt")  -- Remapped to <leader>ft below
 
 -- ============================================================================
 -- Keybindings Reference (leader = Space)
@@ -14,6 +15,7 @@ vim.keymap.del("n", "<leader>n")
 --   <leader>fb    Find buffers
 --   <leader>fo    Find oldfiles (recent)
 --   <leader>fz    Find in current buffer
+--   <leader>ft    Find terminals (custom, moved from <leader>pt)
 --   <leader>gt    Git status
 --   <leader>cm    Git commits
 --   <leader>th    Pick theme
@@ -97,6 +99,9 @@ vim.keymap.del("n", "<leader>n")
 --   <leader>gt    Git status (Telescope, NvChad default)
 --   <leader>cm    Git commits (Telescope, NvChad default)
 --
+-- COMMAND PALETTE (snacks.nvim)
+--   <leader>p     Open command palette (fuzzy search all commands)
+--
 -- MISC
 --   ;             Enter command mode (custom)
 --   jj            Exit insert mode (custom)
@@ -145,6 +150,7 @@ end, { desc = "Buffer close hidden" })
 
 -- Telescope
 map("n", "<leader>fW", "<cmd>Telescope resume<cr>", { desc = "Resume last search" })
+map("n", "<leader>ft", "<cmd>Telescope terms<cr>", { desc = "Find terminals" })
 
 -- Harpoon
 local harpoon = require("harpoon")

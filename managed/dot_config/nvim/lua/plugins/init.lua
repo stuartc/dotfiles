@@ -216,7 +216,7 @@ return {
       picker = { enabled = true },
     },
     keys = {
-      { "<leader>P", function() require("command-palette").show() end, desc = "Command Palette" },
+      { "<leader>p", function() require("command-palette").show() end, desc = "Command Palette" },
     },
   },
 }
