@@ -206,4 +206,17 @@ return {
       current_line_blame_formatter = "<author>, <author_time:%R> - <summary>",
     },
   },
+
+  -- Snacks.nvim (command palette via picker)
+  {
+    "folke/snacks.nvim",
+    priority = 1000,
+    lazy = false,
+    opts = {
+      picker = { enabled = true },
+    },
+    keys = {
+      { "<leader>P", function() require("command-palette").show() end, desc = "Command Palette" },
+    },
+  },
 }
