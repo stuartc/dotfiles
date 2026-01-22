@@ -2,6 +2,9 @@ require "nvchad.options"
 
 -- add yours here!
 
+-- Custom snippets path (loaded by NvChad's luasnip config)
+vim.g.vscode_snippets_path = vim.fn.stdpath("config") .. "/snippets"
+
 local o = vim.o
 -- o.cursorlineopt ='both' -- to enable cursorline!
 
@@ -14,7 +17,12 @@ o.exrc = true
 -- Auto-reload files changed outside of Neovim
 o.autoread = true
 vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
-  command = "checktime",
+  callback = function()
+    -- Skip in command-line window where checktime is invalid
+    if vim.fn.getcmdwintype() == "" then
+      vim.cmd("checktime")
+    end
+  end,
 })
 
 -- Window title: show project name and git branch
