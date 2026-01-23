@@ -6,7 +6,7 @@
 local M = {}
 
 M.base46 = {
-	theme = "sonokai_andromeda",
+	theme = "github_dark",
 }
 
 M.term = {
