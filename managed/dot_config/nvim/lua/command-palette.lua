@@ -89,6 +89,11 @@ M.commands = {
   { name = "View: Toggle wrap", action = ":set wrap!", icon = "", hl = "Type", desc = "Wrap long lines" },
   { name = "View: Cheatsheet", action = ":NvCheatsheet", icon = "", hl = "Type", desc = "Show keybindings" },
 
+  -- Focus/Writing
+  { name = "Focus: Toggle Zen Mode", action = ":ZenMode", icon = "󰍉", hl = "String", desc = "Distraction-free writing" },
+  { name = "Focus: Toggle Twilight", action = ":Twilight", icon = "󰖔", hl = "String", desc = "Dim inactive code" },
+  { name = "Markdown: Toggle rendering", action = ":RenderMarkdown toggle", icon = "󰍔", hl = "String", desc = "Rich markdown preview" },
+
   -- Quickfix
   { name = "Quickfix: Open", action = ":copen", icon = "", hl = "DiagnosticInfo", desc = "Open quickfix list" },
   { name = "Quickfix: Close", action = ":cclose", icon = "", hl = "DiagnosticInfo", desc = "Close quickfix list" },
@@ -140,18 +145,38 @@ function M.show()
       }
     end,
     confirm = function(picker, item)
+      -- Check if zen-mode is active before closing picker
+      local zen_active = false
+      local ok, zen_view = pcall(require, "zen-mode.view")
+      if ok and zen_view.is_open then
+        zen_active = zen_view.is_open()
+      end
+
       picker:close()
       if item then
-        local action = item.action
-        if type(action) == "function" then
-          action()
-        elseif type(action) == "string" then
-          if action:sub(1, 1) == ":" then
-            vim.cmd(action:sub(2))
-          else
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(action, true, false, true), "m", false)
+        vim.schedule(function()
+          local action = item.action
+          local action_str = type(action) == "string" and action or ""
+
+          if type(action) == "function" then
+            action()
+          elseif type(action) == "string" then
+            if action:sub(1, 1) == ":" then
+              vim.cmd(action:sub(2))
+            else
+              vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(action, true, false, true), "m", false)
+            end
           end
-        end
+
+          -- Re-enter zen mode if it was closed unexpectedly (skip if action was ZenMode toggle)
+          if zen_active and not action_str:match("ZenMode") then
+            vim.schedule(function()
+              if ok and zen_view.is_open and not zen_view.is_open() then
+                vim.cmd("ZenMode")
+              end
+            end)
+          end
+        end)
       end
     end,
   })

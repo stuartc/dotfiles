@@ -106,6 +106,11 @@ vim.keymap.del("n", "<leader>pt")  -- Remapped to <leader>ft below
 --   <leader>oo    Open current file in default macOS app (custom)
 --   <C-o>         (in Telescope) Open selected file in default macOS app
 --
+-- FOCUS MODE (zen-mode + twilight)
+--   <leader>z     Toggle Zen Mode (also activates Twilight)
+--   :Twilight     Toggle Twilight independently
+--   :RenderMarkdown toggle    Toggle markdown rendering
+--
 -- MISC
 --   ;             Enter command mode (custom)
 --   jj            Exit insert mode (custom)

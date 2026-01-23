@@ -67,7 +67,8 @@ return {
       ensure_installed = {
         "vim", "lua", "vimdoc",
         "html", "css", "beancount",
-        "typescript", "elixir", "heex"
+        "typescript", "elixir", "heex",
+        "markdown", "markdown_inline",
       },
     },
   },
@@ -216,6 +217,80 @@ return {
     },
     keys = {
       { "<leader>p", function() require("command-palette").show() end, desc = "Command Palette" },
+    },
+  },
+
+  -- Zen Mode (distraction-free writing)
+  {
+    "folke/zen-mode.nvim",
+    cmd = "ZenMode",
+    keys = {
+      { "<leader>z", "<cmd>ZenMode<cr>", desc = "Zen Mode" },
+    },
+    opts = {
+      window = {
+        backdrop = 0.95,
+        width = 80,
+        height = 1,
+        options = {
+          signcolumn = "no",
+          number = false,
+          relativenumber = false,
+          cursorline = false,
+          foldcolumn = "0",
+          list = false,
+        },
+      },
+      plugins = {
+        twilight = { enabled = false },
+        gitsigns = { enabled = false },
+        tmux = { enabled = false },
+      },
+      on_open = function()
+        -- vim.cmd("TwilightEnable")
+        vim.wo.wrap = true
+        vim.wo.linebreak = true
+      end,
+      on_close = function()
+        vim.cmd("TwilightDisable")
+        vim.wo.wrap = false
+        vim.wo.linebreak = false
+      end,
+    },
+  },
+
+  -- Twilight (dim inactive code)
+  {
+    "folke/twilight.nvim",
+    cmd = { "Twilight", "TwilightEnable", "TwilightDisable" },
+    opts = {
+      dimming = { alpha = 0.25 },
+      context = 10,
+      treesitter = true,
+      expand = { "function", "method", "table", "if_statement" },
+    },
+  },
+
+  -- Render Markdown (rich markdown preview in buffer)
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    ft = { "markdown" },
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+    opts = {
+      heading = {
+        icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
+      },
+      bullet = {
+        icons = { "●", "○", "◆", "◇" },
+      },
+      checkbox = {
+        unchecked = { icon = "󰄱 " },
+        checked = { icon = "󰱒 " },
+      },
+      code = {
+        style = "full",
+        border = "thin",
+      },
     },
   },
 }
