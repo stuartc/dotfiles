@@ -104,3 +104,9 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
     end
   end,
 })
+
+-- Open file in default macOS app
+vim.api.nvim_create_user_command("OpenExternal", function(opts)
+  local file = opts.args ~= "" and opts.args or vim.fn.expand("%:p")
+  require("utils").open_external(file)
+end, { nargs = "?", complete = "file" })

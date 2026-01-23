@@ -102,6 +102,10 @@ vim.keymap.del("n", "<leader>pt")  -- Remapped to <leader>ft below
 -- COMMAND PALETTE (snacks.nvim)
 --   <leader>p     Open command palette (fuzzy search all commands)
 --
+-- OPEN EXTERNAL
+--   <leader>oo    Open current file in default macOS app (custom)
+--   <C-o>         (in Telescope) Open selected file in default macOS app
+--
 -- MISC
 --   ;             Enter command mode (custom)
 --   jj            Exit insert mode (custom)
@@ -180,3 +184,6 @@ map("n", "<leader>gq", "<cmd>DiffviewClose<cr>", { desc = "Git close diffview" }
 
 -- Gitsigns
 map("n", "<leader>gb", "<cmd>Gitsigns toggle_current_line_blame<cr>", { desc = "Git toggle blame" })
+
+-- Open in external app
+map("n", "<leader>oo", "<cmd>OpenExternal<CR>", { desc = "Open in external app" })

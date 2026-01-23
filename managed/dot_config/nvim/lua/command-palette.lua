@@ -81,6 +81,7 @@ M.commands = {
   { name = "File: Copy absolute path", action = function() vim.fn.setreg("+", vim.fn.expand("%:p")) end, icon = "󰈙", hl = "Directory", desc = "Copy full path to clipboard" },
   { name = "File: Toggle tree", action = ":NvimTreeToggle", icon = "󰈙", hl = "Directory", desc = "Show/hide file explorer" },
   { name = "File: Reveal in tree", action = ":NvimTreeFindFile", icon = "󰈙", hl = "Directory", desc = "Highlight in explorer" },
+  { name = "File: Open in External App", action = ":OpenExternal", icon = "󰏋", hl = "String", desc = "Open in default macOS app" },
 
   -- View
   { name = "View: Toggle line numbers", action = ":set nu!", icon = "", hl = "Type", desc = "Show/hide line numbers" },

@@ -7,19 +7,27 @@ return {
 
   {
     "nvim-telescope/telescope.nvim",
-    opts = {
-      -- defaults = {
-      --   file_ignore_patterns = { "node_modules", ".git/" },
-      -- },
-      -- pickers = {
-      --   find_files = {
-      --     hidden = true,
-      --   },
-      --   live_grep = {
-      --     additional_args = { "--hidden" },
-      --   },
-      -- },
-    },
+    opts = function(_, opts)
+      local actions = require("telescope.actions")
+      local action_state = require("telescope.actions.state")
+
+      local open_external = function(prompt_bufnr)
+        local selection = action_state.get_selected_entry()
+        actions.close(prompt_bufnr)
+        if selection and selection.path then
+          require("utils").open_external(selection.path)
+        end
+      end
+
+      opts.defaults = opts.defaults or {}
+      opts.defaults.mappings = opts.defaults.mappings or {}
+      opts.defaults.mappings.i = opts.defaults.mappings.i or {}
+      opts.defaults.mappings.n = opts.defaults.mappings.n or {}
+      opts.defaults.mappings.i["<C-o>"] = open_external
+      opts.defaults.mappings.n["<C-o>"] = open_external
+
+      return opts
+    end,
   },
 
   -- These are some examples, uncomment them if you want to see them work!
@@ -132,9 +140,9 @@ return {
     opts = function()
       local defaults = {
         python_path = "~/.local/share/uv/tools/beancount/bin/python",
-        separator_column = 70,
+        separator_column = 65,
         instant_alignment = true,
-        auto_format_on_save = true,
+        auto_format_on_save = false,
         auto_fill_amounts = false,
         inlay_hints = true,
         snippets = {
