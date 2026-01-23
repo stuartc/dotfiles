@@ -92,11 +92,11 @@ export ERL_AFLAGS="-kernel shell_history enabled"
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
-export ASDF_DATA_DIR="/Users/stuart/.asdf"
+export ASDF_DATA_DIR="$HOME/.asdf"
 export PATH="$ASDF_DATA_DIR/shims:$PATH"
 
-export PATH=$PATH:/opt/homebrew/share/google-cloud-sdk/bin
-export PATH="$PATH:/Users/stuart/.antigravity/antigravity/bin"
+[[ -d "/opt/homebrew/share/google-cloud-sdk/bin" ]] && export PATH="$PATH:/opt/homebrew/share/google-cloud-sdk/bin"
+export PATH="$PATH:$HOME/.antigravity/antigravity/bin"
 
 export PATH="$HOME/.bun/bin:$PATH"
 export PATH="./.bin:$HOME/.bin:$HOME/.local/bin:$PATH"
@@ -113,7 +113,7 @@ export FZF_ALT_C_OPTS="
   --walker-skip .git,node_modules,target,.elixir_ls,_build"
 
 # bun completions
-[ -s "/Users/stuart/.bun/_bun" ] && source "/Users/stuart/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 source <(fzf --zsh)
 
