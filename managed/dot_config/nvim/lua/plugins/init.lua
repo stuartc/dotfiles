@@ -278,18 +278,27 @@ return {
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
     opts = {
       heading = {
-        icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
+        -- icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
       },
       bullet = {
-        icons = { "●", "○", "◆", "◇" },
+        -- icons = { "●", "○", "◆", "◇" },
       },
       checkbox = {
-        unchecked = { icon = "󰄱 " },
-        checked = { icon = "󰱒 " },
+        -- unchecked = { icon = "󰄱 " },
+        -- checked = { icon = "󰱒 " },
       },
       code = {
         style = "full",
         border = "thin",
+        width = "block",
+        min_width = 80,
+      },
+      dash = {
+        width = 80,
+      },
+      heading = {
+        min_width = 80,
+        width = "block",
       },
     },
   },
