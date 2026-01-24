@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+"""
+chezmoi modify script for iTerm2 preferences.
+Reads existing plist from stdin, updates managed settings, outputs to stdout.
+
+This script only manages specific settings, preserving all other iTerm2
+configuration (GUIDs, volatile state, custom color presets, etc.)
+"""
+import io
+import os
+import plistlib
+import subprocess
+import sys
+import tempfile
+
+
+# =============================================================================
+# MANAGED SETTINGS - Only these settings will be enforced by chezmoi
+# =============================================================================
+
+# AI Configuration (iTerm2's AI features)
+AI_SETTINGS = {
+    "AIFeatureFunctionCalling": True,
+    "AIFeatureHostedCodeInterpeter": True,  # Note: iTerm2's typo, not ours
+    "AIFeatureHostedFileSearch": True,
+    "AIFeatureHostedWebSearch": True,
+    "AIFeatureStreamingResponses": True,
+    "AITermAPI": 2,  # OpenAI-compatible API
+    "AIVectorStore": 0,
+    "AiMaxTokens": 400000,
+    "AiModel": "gpt-5.1",
+    "AiResponseMaxTokens": 128000,
+    "AitermURL": "https://api.openai.com/v1/responses",
+}
+
+# Global behavior settings
+GLOBAL_SETTINGS = {
+    "AllowClipboardAccess": True,  # Allow apps to read clipboard
+    "AlternateMouseScroll": True,  # Use scroll in vim/less without tmux
+    "HapticFeedbackForEsc": False,
+    "HideScrollbar": False,
+    "LeftOption": 2,  # Left Option sends Esc+ (for Alt-key bindings)
+    "TabStyleWithAutomaticOption": 5,  # Minimal tab style
+    "TerminalMargin": 5,  # Horizontal margin
+    "TerminalVMargin": 2,  # Vertical margin
+}
+
+# Default profile settings (applied to "New Bookmarks" array, first profile)
+DEFAULT_PROFILE_SETTINGS = {
+    # Font
+    "Normal Font": "FiraCodeNFM-Ret 12",
+    "ASCII Ligatures": True,
+    "ASCII Anti Aliased": True,
+
+    # Terminal size
+    "Columns": 80,
+    "Rows": 25,
+    "Scrollback Lines": 10000,
+    "Unlimited Scrollback": False,
+    "Character Encoding": 4,  # UTF-8
+
+    # Behavior
+    "Silence Bell": True,
+    "Visual Bell": True,
+    "Flashing Bell": False,
+    "Mouse Reporting": True,
+    "Cursor Type": 2,  # Underline cursor
+    "Smart Cursor Color": True,
+
+    # Option key behavior in profile
+    "Option Key Sends": 2,  # Esc+
+
+    # Semantic history: Open in Cursor editor
+    "Semantic History": {
+        "action": "command",
+        "editor": "com.github.atom",  # Required field, unused with command action
+        "text": "/opt/homebrew/bin/cursor -g \\1:\\2",
+    },
+
+    # Keyboard mappings for Option+Arrow word navigation
+    "Keyboard Map": {
+        # Option+Left -> Esc+b (word back)
+        "0xf702-0x280000-0x7b": {
+            "Action": 10,  # Send escape sequence
+            "Label": "",
+            "Text": "b",
+            "Version": 1,
+        },
+        # Option+Right -> Esc+f (word forward)
+        "0xf703-0x280000-0x7c": {
+            "Action": 10,
+            "Label": "",
+            "Text": "f",
+            "Version": 1,
+        },
+    },
+}
+
+
+def deep_merge(base: dict, updates: dict) -> dict:
+    """Recursively merge updates into base dict."""
+    result = base.copy()
+    for key, value in updates.items():
+        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+            result[key] = deep_merge(result[key], value)
+        else:
+            result[key] = value
+    return result
+
+
+def update_profile(profile: dict) -> dict:
+    """Apply managed settings to a profile."""
+    return deep_merge(profile, DEFAULT_PROFILE_SETTINGS)
+
+
+def main():
+    # Read existing plist from stdin (buffer into BytesIO for seekability)
+    try:
+        stdin_data = sys.stdin.buffer.read()
+        if stdin_data:
+            plist = plistlib.load(io.BytesIO(stdin_data))
+        else:
+            plist = {}
+    except Exception as e:
+        # If no existing file or invalid, start with empty dict
+        sys.stderr.write(f"Warning: Could not read existing plist: {e}\n")
+        plist = {}
+
+    # Apply AI settings
+    plist.update(AI_SETTINGS)
+
+    # Apply global settings
+    plist.update(GLOBAL_SETTINGS)
+
+    # Apply profile settings to the first profile (default)
+    if "New Bookmarks" in plist and len(plist["New Bookmarks"]) > 0:
+        plist["New Bookmarks"][0] = update_profile(plist["New Bookmarks"][0])
+    else:
+        # Create a minimal default profile if none exists
+        plist["New Bookmarks"] = [DEFAULT_PROFILE_SETTINGS.copy()]
+
+    # Write as binary plist to temp file, then convert to XML with plutil
+    # This preserves macOS's native float formatting (avoids cosmetic diffs)
+    with tempfile.NamedTemporaryFile(suffix='.plist', delete=False) as tmp:
+        plistlib.dump(plist, tmp, fmt=plistlib.FMT_BINARY, sort_keys=True)
+        tmp_path = tmp.name
+
+    try:
+        result = subprocess.run(
+            ['plutil', '-convert', 'xml1', tmp_path, '-o', '-'],
+            capture_output=True,
+            check=True,
+        )
+        sys.stdout.buffer.write(result.stdout)
+    finally:
+        os.unlink(tmp_path)
+
+
+if __name__ == "__main__":
+    main()
