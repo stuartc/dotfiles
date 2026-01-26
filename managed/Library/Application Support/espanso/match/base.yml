@@ -1,0 +1,18 @@
+matches:
+  # Date in YYYY.MM.DD format
+  - trigger: ";date"
+    replace: "{{mydate}}"
+    vars:
+      - name: mydate
+        type: date
+        params:
+          format: "%Y.%m.%d"
+
+  # ISO week number (01-53)
+  - trigger: ";week"
+    replace: "{{week}}"
+    vars:
+      - name: week
+        type: date
+        params:
+          format: "%V"
