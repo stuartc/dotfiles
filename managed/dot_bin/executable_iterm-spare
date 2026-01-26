@@ -1,0 +1,232 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["iterm2"]
+# ///
+"""
+iterm-spare - Manage a "spare" iTerm2 pane for running commands.
+
+Usage:
+    iterm-spare run <command>       Run command in spare pane (focus stays in current app)
+    iterm-spare run --focus <cmd>   Run command and move focus to spare pane
+    iterm-spare run --wait <cmd>    Run command and block until complete
+    iterm-spare create              Create spare pane if missing
+    iterm-spare focus               Focus the spare pane
+
+The spare pane is identified by the user variable `user.role = "spare"`.
+If the spare pane is busy (running a command), a new pane is split from it.
+
+Prerequisites:
+    - iTerm2 Python API enabled (Preferences → Magic → Enable Python API)
+    - Shell Integration installed (iTerm2 → Install Shell Integration)
+    - uv (https://docs.astral.sh/uv/) - dependencies auto-installed on first run
+"""
+
+import argparse
+import asyncio
+import os
+import signal
+import sys
+
+import iterm2
+
+# Track interrupt state for double Ctrl-C detection
+_interrupt_count = 0
+_spare_session: iterm2.Session | None = None
+
+
+async def find_spare_session(connection: iterm2.Connection) -> iterm2.Session | None:
+    """Find the session marked as spare (user.role = 'spare')."""
+    app = await iterm2.async_get_app(connection)
+    for window in app.windows:
+        for tab in window.tabs:
+            for session in tab.sessions:
+                role = await session.async_get_variable("user.role")
+                if role == "spare":
+                    return session
+    return None
+
+
+async def is_session_busy(session: iterm2.Session) -> bool:
+    """Check if session is running a command (not just the shell)."""
+    job_name = await session.async_get_variable("jobName")
+    # Get the shell name from the session's profile or check common shells
+    # jobName equals the shell name when idle, something else when busy
+    shell_names = {"zsh", "bash", "fish", "sh", "-zsh", "-bash", "-fish", "-sh"}
+    return job_name not in shell_names if job_name else False
+
+
+async def create_spare_pane(
+    connection: iterm2.Connection, source_session: iterm2.Session | None = None
+) -> iterm2.Session:
+    """Create a new spare pane by splitting an existing session."""
+    app = await iterm2.async_get_app(connection)
+
+    if source_session is None:
+        # Find the current session to split from
+        source_session = app.current_terminal_window.current_tab.current_session
+        if source_session is None:
+            raise RuntimeError("No active session to split from")
+
+    # Split vertically (creates pane to the right)
+    new_session = await source_session.async_split_pane(vertical=True)
+
+    # Mark as spare
+    await new_session.async_set_variable("user.role", "spare")
+
+    return new_session
+
+
+async def get_or_create_spare(
+    connection: iterm2.Connection, split_if_busy: bool = True
+) -> iterm2.Session:
+    """Get the spare pane, creating one if necessary. Splits if busy."""
+    spare = await find_spare_session(connection)
+
+    if spare is None:
+        # No spare exists - create one
+        return await create_spare_pane(connection)
+
+    if split_if_busy and await is_session_busy(spare):
+        # Spare is busy - split it to create a new spare
+        # First, unmark the old spare
+        await spare.async_set_variable("user.role", "")
+        # Create new spare from the busy one
+        return await create_spare_pane(connection, spare)
+
+    return spare
+
+
+async def send_ctrl_c(session: iterm2.Session) -> None:
+    """Send Ctrl-C to the session."""
+    await session.async_send_text("\x03")
+
+
+async def run_command(
+    connection: iterm2.Connection,
+    command: str,
+    focus: bool = False,
+    wait: bool = False,
+) -> None:
+    """Run a command in the spare pane."""
+    global _interrupt_count, _spare_session
+
+    spare = await get_or_create_spare(connection)
+    _spare_session = spare
+    original_ppid = os.getppid()
+
+    if focus:
+        await spare.async_activate()
+
+    # Send the command
+    await spare.async_send_text(command + "\n")
+
+    if wait:
+        loop = asyncio.get_event_loop()
+
+        def handle_sigint() -> None:
+            global _interrupt_count
+            _interrupt_count += 1
+            if _interrupt_count >= 2:
+                # Double Ctrl-C: force quit
+                asyncio.create_task(send_ctrl_c(spare))
+                sys.exit(130)
+            else:
+                # First Ctrl-C: forward to spare
+                asyncio.create_task(send_ctrl_c(spare))
+
+        loop.add_signal_handler(signal.SIGINT, handle_sigint)
+        loop.add_signal_handler(signal.SIGTERM, handle_sigint)
+
+        try:
+            # Wait for command to start
+            while not await is_session_busy(spare):
+                await asyncio.sleep(0.1)
+            # Wait for command to complete, also check if parent died
+            while await is_session_busy(spare):
+                if os.getppid() != original_ppid:
+                    # Parent died, kill the editor
+                    await send_ctrl_c(spare)
+                    return
+                await asyncio.sleep(0.1)
+        finally:
+            loop.remove_signal_handler(signal.SIGINT)
+            loop.remove_signal_handler(signal.SIGTERM)
+            _spare_session = None
+
+
+async def focus_spare(connection: iterm2.Connection) -> None:
+    """Focus the spare pane."""
+    spare = await find_spare_session(connection)
+    if spare is None:
+        print("No spare pane found. Use 'iterm-spare create' first.", file=sys.stderr)
+        sys.exit(1)
+    await spare.async_activate()
+
+
+async def create_spare(connection: iterm2.Connection) -> None:
+    """Create a spare pane if one doesn't exist."""
+    spare = await find_spare_session(connection)
+    if spare is not None:
+        print("Spare pane already exists.", file=sys.stderr)
+        return
+    await create_spare_pane(connection)
+    print("Spare pane created.")
+
+
+async def main_async(args: argparse.Namespace) -> None:
+    """Main async entry point."""
+    connection = await iterm2.Connection.async_create()
+
+    if args.command == "run":
+        await run_command(
+            connection,
+            args.cmd,
+            focus=args.focus,
+            wait=args.wait,
+        )
+    elif args.command == "create":
+        await create_spare(connection)
+    elif args.command == "focus":
+        await focus_spare(connection)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Manage a spare iTerm2 pane for running commands"
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # run subcommand
+    run_parser = subparsers.add_parser("run", help="Run a command in the spare pane")
+    run_parser.add_argument(
+        "--focus", action="store_true", help="Move focus to spare pane after running"
+    )
+    run_parser.add_argument(
+        "--wait", action="store_true", help="Block until command completes"
+    )
+    run_parser.add_argument("cmd", help="Command to run")
+
+    # create subcommand
+    subparsers.add_parser("create", help="Create spare pane if missing")
+
+    # focus subcommand
+    subparsers.add_parser("focus", help="Focus the spare pane")
+
+    args = parser.parse_args()
+
+    try:
+        asyncio.run(main_async(args))
+    except KeyboardInterrupt:
+        sys.exit(130)
+    except iterm2.rpc.RPCException as e:
+        print(f"iTerm2 API error: {e}", file=sys.stderr)
+        print(
+            "Make sure iTerm2 Python API is enabled (Preferences → Magic → Enable Python API)",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

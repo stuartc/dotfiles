@@ -1,0 +1,24 @@
+#!/bin/bash
+# iterm-editor - Open nvim in iTerm2 spare pane as $EDITOR replacement.
+#
+# This is a thin wrapper around iterm-spare. When Claude Code invokes $EDITOR,
+# this script opens the file in nvim in the spare pane, activates it, and
+# blocks until nvim exits.
+#
+# Usage:
+#     export EDITOR="iterm-editor"
+#     # or
+#     alias claude='EDITOR=iterm-editor claude'
+
+if [ $# -eq 0 ]; then
+  echo "Usage: iterm-editor <file> [file2 ...]" >&2
+  exit 1
+fi
+
+# Build nvim command with properly quoted file arguments
+cmd="nvim"
+for file in "$@"; do
+  cmd="$cmd \"$file\""
+done
+
+exec iterm-spare run --focus --wait "$cmd"
