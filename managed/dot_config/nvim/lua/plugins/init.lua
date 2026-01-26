@@ -191,9 +191,22 @@ return {
   {
     "sindrets/diffview.nvim",
     cmd = { "DiffviewOpen", "DiffviewFileHistory" },
+    opts = {
+      keymaps = {
+        view = {
+          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
+        },
+        file_panel = {
+          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
+        },
+        file_history_panel = {
+          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
+        },
+      },
+    },
   },
 
-  -- Gitsigns with inline blame
+  -- Gitsigns with inline blame and hunk keymaps
   {
     "lewis6991/gitsigns.nvim",
     opts = {
@@ -204,6 +217,55 @@ return {
         delay = 500,
       },
       current_line_blame_formatter = "<author>, <author_time:%R> - <summary>",
+      on_attach = function(bufnr)
+        local gs = require("gitsigns")
+
+        local function map(mode, l, r, opts)
+          opts = opts or {}
+          opts.buffer = bufnr
+          vim.keymap.set(mode, l, r, opts)
+        end
+
+        -- Navigation (]c/[c matches vim's diff navigation)
+        map("n", "]c", function()
+          if vim.wo.diff then
+            vim.cmd.normal({ "]c", bang = true })
+          else
+            gs.nav_hunk("next")
+          end
+        end, { desc = "Next hunk" })
+
+        map("n", "[c", function()
+          if vim.wo.diff then
+            vim.cmd.normal({ "[c", bang = true })
+          else
+            gs.nav_hunk("prev")
+          end
+        end, { desc = "Previous hunk" })
+
+        -- Staging and resetting hunks
+        map("n", "<leader>hs", gs.stage_hunk, { desc = "Stage hunk" })
+        map("n", "<leader>hr", gs.reset_hunk, { desc = "Reset hunk" })
+        map("v", "<leader>hs", function()
+          gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
+        end, { desc = "Stage selection" })
+        map("v", "<leader>hr", function()
+          gs.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
+        end, { desc = "Reset selection" })
+
+        -- Buffer-wide operations
+        map("n", "<leader>hS", gs.stage_buffer, { desc = "Stage buffer" })
+        map("n", "<leader>hR", gs.reset_buffer, { desc = "Reset buffer" })
+
+        -- Undo staging
+        map("n", "<leader>hu", gs.undo_stage_hunk, { desc = "Undo stage hunk" })
+
+        -- Preview
+        map("n", "<leader>hp", gs.preview_hunk, { desc = "Preview hunk" })
+
+        -- Text object for hunks (select inner hunk)
+        map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>", { desc = "Select hunk" })
+      end,
     },
   },
 

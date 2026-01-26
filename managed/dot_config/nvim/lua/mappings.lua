@@ -98,6 +98,15 @@ vim.keymap.del("n", "<leader>pt")  -- Remapped to <leader>ft below
 --   <leader>gb    Toggle inline blame
 --   <leader>gt    Git status (Telescope, NvChad default)
 --   <leader>cm    Git commits (Telescope, NvChad default)
+--   q             Close Diffview (when inside Diffview buffers)
+--   ]c / [c       Next/previous hunk
+--   <leader>hs    Stage hunk (visual: stage selection)
+--   <leader>hr    Reset hunk (visual: reset selection)
+--   <leader>hS    Stage entire buffer
+--   <leader>hR    Reset entire buffer
+--   <leader>hu    Undo stage hunk
+--   <leader>hp    Preview hunk
+--   ih            Hunk text object (dih=delete, yih=yank, vih=select, cih=change)
 --
 -- COMMAND PALETTE (snacks.nvim)
 --   <leader>p     Open command palette (fuzzy search all commands)
