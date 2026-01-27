@@ -3,6 +3,8 @@ require "nvchad.mappings"
 -- Remove NvChad defaults that are too easy to hit accidentally
 vim.keymap.del("n", "<leader>n")
 vim.keymap.del("n", "<leader>pt")  -- Remapped to <leader>ft below
+vim.keymap.del("n", "<C-n>")      -- Free for vim-visual-multi
+vim.keymap.del("n", "<leader>e")   -- Re-bound below as nvim-tree toggle
 
 -- ============================================================================
 -- Keybindings Reference (leader = Space)
@@ -39,8 +41,14 @@ vim.keymap.del("n", "<leader>pt")  -- Remapped to <leader>ft below
 --   <Esc><Esc>    Exit terminal mode to normal mode (custom)
 --
 -- FILE TREE (nvim-tree)
---   <C-n>         Toggle file tree
---   <leader>e     Focus file tree
+--   <leader>e     Toggle file tree
+--
+-- MULTI-CURSOR (vim-visual-multi)
+--   <C-n>         Select word / next match
+--   <C-Up/Down>   Add cursor above/below
+--   q             Skip current match
+--   Q             Remove cursor
+--   \\A           Select all matches
 --
 -- BUFFERS & TABS
 --   <Tab>         Next buffer
@@ -135,6 +143,9 @@ vim.keymap.del("n", "<leader>pt")  -- Remapped to <leader>ft below
 -- ============================================================================
 
 local map = vim.keymap.set
+
+-- File tree
+map("n", "<leader>e", "<cmd>NvimTreeToggle<cr>", { desc = "Toggle file tree" })
 
 -- General
 map("n", "<leader>X", "<cmd>tabclose<cr>", { desc = "Close current tab" })

@@ -89,7 +89,7 @@ return {
     opts = {},
   },
 
-  -- Multiple cursors (select word, Ctrl+n for next match)
+  -- Multiple cursors (<C-n> select word, then next match)
   {
     "mg979/vim-visual-multi",
     branch = "master",
