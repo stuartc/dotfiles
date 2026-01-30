@@ -1,0 +1,18 @@
+# Ignore these files when applying things
+
+# functions
+# README.md
+
+# Documentation files
+RAYCAST.md
+
+# Python cache
+__pycache__
+*.pyc
+
+{{- if ne .chezmoi.os "darwin" }}
+# macOS-only files (ignored on Linux)
+.config/iterm2
+.bin/iterm-editor
+.bin/iterm-spare
+{{- end }}
