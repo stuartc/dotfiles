@@ -5,6 +5,9 @@ vim.keymap.del("n", "<leader>n")
 vim.keymap.del("n", "<leader>pt")  -- Remapped to <leader>ft below
 vim.keymap.del("n", "<C-n>")      -- Free for vim-visual-multi
 vim.keymap.del("n", "<leader>e")   -- Re-bound below as nvim-tree toggle
+-- NOTE: This removes the ability to create *new* horizontal terminals via keymap.
+-- Use the command palette ("Terminal: New Horizontal") or <A-h> to toggle instead.
+vim.keymap.del("n", "<leader>h")   -- Frees <leader>h* for gitsigns hunks
 
 -- ============================================================================
 -- Keybindings Reference (leader = Space)

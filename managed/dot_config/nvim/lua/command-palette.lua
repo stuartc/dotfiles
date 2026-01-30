@@ -70,9 +70,11 @@ M.commands = {
   { name = "Config: Mason", action = ":Mason", icon = "", hl = "Special", desc = "Manage LSP servers" },
 
   -- Terminal
-  { name = "Terminal: Horizontal", action = "<A-h>", icon = "", hl = "Character", desc = "Split below" },
-  { name = "Terminal: Vertical", action = "<A-v>", icon = "", hl = "Character", desc = "Split right" },
-  { name = "Terminal: Float", action = "<A-i>", icon = "", hl = "Character", desc = "Floating window" },
+  { name = "Terminal: Toggle Horizontal", action = "<A-h>", icon = "", hl = "Character", desc = "Toggle split below" },
+  { name = "Terminal: Toggle Vertical", action = "<A-v>", icon = "", hl = "Character", desc = "Toggle split right" },
+  { name = "Terminal: Toggle Float", action = "<A-i>", icon = "", hl = "Character", desc = "Toggle floating window" },
+  { name = "Terminal: New Horizontal", action = function() require("nvchad.term").new { pos = "sp" } end, icon = "", hl = "Character", desc = "New split below" },
+  { name = "Terminal: New Vertical", action = function() require("nvchad.term").new { pos = "vsp" } end, icon = "", hl = "Character", desc = "New split right" },
 
   -- File
   { name = "File: Save", action = ":w", icon = "󰈙", hl = "Directory", desc = "Save current file" },
