@@ -26,6 +26,21 @@ return {
       opts.defaults.mappings.i["<C-o>"] = open_external
       opts.defaults.mappings.n["<C-o>"] = open_external
 
+      opts.pickers = opts.pickers or {}
+      opts.pickers.find_files = {
+        path_display = { "filename_first" },
+        previewer = true,
+        sorting_strategy = "ascending",
+        layout_strategy = "vertical",
+        layout_config = {
+          vertical = {
+            prompt_position = "top",
+        --     width = 80,
+        --     height = 20,
+          },
+        },
+      }
+
       return opts
     end,
   },
