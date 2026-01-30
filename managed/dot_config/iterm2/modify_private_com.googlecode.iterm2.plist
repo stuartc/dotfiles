@@ -48,7 +48,7 @@ GLOBAL_SETTINGS = {
 # Default profile settings (applied to "New Bookmarks" array, first profile)
 DEFAULT_PROFILE_SETTINGS = {
     # Font
-    "Normal Font": "FiraCodeNFM-Ret 12",
+    "Normal Font": "FiraCodeNFP-Ret 13",
     "ASCII Ligatures": True,
     "ASCII Anti Aliased": True,
 
