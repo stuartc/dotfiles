@@ -19,10 +19,11 @@ end
 vim.g.vscode_snippets_path = vim.fn.stdpath("config") .. "/snippets"
 
 local o = vim.o
--- o.cursorlineopt ='both' -- to enable cursorline!
+o.cursorlineopt ='both' -- to enable cursorline!
 
 -- Show ruler at 80 columns
 o.colorcolumn = "80"
+o.scrolloff = 8
 
 -- Enable project-local config files (.nvim.lua in project directories)
 o.exrc = true
