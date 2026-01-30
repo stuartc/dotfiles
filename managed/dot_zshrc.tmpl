@@ -92,8 +92,13 @@ export ERL_AFLAGS="-kernel shell_history enabled"
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
-export ASDF_DATA_DIR="$HOME/.asdf"
-export PATH="$ASDF_DATA_DIR/shims:$PATH"
+# Version manager: prefer mise, fall back to asdf
+if command -v mise &> /dev/null; then
+  eval "$(mise activate zsh)"
+elif [[ -d "$HOME/.asdf" ]]; then
+  export ASDF_DATA_DIR="$HOME/.asdf"
+  export PATH="$ASDF_DATA_DIR/shims:$PATH"
+fi
 
 [[ -d "/opt/homebrew/share/google-cloud-sdk/bin" ]] && export PATH="$PATH:/opt/homebrew/share/google-cloud-sdk/bin"
 export PATH="$PATH:$HOME/.antigravity/antigravity/bin"
