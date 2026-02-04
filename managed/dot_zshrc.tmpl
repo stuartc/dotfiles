@@ -167,7 +167,7 @@ if _tmux_wrappers_enabled; then
     else
       # Not in tmux: create/attach session and run command
       local session_name="$cmd"
-      local working_dir="${PROJECTS:-$HOME}"
+      local working_dir="$PWD"
 
       if tmux has-session -t "$session_name" 2>/dev/null; then
         tmux attach-session -t "$session_name"
