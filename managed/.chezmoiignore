@@ -1,0 +1,2 @@
+# Ignore lazy.nvim lock file - each machine should have its own
+.config/nvim/lazy-lock.json
