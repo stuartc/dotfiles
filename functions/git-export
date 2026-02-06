@@ -1,0 +1,7 @@
+#!/usr/local/bin/env zsh
+
+local base=${1:-origin/main}
+local branch=$(git rev-parse --abbrev-ref HEAD)
+local file="${branch//\//-}.patch"
+git format-patch "$base" --stdout > "$file" &&
+    echo "Wrote $(git rev-list --count "$base"..HEAD) commits to $file"
