@@ -42,7 +42,7 @@ GLOBAL_SETTINGS = {
     "LeftOption": 2,  # Left Option sends Esc+ (for Alt-key bindings)
     "TabStyleWithAutomaticOption": 5,  # Minimal tab style
     "TerminalMargin": 5,  # Horizontal margin
-    "TerminalVMargin": 2,  # Vertical margin
+    "TerminalVMargin": 0,  # Vertical margin
 }
 
 # Default profile settings (applied to "New Bookmarks" array, first profile)
