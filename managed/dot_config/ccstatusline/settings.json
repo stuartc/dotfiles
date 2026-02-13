@@ -4,8 +4,13 @@
     [
       {
         "id": "1",
-        "type": "model",
-        "color": "cyan"
+        "type": "custom-command",
+        "color": "cyan",
+        "commandPath": "basename `pwd`"
+      },
+      {
+        "id": "7b64dcc4-6e2a-4ee3-8efe-993b535fb38f",
+        "type": "model"
       },
       {
         "id": "3",
@@ -14,7 +19,7 @@
       },
       {
         "id": "a8e870b2-a951-4bc4-852e-2683e8cbc457",
-        "type": "block-timer"
+        "type": "session-cost"
       },
       {
         "id": "5",
