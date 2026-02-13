@@ -36,7 +36,9 @@
         # Push annotated tags when pushing commits
         followTags = true
 [credential]
+{{- if eq .chezmoi.os "darwin" }}
         helper = osxkeychain
+{{- end }}
 [pull]
         # Only allow fast-forward merges (prevents accidental merge commits)
         ff = only
