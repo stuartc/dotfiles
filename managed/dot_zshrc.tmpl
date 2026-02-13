@@ -1,5 +1,12 @@
 DOTFILES_DIR={{ .chezmoi.workingTree }}
 
+# Source environment files (secrets, tokens, machine-specific config)
+if [[ -d "$HOME/.config/env.d" ]]; then
+  for envfile in "$HOME/.config/env.d"/*.env(N); do
+    source "$envfile"
+  done
+fi
+
 if [[ -n $DOTFILES_DIR ]]; then
   export PROJECTS={{ .projectDir }}
 
