@@ -8,6 +8,14 @@ matches:
         params:
           format: "%Y.%m.%d"
 
+  - trigger: ";ddate"
+    replace: "{{mydate}}"
+    vars:
+      - name: mydate
+        type: date
+        params:
+          format: "%Y-%m-%d"
+
   - trigger: ";sdate"
     replace: "{{mydate}}"
     vars:
