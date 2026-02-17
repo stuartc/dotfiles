@@ -1,0 +1,15 @@
+{
+  "Frontmatter": {
+    "prefix": "fm",
+    "body": [
+      "---",
+      "title: ${1:Untitled}",
+      "date: ${2:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "tags: [${3}]",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "YAML frontmatter"
+  }
+}
