@@ -39,6 +39,14 @@
 {{- if eq .chezmoi.os "darwin" }}
         helper = osxkeychain
 {{- end }}
+{{- if dig "ghCredentialHelper" false . }}
+[credential "https://github.com"]
+        helper =
+        helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+        helper =
+        helper = !/usr/bin/gh auth git-credential
+{{- end }}
 [pull]
         # Only allow fast-forward merges (prevents accidental merge commits)
         ff = only
