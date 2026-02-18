@@ -24,6 +24,7 @@ o.cursorlineopt ='both' -- to enable cursorline!
 -- Show ruler at 80 columns
 o.colorcolumn = "80"
 o.scrolloff = 8
+-- o.equalalways = false
 
 -- Enable project-local config files (.nvim.lua in project directories)
 o.exrc = true

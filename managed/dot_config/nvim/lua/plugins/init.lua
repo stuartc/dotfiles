@@ -1,5 +1,16 @@
 return {
   {
+    "nvim-tree/nvim-tree.lua",
+    opts = {
+      actions = {
+        open_file = {
+          resize_window = false,
+        },
+      },
+    },
+  },
+
+  {
     "stevearc/conform.nvim",
     -- event = 'BufWritePre', -- uncomment for format on save
     opts = require "configs.conform",
@@ -43,6 +54,42 @@ return {
 
       return opts
     end,
+  },
+
+  -- NvimTree window picker: exclude special buffers so files open
+  -- in the last focused editor window instead of prompting "Pick window:"
+  {
+    "nvim-tree/nvim-tree.lua",
+    opts = {
+      actions = {
+        open_file = {
+          window_picker = {
+            enable = true,
+            exclude = {
+              filetype = {
+                "NvimTree",
+                "NeogitStatus",
+                "NeogitPopup",
+                "NeogitLogView",
+                "NeogitConsole",
+                "DiffviewFiles",
+                "DiffviewFileHistory",
+                "diff",
+                "qf",
+                "lazy",
+                "mason",
+              },
+              buftype = {
+                "terminal",
+                "help",
+                "prompt",
+                "quickfix",
+              },
+            },
+          },
+        },
+      },
+    },
   },
 
   -- These are some examples, uncomment them if you want to see them work!
