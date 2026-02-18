@@ -7,7 +7,35 @@ return {
           resize_window = false,
         },
       },
+      renderer = {
+        highlight_git = "name",
+        icons = {
+          git_placement = "after",
+          glyphs = {
+            git = {
+              unstaged = "\u{f459}",  -- nf-oct-diff_modified
+              staged = "\u{f457}",    -- nf-oct-diff_added
+              unmerged = "\u{f47f}",  -- nf-oct-git_compare
+              renamed = "\u{f45a}",   -- nf-oct-diff_renamed
+              untracked = "\u{f420}", -- nf-oct-question
+              deleted = "\u{f458}",   -- nf-oct-diff_removed
+              ignored = "\u{f474}",   -- nf-oct-diff_ignored
+            },
+          },
+        },
+      },
     },
+    init = function()
+      -- Git icon colors from active base46 theme
+      local colors = require("base46").get_theme_tb "base_30"
+      vim.api.nvim_set_hl(0, "NvimTreeGitDirtyIcon", { fg = colors.orange })
+      vim.api.nvim_set_hl(0, "NvimTreeGitStagedIcon", { fg = colors.green })
+      vim.api.nvim_set_hl(0, "NvimTreeGitMergeIcon", { fg = colors.red })
+      vim.api.nvim_set_hl(0, "NvimTreeGitRenamedIcon", { fg = colors.blue })
+      vim.api.nvim_set_hl(0, "NvimTreeGitNewIcon", { fg = colors.yellow })
+      vim.api.nvim_set_hl(0, "NvimTreeGitDeletedIcon", { fg = colors.red })
+      vim.api.nvim_set_hl(0, "NvimTreeGitIgnoredIcon", { fg = colors.light_grey })
+    end,
   },
 
   {
