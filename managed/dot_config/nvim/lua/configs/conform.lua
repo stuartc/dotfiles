@@ -1,7 +1,7 @@
 local options = {
   formatters_by_ft = {
     lua = { "stylua" },
-    markdown = { "prettier" },
+    markdown = { "prettierd", "prettier", stop_after_first = true },
     elixir = { "mix" },
     heex = { "mix" },
     eelixir = { "mix" },
