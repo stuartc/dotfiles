@@ -1,0 +1,39 @@
+# SSH wrapper: rename tmux window to remote hostname during SSH sessions
+ssh() {
+  local target=""
+  local skip_next=false
+
+  for arg in "$@"; do
+    if $skip_next; then
+      skip_next=false
+      continue
+    fi
+    case "$arg" in
+      -[bcDEeFIiJLlmOopQRSWw])
+        skip_next=true
+        ;;
+      -*)
+        ;;
+      *)
+        target="$arg"
+        ;;
+    esac
+  done
+
+  # Extract hostname from user@host, shorten to first component
+  local hostname="${target##*@}"
+  local short_hostname="${hostname%%.*}"
+
+  if [[ -n "$TMUX" && -n "$short_hostname" ]]; then
+    tmux set-window-option automatic-rename off
+    tmux rename-window "󰣀 $short_hostname"
+    trap 'tmux set-window-option automatic-rename on' EXIT INT TERM HUP
+    command ssh "$@"
+    local ret=$?
+    trap - EXIT INT TERM HUP
+    tmux set-window-option automatic-rename on
+    return $ret
+  else
+    command ssh "$@"
+  fi
+}

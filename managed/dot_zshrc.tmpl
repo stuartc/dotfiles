@@ -15,6 +15,12 @@ if [[ -n $DOTFILES_DIR ]]; then
   # Load all the functions
   autoload -U $DOTFILES_DIR/functions/*(:t)
 
+  # Source wrapper functions (sourced, not autoloaded, because shadowing
+  # system commands via autoload is fragile)
+  for wrapper in $DOTFILES_DIR/wrappers/*(N); do
+    source "$wrapper"
+  done
+
   # Per-project history - up arrow prioritizes commands from current project
   # https://github.com/ivan-cukic/zsh-per-project-history
   if [[ -f "$DOTFILES_DIR/plugins/per-project-history.plugin.zsh" ]]; then
