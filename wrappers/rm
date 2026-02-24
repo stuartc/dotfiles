@@ -1,0 +1,8 @@
+# rm wrapper: use trash (macOS) when available instead of permanent deletion
+rm() {
+  if (( $+commands[trash] )); then
+    trash "$@"
+  else
+    command rm "$@"
+  fi
+}
