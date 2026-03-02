@@ -14,7 +14,8 @@ vim.keymap.del("n", "<leader>h")   -- Frees <leader>h* for gitsigns hunks
 -- ============================================================================
 --
 -- TELESCOPE (Fuzzy Finding)
---   <leader>ff    Find files
+--   <leader>ff    Find files (frecency-ranked)
+--   <leader>fF    Find files (plain, no ranking)
 --   <leader>fw    Find word (live grep)
 --   <leader>fW    Resume last search (custom)
 --   <leader>fb    Find buffers
@@ -178,7 +179,7 @@ map("n", "<leader>bo", function()
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
     if buf ~= current and vim.api.nvim_buf_is_loaded(buf) then
       local wins = vim.fn.win_findbuf(buf)
-      if #wins == 0 then
+      if #wins == 0 and vim.bo[buf].buftype ~= "terminal" then
         vim.api.nvim_buf_delete(buf, {})
       end
     end
@@ -186,6 +187,8 @@ map("n", "<leader>bo", function()
 end, { desc = "Buffer close hidden" })
 
 -- Telescope
+map("n", "<leader>ff", "<cmd>Telescope frecency<cr>", { desc = "Find files (frecency)" })
+map("n", "<leader>fF", "<cmd>Telescope find_files<cr>", { desc = "Find files (plain)" })
 map("n", "<leader>fW", "<cmd>Telescope resume<cr>", { desc = "Resume last search" })
 map("n", "<leader>ft", "<cmd>Telescope terms<cr>", { desc = "Find terminals" })
 

@@ -80,7 +80,31 @@ return {
         },
       }
 
+      opts.extensions = opts.extensions or {}
+      opts.extensions.frecency = {
+        default_workspace = "CWD",
+        show_unindexed = true,
+        show_filter_column = false,
+        matcher = "fuzzy",
+        path_display = { "filename_first" },
+        sorting_strategy = "ascending",
+        layout_strategy = "vertical",
+        layout_config = {
+          vertical = {
+            prompt_position = "top",
+          },
+        },
+        previewer = true,
+      }
+
       return opts
+    end,
+  },
+
+  {
+    "nvim-telescope/telescope-frecency.nvim",
+    config = function()
+      require("telescope").load_extension("frecency")
     end,
   },
 
