@@ -7,6 +7,10 @@ local M = {}
 
 M.base46 = {
 	theme = "github_dark",
+	hl_override = {
+		-- Only set bg on selection so filename stays bright and directory stays dim
+		TelescopeSelection = { bg = "lightbg", fg = "NONE" },
+	},
 }
 
 M.term = {
