@@ -173,18 +173,28 @@ map("n", "<leader>cP", function() vim.fn.setreg("+", vim.fn.expand("%:p")) end, 
 map("n", "<leader>cR", "<cmd>luafile ~/.config/nvim/lua/options.lua<cr>", { desc = "Reload options.lua" })
 map("n", "<leader>cT", function() require("base46").load_all_highlights() end, { desc = "Reload theme" })
 
--- Buffers
+-- Buffers (remap <leader>b from NvChad to <leader>bn so which-key waits for second key)
+vim.keymap.del("n", "<leader>b")
+map("n", "<leader>bn", "<cmd>enew<cr>", { desc = "Buffer new" })
 map("n", "<leader>bo", function()
   local current = vim.api.nvim_get_current_buf()
+  local skipped = 0
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if buf ~= current and vim.api.nvim_buf_is_loaded(buf) then
+    if buf ~= current and vim.bo[buf].buflisted then
       local wins = vim.fn.win_findbuf(buf)
-      if #wins == 0 and vim.bo[buf].buftype ~= "terminal" then
-        vim.api.nvim_buf_delete(buf, {})
+      if #wins == 0 then
+        if vim.bo[buf].modified then
+          skipped = skipped + 1
+        else
+          vim.api.nvim_buf_delete(buf, {})
+        end
       end
     end
   end
-end, { desc = "Buffer close hidden" })
+  if skipped > 0 then
+    vim.notify(skipped .. " modified buffer(s) left open", vim.log.levels.WARN)
+  end
+end, { desc = "Close other buffers" })
 
 -- Telescope
 map("n", "<leader>ff", "<cmd>Telescope frecency<cr>", { desc = "Find files (frecency)" })
