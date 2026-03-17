@@ -1,8 +1,19 @@
 font-family = "FiraCode Nerd Font Mono Ret"
 cursor-style = block
 shell-integration-features = no-cursor
-theme = "Catppuccin Macchiato"
-font-size = 15
+theme = "Github Dark Dimmed"
+font-size = 14
 
 unfocused-split-opacity = 1
 macos-option-as-alt = true
+window-padding-x = 4
+
+keybind = alt+enter=text:\x1b[13;3u
+
+mouse-hide-while-typing
+
+# Cmd+Opt+Arrow → tmux pane switching (sends prefix C-Space + hjkl)
+keybind = super+alt+left=text:\x00h
+keybind = super+alt+right=text:\x00l
+keybind = super+alt+up=text:\x00k
+keybind = super+alt+down=text:\x00j
