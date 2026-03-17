@@ -82,6 +82,7 @@ return {
 
       opts.extensions = opts.extensions or {}
       opts.extensions.frecency = {
+        db_safe_mode = false,
         default_workspace = "CWD",
         show_unindexed = true,
         show_filter_column = false,
@@ -306,6 +307,14 @@ return {
     "sindrets/diffview.nvim",
     cmd = { "DiffviewOpen", "DiffviewFileHistory" },
     opts = {
+      hooks = {
+        view_opened = function(view)
+          vim.keymap.set("n", "q", "<cmd>DiffviewClose<cr>", { buffer = view.panel.bufnr, desc = "Close Diffview" })
+        end,
+        diff_buf_read = function(bufnr)
+          vim.keymap.set("n", "q", "<cmd>DiffviewClose<cr>", { buffer = bufnr, desc = "Close Diffview" })
+        end,
+      },
       keymaps = {
         view = {
           { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
