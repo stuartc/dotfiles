@@ -1,5 +1,22 @@
 require "nvchad.options"
 
+-- OSC 52 clipboard for remote sessions (yank reaches macOS clipboard over SSH)
+-- Paste direction can't round-trip through tmux, so use Cmd+V (bracketed paste)
+if vim.env.SSH_CONNECTION and vim.fn.has("nvim-0.10") == 1 then
+  local osc52 = require("vim.ui.clipboard.osc52")
+  vim.g.clipboard = {
+    name = "OSC 52",
+    copy = {
+      ["+"] = osc52.copy("+"),
+      ["*"] = osc52.copy("*"),
+    },
+    paste = {
+      ["+"] = osc52.paste("+"),
+      ["*"] = osc52.paste("*"),
+    },
+  }
+end
+
 -- Custom config
 if vim.g.neovide then
   -- https://neovide.dev/configuration.html

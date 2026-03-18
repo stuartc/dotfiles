@@ -11,6 +11,7 @@ window-padding-x = 4
 keybind = alt+enter=text:\x1b[13;3u
 
 mouse-hide-while-typing
+clipboard-read = allow
 
 # Cmd+Opt+Arrow → tmux pane switching (sends prefix C-Space + hjkl)
 keybind = super+alt+left=text:\x00h
