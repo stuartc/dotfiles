@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Move a tmux window to a target position, shifting others to preserve order.
+#
+# Usage:
+#   tmux-move-window <source> <target>
+#   tmux-move-window <target>          # moves current window
+#
+# Examples:
+#   tmux-move-window 6 2   # move window 6 to position 2
+#   tmux-move-window 2     # move current window to position 2
+
+set -euo pipefail
+
+if [ $# -eq 1 ]; then
+  src=$(tmux display-message -p '#I')
+  dst=$1
+elif [ $# -eq 2 ]; then
+  src=$1
+  dst=$2
+else
+  echo "Usage: tmux-move-window [source] <target>" >&2
+  exit 1
+fi
+
+if [ "$src" -eq "$dst" ]; then
+  exit 0
+fi
+
+if [ "$src" -gt "$dst" ]; then
+  # Bubble left: swap src with each neighbor toward dst
+  i=$src
+  while [ "$i" -gt "$dst" ]; do
+    tmux swap-window -s "$i" -t $((i - 1))
+    i=$((i - 1))
+  done
+else
+  # Bubble right: swap src with each neighbor toward dst
+  i=$src
+  while [ "$i" -lt "$dst" ]; do
+    tmux swap-window -s "$i" -t $((i + 1))
+    i=$((i + 1))
+  done
+fi
