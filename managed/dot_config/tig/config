@@ -1,14 +1,39 @@
 # Fix readability for dark terminal themes (GitHub Dark Dimmed)
-# Uses 256-color 238 (#444444) as cursor bg — visible against #22272e
-# without washing out tig's per-element text colors.
+# Tig defaults use colored backgrounds (green cursor, blue titles) that are
+# unreadable against this palette. Override everything to use colored TEXT on
+# default backgrounds, with neutral gray backgrounds only for cursor & titles.
+#
+# 256-color grays: 237 ≈ #3a3a3a, 238 ≈ #444444, 240 ≈ #585858
 
-# Cursor/selection
-color cursor         default 238
-color cursor-blur    default 237
+# Cursor/selection — gray bg, keeps per-element text colors
+color cursor           default  240
+color cursor-blur      default  237
 
-# Title bars between panes
-color title-focus    white   238 bold
-color title-blur     default 237
+# Title bars (tig default: white on blue)
+color title-focus      white    238  bold
+color title-blur       default  237
 
-# Status view section headers — colored text instead of colored backgrounds
-color status.header  yellow  default bold
+# Status bar at bottom (tig default: white on green)
+color status           white    238
+
+# Status view sections (tig default: green bg on headers)
+color status.header    yellow   default  bold
+color status.section   cyan     default
+
+# Help view
+color help.header      yellow   default  bold
+color help.section     cyan     default
+
+# Main view ref labels
+color main-head        magenta  default  bold
+color main-tag         yellow   default  bold
+color main-local-tag   yellow   default
+color main-remote      cyan     default
+color main-tracked     blue     default  bold
+color main-ref         green    default
+
+# Diff
+color diff-header      yellow   default
+color diff-index       blue     default
+color diff-chunk       magenta  default
+color diff-stat        blue     default
