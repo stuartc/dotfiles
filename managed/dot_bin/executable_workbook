@@ -1,0 +1,59 @@
+#!/bin/bash
+#
+# Open or switch to the Workbook window in tmux.
+#
+# If a window named "Workbook" already exists, switch to it.
+# Otherwise, create a new window at position 1 with nvim.
+#
+# Optionally send a command to the Workbook's nvim instance via its
+# remote API (nvim --server). The socket is managed internally.
+#
+# Usage:
+#   workbook                                    # open/switch to Workbook
+#   workbook '<C-\><C-n>:Daily<CR>some text'    # open/switch + send nvim command
+
+set -euo pipefail
+
+if [ -z "${TMUX:-}" ]; then
+  echo "Not in a tmux session" >&2
+  exit 1
+fi
+
+WORKBOOK_WINDOW="Workbook"
+NVIM_SOCKET="/tmp/nvim-workbook.sock"
+NVIM_CMD="${1:-}"
+
+# ── Ensure Workbook window exists and switch to it ─────────────────────
+if tmux list-windows -F '#W' | grep -q "^${WORKBOOK_WINDOW}$"; then
+  tmux select-window -t "$WORKBOOK_WINDOW"
+else
+  rm -f "$NVIM_SOCKET"
+  tmux new-window -n "$WORKBOOK_WINDOW" -c ~/Documents/Workbook \
+    "nvim --listen $NVIM_SOCKET" \; \
+    move-window -t 0 \; \
+    move-window -r \; \
+    set -w automatic-rename off \; \
+    set -w allow-rename off
+fi
+
+# ── Ensure nvim is running and focus its pane ──────────────────────────
+# Workbook may have multiple panes (nvim, claude code, shell).
+# Target the pane running nvim via pane_current_command.
+PANE_ID=$(tmux list-panes -t "$WORKBOOK_WINDOW" \
+  -F '#{pane_id} #{pane_current_command}' \
+  | grep nvim | head -1 | awk '{print $1}')
+
+if [ -z "$PANE_ID" ]; then
+  # nvim was killed — restart it with --listen
+  PANE_ID=$(tmux list-panes -t "$WORKBOOK_WINDOW" -F '#{pane_id}' | head -1)
+  rm -f "$NVIM_SOCKET"
+  tmux send-keys -t "$PANE_ID" "nvim --listen $NVIM_SOCKET" Enter
+  sleep 0.5
+fi
+
+tmux select-pane -t "$PANE_ID"
+
+# ── Send command to nvim via remote API (if requested) ─────────────────
+if [ -n "$NVIM_CMD" ]; then
+  nvim --server "$NVIM_SOCKET" --remote-send "$NVIM_CMD"
+fi

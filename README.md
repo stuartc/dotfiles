@@ -106,6 +106,18 @@ Date expansion snippets: `;date` → `YYYY.MM.DD`, `;ddate` → `YYYY-MM-DD`, `;
 | `portainer.exs` | Elixir script to dump Portainer Docker stack configs |
 | `wt` | Wrapper for custom `wt` project binary |
 
+### Daily Note Quick-Access
+
+One keystroke to land in today's daily note with a timestamp ready to type.
+
+| Context | Keys | What happens |
+|---------|------|-------------|
+| Normal outer tmux | `C-Space N d` | Switches to Workbook, opens daily note, inserts `- HH:MM - ` |
+| Nested/suspended tmux | `F11` | Resumes outer tmux, then same as above |
+| Already in Workbook nvim | `<leader>wd` | Opens daily note (no timestamp) |
+
+**Pieces:** tmux bindings (`tmux.conf`) → `~/.bin/tmux-daily-note` (script) → `:Daily` nvim command (Workbook `.nvim.lua`)
+
 ## Repository Structure
 
 ```

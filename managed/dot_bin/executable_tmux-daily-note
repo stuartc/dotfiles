@@ -1,0 +1,38 @@
+#!/bin/bash
+# Quick-access binding: switch to Workbook and open today's daily note.
+#
+# Entry points:
+#   prefix + N d    — from normal outer tmux
+#   F11             — from nested tmux (suspended state)
+#
+# Delegates entirely to ~/.bin/workbook for window management and nvim
+# interaction. This script only handles tmux-suspend resume.
+
+set -euo pipefail
+
+TIMESTAMP=$(date '+%H:%M')
+RESUME_SCRIPT="${TMUX_PLUGIN_MANAGER_PATH}/tmux-suspend/scripts/resume.sh"
+
+# ── Resume from suspended state if needed ──────────────────────────────
+# tmux-suspend sets key-table to "suspended" and prefix to "none".
+# If we're in that state, run the plugin's own resume script to properly
+# restore prefix, key-table, and any saved options.
+KEY_TABLE=$(tmux display-message -p '#{client_key_table}')
+if [ "$KEY_TABLE" = "suspended" ]; then
+  if [ -x "$RESUME_SCRIPT" ]; then
+    bash "$RESUME_SCRIPT" ""
+  else
+    # Fallback: inline resume (restore prefix + key table)
+    PREFIX=$(tmux show-option -qv '@suspend_prefix')
+    tmux set-option -q prefix "$PREFIX" \; set-option -u key-table
+    tmux refresh-client -S
+  fi
+fi
+
+# ── Open daily note with timestamp ─────────────────────────────────────
+# <C-\><C-n> forces normal mode from any state, :Daily opens today's note
+# and enters insert mode at end of file, then the timestamp is typed.
+# <C-\><C-n> forces normal mode from any state.
+# :Daily accepts optional text to insert programmatically (via Lua, not
+# keystrokes) so there are no mode-timing issues with remote-send.
+~/.bin/workbook "<C-\\><C-n>:Daily - ${TIMESTAMP} - <CR>"

@@ -46,6 +46,10 @@ o.scrolloff = 8
 -- Enable project-local config files (.nvim.lua in project directories)
 o.exrc = true
 
+-- Allow switching away from unsaved buffers without saving.
+-- Buffers stay in memory and remain visible in the tabline.
+o.hidden = true
+
 -- Auto-reload files changed outside of Neovim
 o.autoread = true
 vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
