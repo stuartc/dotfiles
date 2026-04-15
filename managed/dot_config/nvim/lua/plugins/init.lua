@@ -67,6 +67,7 @@ return {
 
       opts.pickers = opts.pickers or {}
       opts.pickers.find_files = {
+        -- find_command = { "rg", "--files", "--hidden", "--follow", "--glob", "!.git" },
         path_display = { "filename_first" },
         previewer = true,
         sorting_strategy = "ascending",
@@ -178,6 +179,8 @@ return {
 
   {
     "nvim-treesitter/nvim-treesitter",
+    lazy = false,
+    priority = 50,
     opts = {
       ensure_installed = {
         "vim", "lua", "vimdoc",
@@ -440,6 +443,8 @@ return {
     opts = {
       heading = {
         -- icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
+        min_width = 80,
+        width = "block",
       },
       bullet = {
         -- icons = { "●", "○", "◆", "◇" },
@@ -457,9 +462,12 @@ return {
       dash = {
         width = 80,
       },
-      heading = {
-        min_width = 80,
-        width = "block",
+      pipe_table = {
+        preset = 'round',
+        cell = 'padded',
+        min_width = 20,
+        border_virtual = true,
+        style = 'full',
       },
     },
   },
