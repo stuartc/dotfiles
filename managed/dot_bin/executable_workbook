@@ -43,12 +43,34 @@ PANE_ID=$(tmux list-panes -t "$WORKBOOK_WINDOW" \
   -F '#{pane_id} #{pane_current_command}' \
   | grep nvim | head -1 | awk '{print $1}')
 
-if [ -z "$PANE_ID" ]; then
-  # nvim was killed — restart it with --listen
-  PANE_ID=$(tmux list-panes -t "$WORKBOOK_WINDOW" -F '#{pane_id}' | head -1)
+launch_nvim() {
+  local pane_id="$1"
   rm -f "$NVIM_SOCKET"
-  tmux send-keys -t "$PANE_ID" "nvim --listen $NVIM_SOCKET" Enter
-  sleep 0.5
+  tmux send-keys -t "$pane_id" "nvim --listen $NVIM_SOCKET" Enter
+  # Wait for the socket to appear so the caller can --remote-send.
+  for _ in $(seq 1 25); do
+    [ -S "$NVIM_SOCKET" ] && return 0
+    sleep 0.1
+  done
+}
+
+if [ -z "$PANE_ID" ]; then
+  # No nvim pane — restart it with --listen
+  PANE_ID=$(tmux list-panes -t "$WORKBOOK_WINDOW" -F '#{pane_id}' | head -1)
+  launch_nvim "$PANE_ID"
+elif ! nvim --server "$NVIM_SOCKET" --remote-expr '1' >/dev/null 2>&1; then
+  # nvim is running but not listening (e.g. restarted manually without
+  # --listen). Save, quit, relaunch with --listen.
+  tmux send-keys -t "$PANE_ID" Escape
+  tmux send-keys -t "$PANE_ID" ":silent! wa" Enter ":qa!" Enter
+  for _ in $(seq 1 25); do
+    CURRENT=$(tmux list-panes -t "$WORKBOOK_WINDOW" \
+      -F '#{pane_id} #{pane_current_command}' \
+      | awk -v p="$PANE_ID" '$1==p{print $2}')
+    [ "$CURRENT" != "nvim" ] && break
+    sleep 0.1
+  done
+  launch_nvim "$PANE_ID"
 fi
 
 tmux select-pane -t "$PANE_ID"
