@@ -410,12 +410,30 @@ return {
         gitsigns = { enabled = false },
         tmux = { enabled = false },
       },
-      on_open = function()
+      on_open = function(win)
         -- vim.cmd("TwilightEnable")
         vim.wo.wrap = true
         vim.wo.linebreak = true
+        -- Workaround for folke/zen-mode.nvim#95: re-apply window options on
+        -- buffer switch and sync parent window's buffer (mirrors PR #99).
+        local view = require("zen-mode.view")
+        local grp = vim.api.nvim_create_augroup("ZenModeBufSync", { clear = true })
+        vim.api.nvim_create_autocmd("BufEnter", {
+          group = grp,
+          callback = function()
+            if not view.is_open() then return end
+            if vim.api.nvim_get_current_win() ~= view.win then return end
+            if view.parent and vim.api.nvim_win_is_valid(view.parent) then
+              vim.api.nvim_win_set_buf(view.parent, vim.api.nvim_get_current_buf())
+            end
+            for k, v in pairs(view.opts.window.options or {}) do
+              vim.api.nvim_win_set_option(view.win, k, v)
+            end
+          end,
+        })
       end,
       on_close = function()
+        pcall(vim.api.nvim_del_augroup_by_name, "ZenModeBufSync")
         vim.cmd("TwilightDisable")
         vim.wo.wrap = false
         vim.wo.linebreak = false
