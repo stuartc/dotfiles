@@ -84,6 +84,8 @@ return {
       opts.extensions = opts.extensions or {}
       opts.extensions.frecency = {
         db_safe_mode = false,
+        auto_validate = true,
+        db_validate_threshold = 1,
         default_workspace = "CWD",
         show_unindexed = true,
         show_filter_column = false,
