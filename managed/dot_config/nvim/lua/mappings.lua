@@ -127,8 +127,8 @@ vim.keymap.del("n", "<leader>h")   -- Frees <leader>h* for gitsigns hunks
 --   <leader>oo    Open current file in default macOS app (custom)
 --   <C-o>         (in Telescope) Open selected file in default macOS app
 --
--- FOCUS MODE (zen-mode + twilight)
---   <leader>z     Toggle Zen Mode (also activates Twilight)
+-- FOCUS MODE (no-neck-pain + twilight)
+--   <leader>z     Toggle Focus Mode (center buffer)
 --   :Twilight     Toggle Twilight independently
 --   :RenderMarkdown toggle    Toggle markdown rendering
 --

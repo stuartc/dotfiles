@@ -93,7 +93,7 @@ M.commands = {
   { name = "View: Cheatsheet", action = ":NvCheatsheet", icon = "", hl = "Type", desc = "Show keybindings" },
 
   -- Focus/Writing
-  { name = "Focus: Toggle Zen Mode", action = ":ZenMode", icon = "󰍉", hl = "String", desc = "Distraction-free writing" },
+  { name = "Focus: Toggle Focus Mode", action = ":NoNeckPain", icon = "󰍉", hl = "String", desc = "Center buffer (no-neck-pain)" },
   { name = "Focus: Toggle Twilight", action = ":Twilight", icon = "󰖔", hl = "String", desc = "Dim inactive code" },
   { name = "Markdown: Toggle rendering", action = ":RenderMarkdown toggle", icon = "󰍔", hl = "String", desc = "Rich markdown preview" },
 
@@ -148,18 +148,10 @@ function M.show()
       }
     end,
     confirm = function(picker, item)
-      -- Check if zen-mode is active before closing picker
-      local zen_active = false
-      local ok, zen_view = pcall(require, "zen-mode.view")
-      if ok and zen_view.is_open then
-        zen_active = zen_view.is_open()
-      end
-
       picker:close()
       if item then
         vim.schedule(function()
           local action = item.action
-          local action_str = type(action) == "string" and action or ""
 
           if type(action) == "function" then
             action()
@@ -169,15 +161,6 @@ function M.show()
             else
               vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(action, true, false, true), "m", false)
             end
-          end
-
-          -- Re-enter zen mode if it was closed unexpectedly (skip if action was ZenMode toggle)
-          if zen_active and not action_str:match("ZenMode") then
-            vim.schedule(function()
-              if ok and zen_view.is_open and not zen_view.is_open() then
-                vim.cmd("ZenMode")
-              end
-            end)
           end
         end)
       end
