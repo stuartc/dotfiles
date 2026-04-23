@@ -59,6 +59,10 @@ vim.keymap.del("n", "<leader>h")   -- Frees <leader>h* for gitsigns hunks
 --   <S-Tab>       Previous buffer
 --   <leader>x     Close buffer
 --   <leader>bo    Close hidden buffers (custom)
+--   <leader>tn    New tab
+--   <leader>tl    Next tab
+--   <leader>th    Previous tab
+--   <leader>X     Close current tab
 --
 -- LSP (when attached) - NvChad mappings
 --   gd            Go to definition
@@ -156,8 +160,13 @@ local map = vim.keymap.set
 -- File tree
 map("n", "<leader>e", "<cmd>NvimTreeToggle<cr>", { desc = "Toggle file tree" })
 
--- General
+-- Tabs
+map("n", "<leader>tn", "<cmd>tabnew<cr>", { desc = "Tab new" })
+map("n", "<leader>tl", "<cmd>tabnext<cr>", { desc = "Tab next" })
+map("n", "<leader>th", "<cmd>tabprevious<cr>", { desc = "Tab previous" })
 map("n", "<leader>X", "<cmd>tabclose<cr>", { desc = "Close current tab" })
+
+-- General
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jj", "<ESC>")
 map("n", "<leader>ln", "<cmd>set nu!<cr>", { desc = "Toggle line numbers" })
