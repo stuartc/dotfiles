@@ -58,11 +58,3 @@ for _, lhs in ipairs({ "<leader>tt", "<M-l>" }) do
   vim.keymap.set("x", lhs, toggle_visual, { buffer = true, desc = "Toggle/convert markdown todos in selection" })
 end
 vim.keymap.set("i", "<M-l>", toggle_current, { buffer = true, desc = "Toggle/convert markdown todo" })
-
--- Insert a new todo item below and enter insert mode
-vim.keymap.set("n", "<leader>tn", function()
-  local row = vim.api.nvim_win_get_cursor(0)[1]
-  vim.api.nvim_buf_set_lines(0, row, row, false, { "- [ ] " })
-  vim.api.nvim_win_set_cursor(0, { row + 1, 6 })
-  vim.cmd("startinsert!")
-end, { buffer = true, desc = "New todo item" })
