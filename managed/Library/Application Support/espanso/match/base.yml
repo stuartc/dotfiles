@@ -32,3 +32,6 @@ matches:
         type: date
         params:
           format: "%V"
+
+  - trigger: ";sec"
+    replace: "§"
