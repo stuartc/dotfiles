@@ -28,6 +28,13 @@ if [[ -n $DOTFILES_DIR ]]; then
   fi
 fi
 
+# Felipec's git-completion: smarter _git that dispatches to __<cmd>_main,
+# which is what the homebrew _tig wrapper relies on for `tig <TAB>` and
+# `tig -- <path>` to work. Cloned by chezmoi via .chezmoiexternal.toml.
+if [[ -d "$HOME/.local/share/git-completion/src" ]]; then
+  fpath=("$HOME/.local/share/git-completion/src" $fpath)
+fi
+
 # Initialize completion system
 autoload -U compinit
 compinit

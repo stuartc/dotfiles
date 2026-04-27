@@ -1,0 +1,6 @@
+[".local/share/git-completion"]
+    type = "git-repo"
+    url = "https://github.com/felipec/git-completion.git"
+    refreshPeriod = "168h"
+    [".local/share/git-completion".clone]
+        args = ["--depth=1"]
