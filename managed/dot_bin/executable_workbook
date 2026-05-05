@@ -2,8 +2,8 @@
 #
 # Open or switch to the Workbook window in tmux.
 #
-# If a window named "Workbook" already exists, switch to it.
-# Otherwise, create a new window at position 1 with nvim.
+# If a window named "Workbook" already exists in the workbook session, switch
+# to it. Otherwise, create a new window at position 1 with nvim.
 #
 # Optionally send a command to the Workbook's nvim instance via its
 # remote API (nvim --server). The socket is managed internally.
@@ -19,29 +19,51 @@ if [ -z "${TMUX:-}" ]; then
   exit 1
 fi
 
+WORKBOOK_SESSION="workbook"
 WORKBOOK_WINDOW="Workbook"
 NVIM_SOCKET="/tmp/nvim-workbook.sock"
 NVIM_CMD="${1:-}"
 
-# ── Ensure Workbook window exists and switch to it ─────────────────────
-if tmux list-windows -F '#W' | grep -q "^${WORKBOOK_WINDOW}$"; then
-  tmux select-window -t "$WORKBOOK_WINDOW"
+# Focus the Workbook window in the workbook session.
+# select-window sets the session's current window (works even without an
+# attached client); switch-client then moves the client over if one exists.
+focus_workbook() {
+  tmux select-window -t "=$WORKBOOK_SESSION:=$WORKBOOK_WINDOW"
+  if [ -n "$(tmux display-message -p '#{client_tty}')" ]; then
+    tmux switch-client -t "=$WORKBOOK_SESSION"
+  fi
+}
+
+# ── Ensure workbook session exists ─────────────────────────────────────
+# Create with the Workbook window pre-named to avoid leaving a spare shell
+# window behind. Window options are locked here; nvim is started by the
+# pane-detection block below.
+if ! tmux has-session -t "=$WORKBOOK_SESSION" 2>/dev/null; then
+  tmux new-session -d -s "$WORKBOOK_SESSION" -n "$WORKBOOK_WINDOW" -c ~/Documents/Workbook
+  tmux set -t "=$WORKBOOK_SESSION:=$WORKBOOK_WINDOW" -w automatic-rename off
+  tmux set -t "=$WORKBOOK_SESSION:=$WORKBOOK_WINDOW" -w allow-rename off
+fi
+
+# ── Ensure Workbook window exists in the workbook session ─────────────
+if tmux list-windows -t "=$WORKBOOK_SESSION" -F '#W' | grep -Fxq "$WORKBOOK_WINDOW"; then
+  focus_workbook
 else
   rm -f "$NVIM_SOCKET"
-  tmux new-window -n "$WORKBOOK_WINDOW" -c ~/Documents/Workbook \
+  tmux new-window -t "=$WORKBOOK_SESSION" -n "$WORKBOOK_WINDOW" -c ~/Documents/Workbook \
     "nvim --listen $NVIM_SOCKET" \; \
-    move-window -t 0 \; \
-    move-window -r \; \
-    set -w automatic-rename off \; \
-    set -w allow-rename off
+    move-window -t "=$WORKBOOK_SESSION:0" \; \
+    move-window -t "=$WORKBOOK_SESSION:" -r \; \
+    set -t "=$WORKBOOK_SESSION:=$WORKBOOK_WINDOW" -w automatic-rename off \; \
+    set -t "=$WORKBOOK_SESSION:=$WORKBOOK_WINDOW" -w allow-rename off
+  focus_workbook
 fi
 
 # ── Ensure nvim is running and focus its pane ──────────────────────────
 # Workbook may have multiple panes (nvim, claude code, shell).
 # Target the pane running nvim via pane_current_command.
-PANE_ID=$(tmux list-panes -t "$WORKBOOK_WINDOW" \
+PANE_ID=$(tmux list-panes -t "=$WORKBOOK_SESSION:=$WORKBOOK_WINDOW" \
   -F '#{pane_id} #{pane_current_command}' \
-  | grep nvim | head -1 | awk '{print $1}')
+  | awk '$2 == "nvim" { print $1; exit }')
 
 launch_nvim() {
   local pane_id="$1"
@@ -52,11 +74,13 @@ launch_nvim() {
     [ -S "$NVIM_SOCKET" ] && return 0
     sleep 0.1
   done
+  echo "workbook: timed out waiting for nvim socket $NVIM_SOCKET" >&2
+  return 1
 }
 
 if [ -z "$PANE_ID" ]; then
   # No nvim pane — restart it with --listen
-  PANE_ID=$(tmux list-panes -t "$WORKBOOK_WINDOW" -F '#{pane_id}' | head -1)
+  PANE_ID=$(tmux list-panes -t "=$WORKBOOK_SESSION:=$WORKBOOK_WINDOW" -F '#{pane_id}' | head -1)
   launch_nvim "$PANE_ID"
 elif ! nvim --server "$NVIM_SOCKET" --remote-expr '1' >/dev/null 2>&1; then
   # nvim is running but not listening (e.g. restarted manually without
@@ -64,7 +88,7 @@ elif ! nvim --server "$NVIM_SOCKET" --remote-expr '1' >/dev/null 2>&1; then
   tmux send-keys -t "$PANE_ID" Escape
   tmux send-keys -t "$PANE_ID" ":silent! wa" Enter ":qa!" Enter
   for _ in $(seq 1 25); do
-    CURRENT=$(tmux list-panes -t "$WORKBOOK_WINDOW" \
+    CURRENT=$(tmux list-panes -t "=$WORKBOOK_SESSION:=$WORKBOOK_WINDOW" \
       -F '#{pane_id} #{pane_current_command}' \
       | awk -v p="$PANE_ID" '$1==p{print $2}')
     [ "$CURRENT" != "nvim" ] && break
