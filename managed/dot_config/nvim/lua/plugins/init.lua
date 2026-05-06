@@ -281,6 +281,27 @@ return {
         telescope = true,
       },
     },
+    init = function()
+      local apply = function()
+        local link = function(from, to)
+          vim.api.nvim_set_hl(0, from, { link = to })
+        end
+        link("NeogitDiffAdd",              "DiffAdd")
+        link("NeogitDiffAddHighlight",     "DiffAdd")
+        link("NeogitDiffAddCursor",        "DiffAdd")
+        link("NeogitDiffDelete",           "DiffDelete")
+        link("NeogitDiffDeleteHighlight",  "DiffDelete")
+        link("NeogitDiffDeleteCursor",     "DiffDelete")
+        link("NeogitDiffContext",          "Normal")
+        link("NeogitDiffContextHighlight", "CursorLine")
+        link("NeogitDiffContextCursor",    "CursorLine")
+        link("NeogitHunkHeader",           "DiffChange")
+        link("NeogitHunkHeaderHighlight",  "DiffChange")
+        link("NeogitHunkHeaderCursor",     "DiffChange")
+      end
+      apply()
+      vim.api.nvim_create_autocmd("ColorScheme", { callback = apply })
+    end,
   },
 
   -- Diffview (PR diff review, file history)
