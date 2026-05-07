@@ -19,7 +19,7 @@ M.commands = {
   { name = "Git: Toggle inline blame", action = ":Gitsigns toggle_current_line_blame", icon = "", hl = "diffAdded", desc = "Show/hide line blame" },
 
   -- Telescope
-  { name = "Find: Files", action = ":Telescope frecency", icon = "", hl = "Directory", desc = "Search by filename (frecency)" },
+  { name = "Find: Files", action = ":Telescope smart_open", icon = "", hl = "Directory", desc = "Search by filename (smart)" },
   { name = "Find: Files (plain)", action = ":Telescope find_files", icon = "", hl = "Directory", desc = "Search by filename (no ranking)" },
   { name = "Find: Grep (live)", action = ":Telescope live_grep", icon = "", hl = "Directory", desc = "Search file contents" },
   { name = "Find: Resume last search", action = ":Telescope resume", icon = "", hl = "Directory", desc = "Continue previous search" },

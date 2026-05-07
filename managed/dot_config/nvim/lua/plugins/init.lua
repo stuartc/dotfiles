@@ -82,15 +82,12 @@ return {
       }
 
       opts.extensions = opts.extensions or {}
-      opts.extensions.frecency = {
-        db_safe_mode = false,
-        auto_validate = true,
-        db_validate_threshold = 1,
-        default_workspace = "CWD",
-        show_unindexed = true,
-        show_filter_column = false,
-        matcher = "fuzzy",
+      opts.extensions.smart_open = {
+        match_algorithm = "fzf",
+        cwd_only = true,
+        filename_first = true,
         path_display = { "filename_first" },
+        previewer = true,
         sorting_strategy = "ascending",
         layout_strategy = "vertical",
         layout_config = {
@@ -98,7 +95,6 @@ return {
             prompt_position = "top",
           },
         },
-        previewer = true,
       }
 
       return opts
@@ -106,9 +102,15 @@ return {
   },
 
   {
-    "nvim-telescope/telescope-frecency.nvim",
+    "danielfalk/smart-open.nvim",
+    branch = "0.2.x",
+    dependencies = {
+      "kkharji/sqlite.lua",
+      { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+    },
     config = function()
-      require("telescope").load_extension("frecency")
+      require("telescope").load_extension("smart_open")
+      require("telescope").load_extension("fzf")
     end,
   },
 

@@ -14,7 +14,7 @@ vim.keymap.del("n", "<leader>h")   -- Frees <leader>h* for gitsigns hunks
 -- ============================================================================
 --
 -- TELESCOPE (Fuzzy Finding)
---   <leader>ff    Find files (frecency-ranked)
+--   <leader>ff    Find files (smart_open: frecency + fuzzy)
 --   <leader>fF    Find files (plain, no ranking)
 --   <leader>fw    Find word (live grep)
 --   <leader>fW    Resume last search (custom)
@@ -206,7 +206,7 @@ map("n", "<leader>bo", function()
 end, { desc = "Close other buffers" })
 
 -- Telescope
-map("n", "<leader>ff", "<cmd>Telescope frecency<cr>", { desc = "Find files (frecency)" })
+map("n", "<leader>ff", "<cmd>Telescope smart_open<cr>", { desc = "Find files (smart)" })
 map("n", "<leader>fF", "<cmd>Telescope find_files<cr>", { desc = "Find files (plain)" })
 map("n", "<leader>fW", "<cmd>Telescope resume<cr>", { desc = "Resume last search" })
 map("n", "<leader>ft", "<cmd>Telescope terms<cr>", { desc = "Find terminals" })
