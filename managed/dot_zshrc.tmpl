@@ -1,5 +1,11 @@
 DOTFILES_DIR={{ .chezmoi.workingTree }}
 
+# Ghostty terminfo fallback — when SSHing from Ghostty into a machine
+# that lacks the xterm-ghostty terminfo, fall back to xterm-256color
+if [[ "$TERM" == "xterm-ghostty" ]] && ! infocmp xterm-ghostty &>/dev/null; then
+  export TERM=xterm-256color
+fi
+
 # Source environment files (secrets, tokens, machine-specific config)
 if [[ -d "$HOME/.config/env.d" ]]; then
   for envfile in "$HOME/.config/env.d"/*.env(N); do
