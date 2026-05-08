@@ -10,6 +10,13 @@ window-padding-x = 4
 
 keybind = alt+enter=text:\x1b[13;3u
 
+# F17–F19 (Keychron Q1 Pro: right-cmd, fn+pgup, fn+pgdn). Emit fixed escape
+# sequences so tmux user-keys match the same bytes in both terminals. F13–F16
+# are skipped because macOS hijacks F14/F15 at the HID layer for brightness.
+keybind = f17=text:\x1b[31~
+keybind = f18=text:\x1b[32~
+keybind = f19=text:\x1b[33~
+
 mouse-hide-while-typing
 clipboard-read = allow
 

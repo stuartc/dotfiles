@@ -78,6 +78,11 @@ DEFAULT_PROFILE_SETTINGS = {
     },
 
     # Keyboard mappings for Option+Arrow word navigation
+    # and Keychron Q1 Pro F17/F18/F19 remaps (right-cmd, fn+pgup, fn+pgdn)
+    # routed to fixed CSI sequences so tmux user-keys match the same bytes
+    # in both iTerm2 and Ghostty. F13–F16 skipped: macOS hijacks F14/F15
+    # for brightness at the HID layer. Key format: char-modifiers-keyCode;
+    # F-key modifier is 0x800000 (NSEventModifierFlagFunction).
     "Keyboard Map": {
         # Option+Left -> Esc+b (word back)
         "0xf702-0x280000-0x7b": {
@@ -91,6 +96,27 @@ DEFAULT_PROFILE_SETTINGS = {
             "Action": 10,
             "Label": "",
             "Text": "f",
+            "Version": 1,
+        },
+        # F17 -> CSI 31~ (tmux secondary prefix via User0)
+        "0xf714-0x800000-0x40": {
+            "Action": 10,
+            "Label": "",
+            "Text": "[31~",
+            "Version": 1,
+        },
+        # F18 -> CSI 32~ (tmux sesh picker via User1)
+        "0xf715-0x800000-0x4f": {
+            "Action": 10,
+            "Label": "",
+            "Text": "[32~",
+            "Version": 1,
+        },
+        # F19 -> CSI 33~ (tmux User2, unbound for now)
+        "0xf716-0x800000-0x50": {
+            "Action": 10,
+            "Label": "",
+            "Text": "[33~",
             "Version": 1,
         },
     },
