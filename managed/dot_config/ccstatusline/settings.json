@@ -3,23 +3,24 @@
   "lines": [
     [
       {
-        "id": "1",
+        "id": "b3cfc55f-25cf-42b0-a387-2fcdd51cdaf1",
         "type": "custom-command",
-        "color": "cyan",
         "commandPath": "basename `pwd`"
       },
       {
         "id": "7b64dcc4-6e2a-4ee3-8efe-993b535fb38f",
-        "type": "model"
+        "type": "model",
+        "rawValue": true
       },
       {
         "id": "3",
         "type": "context-length",
-        "color": "brightBlack"
+        "color": "brightBlack",
+        "rawValue": true
       },
       {
-        "id": "a8e870b2-a951-4bc4-852e-2683e8cbc457",
-        "type": "session-cost"
+        "id": "27bacfbe-a34e-498a-9637-30c5d76b5bb2",
+        "type": "session-usage"
       },
       {
         "id": "5",
@@ -41,6 +42,7 @@
   "defaultPadding": " ",
   "inheritSeparatorColors": false,
   "globalBold": false,
+  "minimalistMode": false,
   "powerline": {
     "enabled": true,
     "separators": [
@@ -52,6 +54,7 @@
     "startCaps": [],
     "endCaps": [],
     "theme": "custom",
-    "autoAlign": false
+    "autoAlign": false,
+    "continueThemeAcrossLines": false
   }
 }
