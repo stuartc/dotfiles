@@ -21,16 +21,16 @@ import tempfile
 # AI Configuration (iTerm2's AI features)
 AI_SETTINGS = {
     "AIFeatureFunctionCalling": True,
-    "AIFeatureHostedCodeInterpeter": True,  # Note: iTerm2's typo, not ours
-    "AIFeatureHostedFileSearch": True,
-    "AIFeatureHostedWebSearch": True,
+    "AIFeatureHostedCodeInterpeter": False,  # Note: iTerm2's typo, not ours
+    "AIFeatureHostedFileSearch": False,
+    "AIFeatureHostedWebSearch": False,
     "AIFeatureStreamingResponses": True,
-    "AITermAPI": 2,  # OpenAI-compatible API
+    "AITermAPI": 7,
     "AIVectorStore": 0,
-    "AiMaxTokens": 400000,
-    "AiModel": "gpt-5.1",
+    "AiMaxTokens": 200000,
+    "AiModel": "claude-opus-4-6",
     "AiResponseMaxTokens": 128000,
-    "AitermURL": "https://api.openai.com/v1/responses",
+    "AitermURL": "https://api.anthropic.com/v1/messages",
 }
 
 # Global behavior settings
@@ -48,7 +48,7 @@ GLOBAL_SETTINGS = {
 # Default profile settings (applied to "New Bookmarks" array, first profile)
 DEFAULT_PROFILE_SETTINGS = {
     # Font
-    "Normal Font": "FiraCodeNFP-Ret 13",
+    "Normal Font": "FiraCodeNFP-Reg 13",
     "ASCII Ligatures": True,
     "ASCII Anti Aliased": True,
 
@@ -72,9 +72,9 @@ DEFAULT_PROFILE_SETTINGS = {
 
     # Semantic history: Open in Cursor editor
     "Semantic History": {
-        "action": "command",
-        "editor": "com.github.atom",  # Required field, unused with command action
-        "text": "/opt/homebrew/bin/cursor -g \\1:\\2",
+        "action": "best editor",
+        # "editor": "com.github.atom",  # Required field, unused with command action
+        # "text": "/opt/homebrew/bin/cursor -g \\1:\\2",
     },
 
     # Keyboard mappings for Option+Arrow word navigation
