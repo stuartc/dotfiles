@@ -243,12 +243,3 @@ map("n", "<leader>gb", "<cmd>Gitsigns toggle_current_line_blame<cr>", { desc = "
 -- Open in external app
 map("n", "<leader>oo", "<cmd>OpenExternal<CR>", { desc = "Open in external app" })
 
--- iTerm2 Spare Pane
--- local spare = require("iterm-spare")
--- map("n", "<leader>ts", "<cmd>Spare<cr>", { desc = "Spare run command" })
--- map("n", "<leader>tt", function()
---   spare.run("mix test " .. vim.fn.expand("%"))
--- end, { desc = "Spare mix test file" })
--- map("n", "<leader>tl", function()
---   spare.run("mix test " .. vim.fn.expand("%") .. ":" .. vim.fn.line("."))
--- end, { desc = "Spare mix test line" })

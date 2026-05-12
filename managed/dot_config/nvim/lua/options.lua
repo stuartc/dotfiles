@@ -146,6 +146,3 @@ vim.api.nvim_create_user_command("OpenExternal", function(opts)
   local file = opts.args ~= "" and opts.args or vim.fn.expand("%:p")
   require("utils").open_external(file)
 end, { nargs = "?", complete = "file" })
-
--- iTerm2 spare pane integration
-require("iterm-spare").setup()
