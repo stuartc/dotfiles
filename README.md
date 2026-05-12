@@ -100,8 +100,6 @@ Date expansion snippets: `;date` → `YYYY.MM.DD`, `;ddate` → `YYYY-MM-DD`, `;
 | `md2pb` | Markdown → rich text on clipboard (Slack/Docs-ready) via pandoc |
 | `concat-files` | Concatenate files with headers — useful for feeding to LLMs |
 | `cursor-summarize` | Summarize Cursor AI chat exports via Claude, with content-hash caching |
-| `iterm-editor` | Opens files in nvim in iTerm2 spare pane (for use as `$EDITOR`) |
-| `iterm-spare` | Manages a dedicated iTerm2 "spare" pane via the iTerm2 Python API |
 | `decrypt_pdf` | Decrypt a password-protected PDF in-place via qpdf |
 | `portainer.exs` | Elixir script to dump Portainer Docker stack configs |
 | `wt` | Wrapper for custom `wt` project binary |
