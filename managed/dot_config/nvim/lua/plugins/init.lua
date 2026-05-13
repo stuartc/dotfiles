@@ -249,7 +249,18 @@ return {
     "kylechui/nvim-surround",
     version = "*",
     event = "VeryLazy",
-    opts = {},
+    opts = {
+      surrounds = {
+        -- `c` for codefence: wraps in triple backticks (e.g. Sc in visual-line mode)
+        ["c"] = {
+          add = { "```", "```" },
+          find = "```.-```",
+          delete = "^(```)().-(```)()$",
+        },
+      },
+      -- Markdown-specific surrounds (bold `b`, strikethrough `s`) live in
+      -- after/ftplugin/markdown.lua via nvim-surround's buffer_setup.
+    },
   },
 
   -- Multiple cursors (<C-n> select word, then next match)

@@ -2,6 +2,29 @@ vim.bo.shiftwidth = 2
 vim.bo.tabstop = 2
 vim.bo.softtabstop = 2
 
+-- Buffer-local nvim-surround keys for markdown formatting.
+-- Shadows the default `b` (parens alias) and `s` for this buffer only.
+local ok, surround = pcall(require, "nvim-surround")
+if ok then
+  surround.buffer_setup({
+    -- Disable the default `b` alias (which maps to `)`) so our buffer-local
+    -- `b` surround below is actually reached; aliases resolve before lookup.
+    aliases = { b = false },
+    surrounds = {
+      ["b"] = {
+        add = { "**", "**" },
+        find = "%*%*.-%*%*",
+        delete = "^(%*%*)().-(%*%*)()$",
+      },
+      ["s"] = {
+        add = { "~~", "~~" },
+        find = "~~.-~~",
+        delete = "^(~~)().-(~~)()$",
+      },
+    },
+  })
+end
+
 -- Transform a single line per Obsidian-style todo rules.
 -- Precedence: toggle existing checkbox > add checkbox to list item > convert plain line.
 local function transform_line(line)

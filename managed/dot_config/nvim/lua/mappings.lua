@@ -91,6 +91,10 @@ vim.keymap.del("n", "<leader>h")   -- Frees <leader>h* for gitsigns hunks
 --   cs{old}{new}      Change surround (e.g. cs"' changes " to ')
 --   dst               Delete surrounding HTML tag
 --   cst<tag>          Change surrounding tag (e.g. cst<div>)
+--   St<tag>           Surround selection with HTML tag (visual mode)
+--   Sc                Surround selection with ``` codefence (visual-line mode)
+--   Sb                Surround selection with **bold** (markdown only)
+--   Ss                Surround selection with ~~strikethrough~~ (markdown only)
 --   S{char}           Surround selection (visual mode)
 --
 -- MACROS
