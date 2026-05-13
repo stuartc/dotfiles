@@ -5,10 +5,10 @@ vim.lsp.config("*", {
   root_markers = { ".git" },
 })
 
--- Servers to enable (install via Mason with :MasonInstall <name>)
--- TypeScript/JS: :MasonInstall typescript-language-server
-local servers = { "html", "cssls", "ts_ls", "expert" }
-vim.lsp.enable(servers)
+-- Enable servers listed in configs/tools.lua. Installation is handled by
+-- mason-lspconfig (see lua/plugins/init.lua), which translates these
+-- lspconfig names to Mason package names.
+vim.lsp.enable(require("configs.tools").lsp)
 
 -- Per-server custom config example:
 -- vim.lsp.config("lua_ls", {

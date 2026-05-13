@@ -158,6 +158,36 @@ return {
     end,
   },
 
+  -- mason-lspconfig: installs LSP servers from configs/tools.lua (lsp list),
+  -- translating lspconfig names → Mason package names. Pair with
+  -- vim.lsp.enable in configs/lspconfig.lua, which reads the same list.
+  {
+    "williamboman/mason-lspconfig.nvim",
+    dependencies = { "williamboman/mason.nvim" },
+    event = "VeryLazy",
+    opts = function()
+      return {
+        ensure_installed = require("configs.tools").lsp,
+        automatic_installation = false,
+      }
+    end,
+  },
+
+  -- mason-tool-installer: installs non-LSP tools (formatters, linters, DAP)
+  -- from configs/tools.lua (extras list), using Mason package names directly.
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    dependencies = { "williamboman/mason.nvim" },
+    event = "VeryLazy",
+    opts = function()
+      return {
+        ensure_installed = require("configs.tools").extras,
+        run_on_start = true,
+        auto_update = false,
+      }
+    end,
+  },
+
   -- blink.cmp completion engine
   { import = "nvchad.blink.lazyspec" },
 
@@ -181,18 +211,29 @@ return {
     end,
   },
 
+  -- nvim-treesitter `main` branch: no .configs.setup(), no ensure_installed
+  -- in opts. Install via Lua API, enable highlight+indent via FileType
+  -- autocmd. Parser list lives in configs/tools.lua. Note: `config` here
+  -- also overrides NvChad's master-branch setup() call which would error.
   {
     "nvim-treesitter/nvim-treesitter",
+    branch = "main",
     lazy = false,
     priority = 50,
-    opts = {
-      ensure_installed = {
-        "vim", "lua", "vimdoc",
-        "html", "css", "beancount",
-        "typescript", "elixir", "heex",
-        "markdown", "markdown_inline",
-      },
-    },
+    build = ":TSUpdate",
+    config = function()
+      require("nvim-treesitter").install(require("configs.tools").parsers or {})
+
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(args)
+          local ft = vim.bo[args.buf].filetype
+          local lang = vim.treesitter.language.get_lang(ft) or ft
+          if pcall(vim.treesitter.start, args.buf, lang) then
+            vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
+    end,
   },
 
   {
