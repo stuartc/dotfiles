@@ -161,6 +161,10 @@ return {
   -- mason-lspconfig: installs LSP servers from configs/tools.lua (lsp list),
   -- translating lspconfig names → Mason package names. Pair with
   -- vim.lsp.enable in configs/lspconfig.lua, which reads the same list.
+  --
+  -- automatic_enable is disabled because its default (true) silently calls
+  -- vim.lsp.enable() for every Mason-installed package — not just those in
+  -- ensure_installed — bypassing tools.lua as the source of truth.
   {
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "williamboman/mason.nvim" },
@@ -169,6 +173,7 @@ return {
       return {
         ensure_installed = require("configs.tools").lsp,
         automatic_installation = false,
+        automatic_enable = false,
       }
     end,
   },
