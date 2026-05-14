@@ -16,7 +16,7 @@
 -- To add a formatter/linter: append the Mason package name to `extras`.
 -- To add a TS parser: append the parser name to `parsers`.
 return {
-  lsp = { "html", "cssls", "ts_ls", "expert" },
+  lsp = { "html", "cssls", "ts_ls", "expert", "beancount" },
   extras = { "stylua", "prettierd" },
   parsers = {
     "vim", "lua", "vimdoc",

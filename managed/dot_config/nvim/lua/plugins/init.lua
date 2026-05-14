@@ -196,26 +196,6 @@ return {
   -- blink.cmp completion engine
   { import = "nvchad.blink.lazyspec" },
 
-  -- Add beancount source to blink.cmp
-  {
-    "saghen/blink.cmp",
-    opts = function(_, opts)
-      opts.sources = opts.sources or {}
-      opts.sources.default = opts.sources.default or {}
-      table.insert(opts.sources.default, "beancount")
-      opts.sources.providers = opts.sources.providers or {}
-      opts.sources.providers.beancount = {
-        name = "beancount",
-        module = "beancount.completion.blink",
-        score_offset = 100,
-        opts = {
-          trigger_characters = { ":", "#", "^", '"', " " },
-        },
-      }
-      return opts
-    end,
-  },
-
   -- nvim-treesitter `main` branch: no .configs.setup(), no ensure_installed
   -- in opts. Install via Lua API, enable highlight+indent via FileType
   -- autocmd. Parser list lives in configs/tools.lua. Note: `config` here
@@ -288,27 +268,6 @@ return {
         provider = "none",  -- Disable Neovim terminal; use external terminal (iTerm2, tmux)
       },
     },
-  },
-
-  {
-    "hxueh/beancount.nvim",
-    ft = { "beancount" },
-    opts = function()
-      local defaults = {
-        python_path = "~/.local/share/uv/tools/beancount/bin/python",
-        separator_column = 65,
-        instant_alignment = true,
-        auto_format_on_save = false,
-        auto_fill_amounts = false,
-        inlay_hints = true,
-        snippets = {
-          enabled = true,
-          date_format = "%Y-%m-%d",
-        },
-      }
-      -- Merge with project-local overrides from vim.g.beancount_opts
-      return vim.tbl_deep_extend("force", defaults, vim.g.beancount_opts or {})
-    end,
   },
 
   -- {
