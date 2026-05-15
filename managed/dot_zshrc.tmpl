@@ -84,21 +84,23 @@ setopt INC_APPEND_HISTORY     # Write to history file immediately after each com
 
 # setopt HIST_SAVE_NO_DUPS         # Don't write duplicate entries in history file
 
-# Edit command line in editor
-autoload -U edit-command-line
-zle -N edit-command-line
+# ZLE / key bindings — interactive-only. Sourcing these in a non-interactive
+# zsh (e.g. the env-harvesting shell spawned by the Elixir LSP) emits
+# "can't change option: zle" on stderr.
+if [[ -o interactive ]]; then
+  # Edit command line in editor
+  autoload -U edit-command-line
+  zle -N edit-command-line
 
-# Key bindings
+  bindkey -e
+  bindkey '^X^E' edit-command-line
 
-bindkey -e
-
-bindkey '^X^E' edit-command-line
-
-autoload -U up-line-or-beginning-search
-zle -N up-line-or-beginning-search
-bindkey -M emacs "^[[A" up-line-or-beginning-search
-bindkey -M viins "^[[A" up-line-or-beginning-search
-bindkey -M vicmd "^[[A" up-line-or-beginning-search
+  autoload -U up-line-or-beginning-search
+  zle -N up-line-or-beginning-search
+  bindkey -M emacs "^[[A" up-line-or-beginning-search
+  bindkey -M viins "^[[A" up-line-or-beginning-search
+  bindkey -M vicmd "^[[A" up-line-or-beginning-search
+fi
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
