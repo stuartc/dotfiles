@@ -1,2 +1,20 @@
+# chezmoi ignore patterns.
+# NOTE: this file is always interpreted as a template by chezmoi,
+# so a .tmpl suffix is redundant — keep everything in this one file.
+
 # Ignore lazy.nvim lock file - each machine should have its own
 .config/nvim/lazy-lock.json
+
+# Documentation files
+RAYCAST.md
+
+# Python cache
+__pycache__
+*.pyc
+
+{{- if ne .chezmoi.os "darwin" }}
+# macOS-only files (ignored on non-macOS, e.g. Linux)
+.config/iterm2
+.config/karabiner
+Library
+{{- end }}

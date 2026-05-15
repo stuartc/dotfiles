@@ -23,7 +23,18 @@
                         ]
                     }
                 ]
-            }
+            },
+            "devices": [
+                {
+                    "identifiers": {
+                        "is_keyboard": true,
+                        "is_pointing_device": true,
+                        "product_id": 1552,
+                        "vendor_id": 13364
+                    },
+                    "ignore": false
+                }
+            ]
         }
     ]
 }
