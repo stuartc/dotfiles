@@ -26,6 +26,10 @@ if [ "$src" -eq "$dst" ]; then
   exit 0
 fi
 
+# Remember the window we're focused on by its stable ID, so we can follow it
+# (or stay put) after the swaps shuffle indices around.
+orig_id=$(tmux display-message -p '#{window_id}')
+
 if [ "$src" -gt "$dst" ]; then
   # Bubble left: swap src with each neighbor toward dst
   i=$src
@@ -41,3 +45,6 @@ else
     i=$((i + 1))
   done
 fi
+
+# Follow the originally-focused window to wherever it ended up.
+tmux select-window -t "$orig_id"
