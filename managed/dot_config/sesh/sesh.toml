@@ -1,8 +1,0 @@
-[[session]]
-name = "workbook"
-path = "~/Documents/Workbook"
-startup_command = "workbook"
-
-[[session]]
-name = "ledger"
-path = "~/Sourcecode/finn/ledger"

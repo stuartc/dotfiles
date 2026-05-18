@@ -1,0 +1,17 @@
+# sesh sessions — managed by chezmoi. DO NOT edit ~/.config/sesh/sesh.toml
+# directly; it is regenerated from this template on `chezmoi apply`.
+#
+# Generic, shareable sessions go directly in this file (safe for the public
+# repo). Machine-private sessions (revealing paths, project names, machine
+# structure) live in ~/.private/sesh/sessions.toml and are appended at apply
+# time. That fragment is never tracked by git. A fresh machine without the
+# fragment still applies cleanly (it just gets no private sessions).
+
+# --- Generic sessions (shared across machines) ---
+
+# (none yet — add [[session]] blocks here when they're safe to publish)
+{{ $privateSessions := joinPath .chezmoi.homeDir ".private/sesh/sessions.toml" -}}
+{{ if stat $privateSessions }}
+# --- Private sessions (from ~/.private/sesh/sessions.toml — not committed) ---
+{{ output "cat" $privateSessions -}}
+{{ end -}}
