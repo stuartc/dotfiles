@@ -36,6 +36,9 @@ matches:
   - trigger: ";sec"
     replace: "§"
 
+  - trigger: ";emd"
+    replace: "—"
+
   # Reactions / status
   - trigger: ";tu"
     replace: "👍"
