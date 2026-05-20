@@ -41,8 +41,10 @@ GLOBAL_SETTINGS = {
     "HideScrollbar": False,
     "LeftOption": 2,  # Left Option sends Esc+ (for Alt-key bindings)
     "TabStyleWithAutomaticOption": 5,  # Minimal tab style
+    "TabViewType": 1,  # Tab bar position: 0=top, 1=bottom, 2=left
     "TerminalMargin": 5,  # Horizontal margin
     "TerminalVMargin": 0,  # Vertical margin
+    "UseLionStyleFullscreen": False,  # Disable macOS native full-screen windows
 }
 
 # Default profile settings (applied to "New Bookmarks" array, first profile)
