@@ -129,10 +129,10 @@ elif [[ -d "$HOME/.asdf" ]]; then
 fi
 
 [[ -d "/opt/homebrew/share/google-cloud-sdk/bin" ]] && export PATH="$PATH:/opt/homebrew/share/google-cloud-sdk/bin"
-export PATH="$PATH:$HOME/.antigravity/antigravity/bin"
+[[ -d "/opt/homebrew/opt/libpq/bin" ]] && export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
 export PATH="$HOME/.cargo/bin:$HOME/.bun/bin:$PATH"
-export PATH="./.bin:$HOME/.bin:$HOME/.local/bin:$PATH"
+export PATH="$HOME/.bin:$HOME/.local/bin:$PATH"
 
 # Aliases
 
