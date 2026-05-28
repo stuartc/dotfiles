@@ -58,6 +58,7 @@ Default location: `.context/stuart/investigations/<slug>/` in the current projec
 | `probe T<id>` | Write probe + discovery, hand back runner | `probes/NN.*` | `protocols/probe.md` |
 | `findings T<id>` | Interpret probe output, write verdict | `theories/T<id>/findings.md` | `protocols/findings.md` |
 | `followup [text]` | Park a spinoff discovery that's out of scope for this investigation | `followups.md` entry `F<id>` | `protocols/followup.md` |
+| `issue [steer]` | Draft a public GitHub issue for the bug + link it back (investigation stays open) | drafted issue + `references.md` link | `protocols/issue.md` |
 | `fix-spec [T<id>]` | Draft fix for a confirmed theory | `fix-spec.md` | `protocols/fix-spec.md` |
 | `rollup` | Regenerate README projected zone from log + theories | updated README | `protocols/rollup.md` |
 | `status` | Print current state, no edits | conversation only | `protocols/status.md` |
@@ -109,6 +110,7 @@ Use the comment syntax of the probe language (`--` for SQL, `#` for shell, `#` f
 - `theory-superseded:T<id>-by-T<id>`
 - `shape-discovered:<name>`
 - `followup-parked:F<id>` — one event per follow-up parked (or one covering several if parked together)
+- `issue-created:#<number>` — a public issue spun out (investigation stays open)
 - `fix-spec-drafted`
 - `session-handoff` / `session-pickup`
 
@@ -118,7 +120,9 @@ Each event file is short — usually 5–20 lines: timestamp, what changed, poin
 
 **Discovery before commitment.** Any subagent that's about to run something potentially long (Sentry pagination, big SQL, codebase-wide grep, large agent dispatch) **must** spend ≤5 tool calls verifying the data shape exists before committing to the work. This is the 10-hour-stuck-agent insurance and applies to every probe protocol.
 
-**Subagent dispatch shape.** When a protocol dispatches a subagent, the brief always includes: (1) the investigation root path, (2) which specific files the subagent should read first, (3) the named artefact path it must produce, (4) ≤5-line return format expected, (5) the discovery-before-commitment rule. Never dispatch with "go investigate X" — always with the artefact path and shape.
+**Subagent dispatch shape.** When a protocol dispatches a subagent, the brief always includes: (1) the investigation root path, (2) which specific files the subagent should read first, (3) the named artefact path it must produce, (4) ≤5-line return format expected, (5) the discovery-before-commitment rule. Never dispatch with "go investigate X" — always with the artefact path and shape. If the subagent produces anything public-facing, pass it the leak-free rule below.
+
+**Public artefacts never leak the investigation.** The investigation folder is a private working tool (it lives in a private context repo; most of the codebase it describes is open source). Anything that leaves the folder for a public surface — a GitHub issue, a PR description, an external comment — must stand on its own in plain English and must **not** carry the investigation's internal vocabulary: no theory IDs (`T01`, `T02`), no probe numbers, no `findings.md`/`shapes.md`/slug references, no "the investigation found…". Translate the diagnosis into how a person would naturally write it. Keep it concise and hand-written, not an exhaustive machine dump. And per Stu's standing rule, draft only — never post to a public surface unprompted.
 
 ## Pickup ergonomics
 

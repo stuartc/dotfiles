@@ -26,7 +26,9 @@ This skill encodes the patterns that worked and forbids the ones that didn't.
 /triage hypothesise                 # propose theories (or fire with text)
 /triage probe T02                   # write probe + discovery, run or hand back
 /triage findings T02                # interpret .out, write verdict
+/triage followup "..."              # park an out-of-scope spinoff discovery (F1, F2…)
 /triage fix-spec T02                # draft fix for confirmed theory
+/triage issue                       # draft a public GH issue + link it back (draft-only)
 /triage rollup                      # regenerate README projected zone
 /triage status                      # read-only orientation, no edits
 ```
@@ -58,6 +60,7 @@ If Claude Code mid-message slash commands don't actually pass trailing text as a
 - **`.context/stuart/investigations/<slug>/` as default location** — follows the symlink convention. If `.context/` doesn't exist, the skill asks rather than guessing.
 - **No auto-trigger for rollup** — you run `/triage rollup` when you want the README to reflect reality. Source files are truth; README is a view.
 - **Static zone in README is hand-curated, not regenerated** — symptom and vocabulary are stable, projected state evolves
+- **The investigation is "everything required for a fix", and it's private** — a working tool of notes and evidence, living in a private context repo. It outlives the moment you spin out a tracking issue: cutting an issue is a *non-terminal milestone* (the investigation stays open as the context that drives the fix), and the investigation only reaches its end when a fix actually merges. Nothing that leaves the folder for a public surface may carry its internal vocabulary — see "Public artefacts never leak the investigation" in `SKILL.md`.
 
 ## Possible future: a `close` subcommand
 
