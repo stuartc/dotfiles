@@ -32,6 +32,7 @@ See `references.md` for full reference payloads.
 ├── scripts/           # runners (see scripts/README.md)
 ├── scope.md           # optional
 ├── shapes.md          # optional
+├── followups.md       # optional, spinoff candidates parked via /triage followup
 └── fix-spec.md        # appears when a fix is drafted
 ```
 

@@ -43,6 +43,7 @@ Default location: `.context/stuart/investigations/<slug>/` in the current projec
 ├── scripts/                 # runners (run-sql.sh, run-iex.sh) — scaffolded at init
 ├── scope.md                 # optional, from /triage scope
 ├── shapes.md                # optional, from /triage taxonomy
+├── followups.md             # optional, spinoff candidates from /triage followup
 └── fix-spec.md              # once a theory is confirmed
 ```
 
@@ -56,6 +57,7 @@ Default location: `.context/stuart/investigations/<slug>/` in the current projec
 | `hypothesise [text]` | Propose theories | `theories/T<id>/brief.md` per theory | `protocols/hypothesise.md` |
 | `probe T<id>` | Write probe + discovery, hand back runner | `probes/NN.*` | `protocols/probe.md` |
 | `findings T<id>` | Interpret probe output, write verdict | `theories/T<id>/findings.md` | `protocols/findings.md` |
+| `followup [text]` | Park a spinoff discovery that's out of scope for this investigation | `followups.md` entry `F<id>` | `protocols/followup.md` |
 | `fix-spec [T<id>]` | Draft fix for a confirmed theory | `fix-spec.md` | `protocols/fix-spec.md` |
 | `rollup` | Regenerate README projected zone from log + theories | updated README | `protocols/rollup.md` |
 | `status` | Print current state, no edits | conversation only | `protocols/status.md` |
@@ -73,6 +75,8 @@ If the subcommand is unrecognised, list the vocabulary back to the user and ask.
 **Investigation root.** Resolve once per invocation: `pwd`-relative `.context/stuart/investigations/<slug>/`. If no slug context exists yet (first call wasn't `init`), check for the most recently-modified investigation folder or ask.
 
 **Theory IDs.** `T01`, `T02`, … — assigned by `hypothesise`, never reused, never renumbered. Falsified theories keep their ID and folder forever.
+
+**Follow-up IDs.** `F1`, `F2`, … — assigned by `followup`, never reused, never renumbered. A follow-up is a spinoff *discovery* that's out of scope for the current investigation but mustn't be lost: it becomes its own `/triage init` or a GitHub issue later. Distinct from a theory (a theory is a candidate explanation of *this* bug; a follow-up is a *different* problem noticed in passing). Entries live in `followups.md`, each carrying enough context to spin out without re-discovery.
 
 **Probe numbering.** Flat, sequential across the investigation. Next free integer. Zero-padded to 2 digits (`01`, `02`, … `99`). Discovery probes use a suffix: `03-discovery.sql`.
 
@@ -104,6 +108,7 @@ Use the comment syntax of the probe language (`--` for SQL, `#` for shell, `#` f
 - `theory-falsified:T<id>` / `theory-confirmed:T<id>` / `probe-inconclusive:T<id>`
 - `theory-superseded:T<id>-by-T<id>`
 - `shape-discovered:<name>`
+- `followup-parked:F<id>` — one event per follow-up parked (or one covering several if parked together)
 - `fix-spec-drafted`
 - `session-handoff` / `session-pickup`
 

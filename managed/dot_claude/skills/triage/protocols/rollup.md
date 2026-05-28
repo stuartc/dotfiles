@@ -25,10 +25,12 @@ Find the investigation root.
 
 - All `theories/*/brief.md` — read frontmatter for `id`, `status`, `shapes`. Read first paragraph of body for the mechanism summary.
 - All `theories/*/findings.md` if present — read the verdict headline.
+- `probes/` directory listing + the `probe-run-NN` log files — for the probe number, theories tested, and one-line purpose of each probe.
 - Last 5 files in `log/` sorted by filename (which is timestamped, so latest 5 events).
 - `shapes.md` if it exists — for the canonical shape list.
 - `scope.md` if it exists — for the headline number.
 - `fix-spec.md` if it exists — for the link.
+- `followups.md` if it exists — for the open follow-up entries (F-ids + one-liners).
 
 ### 3. Compose the projected zone
 
@@ -62,6 +64,15 @@ _Last rolled up: <ISO datetime>_
 | T02 | process-events | confirmed | Events processed out of order | A,B |
 | T03 | retention-wipe | proposed | … | C |
 
+## Probes
+
+| # | Theories | Purpose | File |
+|---|---|---|---|
+| 01 | T01 | … | [`probes/01.md`](./probes/01.md) |
+| 02 | T01,T03 | … | [`probes/02.sql`](./probes/02.sql) |
+
+<or "No probes run yet" if probes/ is empty>
+
 ## Confirmed root causes
 
 <only if any theories are confirmed — link to findings + fix-spec>
@@ -73,6 +84,13 @@ _Last rolled up: <ISO datetime>_
 ## Fix spec
 
 <link to fix-spec.md, or "Not yet drafted">
+
+## Follow-ups
+
+<spinoff candidates parked via `followup`. One bullet per open F-entry: id + one-liner + pointer to followups.md. "No follow-ups parked" if absent.>
+
+- F1 — <one-line summary>
+- F2 — <one-line summary>
 
 <!-- TRIAGE: END PROJECTED -->
 ```

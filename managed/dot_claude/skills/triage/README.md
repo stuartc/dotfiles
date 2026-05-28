@@ -59,6 +59,23 @@ If Claude Code mid-message slash commands don't actually pass trailing text as a
 - **No auto-trigger for rollup** — you run `/triage rollup` when you want the README to reflect reality. Source files are truth; README is a view.
 - **Static zone in README is hand-curated, not regenerated** — symptom and vocabulary are stable, projected state evolves
 
+## Possible future: a `close` subcommand
+
+Not built yet — captured here so the decision is informed rather than reflexive.
+
+**The gap it would fill.** Every other lifecycle transition has a verb (`init`, `hypothesise`, `probe`, `findings`, `fix-spec`) but there's no verb for *ending* an investigation. Your own framing of the workflow was "evaluate the impact, then either drive to a fix or spin out concrete issues" — that's an explicit exit step, and right now it happens informally (a final commit, maybe a stray log entry) with nothing enforcing that loose ends are tied off.
+
+**What `close` would do.** Roughly:
+
+1. Require a terminal state and record it: `fixed` (links the `fix-spec` / PR), `spun-out` (the whole thing became other issues), `wont-fix` / `not-reproducible`, or `superseded-by <slug>`.
+2. **Reconcile every open `F<id>` follow-up** — for each one, force a decision: spun out (to where — a `/triage init <slug>` or a GH issue URL) or explicitly dropped (with a reason). This is the real value: follow-ups are easy to park and easy to forget, and close is the moment they'd otherwise rot.
+3. Sanity-check theory states — warn if theories are still `proposed` with no findings (an investigation closing with untested theories is worth a deliberate "yes, leaving those open" rather than silence).
+4. Write a `closed` log event + a closing summary block in the README static zone, and do a final commit.
+
+**When it earns its keep.** Once you've run a handful of these end-to-end and follow-ups are routinely being parked, the "did F2 ever get spun out?" question becomes real. If investigations mostly resolve to a fix and rarely accumulate follow-ups, a final commit plus a hand-written `closed:` log event is enough and `close` is ceremony. So: defer until the follow-up volume makes reconciliation a chore — that's the signal it's worth the protocol file.
+
+The lighter-weight alternative (current state): when you close by hand, the closing log entry should call out each follow-up's fate. `followup.md` and the F-id convention both already say this.
+
 ## Refinements for v2
 
 Tick these off as you confirm or resolve them on the next investigation.
@@ -72,7 +89,7 @@ Tick these off as you confirm or resolve them on the next investigation.
 - [ ] Do the dispatched subagents actually obey the discovery rule, or does it need to be stricter / repeated in every protocol?
 - [ ] Probe runner scripts: should `init` scaffold project-typed stubs (k8s, local, ssh) rather than just a `scripts/README.md`?
 - [ ] Does `/triage status` give enough orientation to skip `/pickup` on fresh sessions? If yes, document the substitution.
-- [ ] Is there a `close` subcommand needed, or is a final commit + a `closed:` event sufficient?
+- [ ] Is there a `close` subcommand needed, or is a final commit + a `closed:` event sufficient? (See "Possible future: a `close` subcommand" above — deferred until follow-up volume makes reconciliation a chore.)
 
 ## Related skills
 
