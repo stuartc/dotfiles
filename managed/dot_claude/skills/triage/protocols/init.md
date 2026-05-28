@@ -109,3 +109,10 @@ One paragraph back to the user:
 ## Discovery rule
 
 If pulling a Sentry issue, **do not paginate through events at intake**. Just fetch the issue summary + 1 sample event. Pagination belongs to `taxonomy` or `scope` where it's the user's explicit ask. This is the stuck-agent rule.
+
+**Thin-stack exception.** If the sample event's stack is information-poor — a bare DB timeout, a generic `RuntimeError`, anything with no line pointing at our code — the real culprit is often a *different* error from the same request. You have permission to do one quick correlated look (≤5 calls, not a fan-out):
+
+1. Prefer the **same trace**: if the event carries a `trace_id` (or request/transaction id), search for sibling events on that trace — they're causally linked, not just coincident.
+2. Fall back to a **tight timestamp window** (the surrounding few seconds) only when there's no trace id. Treat window hits as *candidates to verify*, not the cause — in a busy system plenty of unrelated errors share a second.
+
+If this surfaces a richer error, note it in `references.md` (don't switch the investigation's symptom silently — record both and let Stu decide which to chase). If nothing correlates, stop and move on; don't widen the window.

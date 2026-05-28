@@ -84,3 +84,5 @@ List shape names + signatures. Suggest `hypothesise` next — usually one or mor
 ## Notes
 
 If a new shape is discovered later (not at first taxonomy), don't re-run this command. Instead, edit `shapes.md` directly to add the new shape, and log a `shape-discovered:<name>` event. The taxonomy command is for the initial bulk categorisation; incremental shape additions are normal investigation work.
+
+**Symptom vs cause.** A "shape" with a thin stack (bare DB timeout, generic error, nothing pointing at our code) may be a downstream *symptom* rather than a distinct cause. Before treating it as its own shape worth theorising about, do the bounded correlated look from `init`'s thin-stack exception: same `trace_id` first, tight timestamp window as fallback (≤5 calls). If a richer error on the same trace explains it, fold this shape into that one and note the relationship in `shapes.md` rather than spawning a parallel theory for the symptom.
