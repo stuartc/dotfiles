@@ -8,8 +8,14 @@
         "commandPath": "basename `pwd`"
       },
       {
-        "id": "7b64dcc4-6e2a-4ee3-8efe-993b535fb38f",
+        "id": "6e5d6588-535d-435f-ac53-85687d42e1f0",
         "type": "model",
+        "rawValue": true,
+        "merge": true
+      },
+      {
+        "id": "8be883e0-7925-4455-adf6-9d0dc36d2d2f",
+        "type": "thinking-effort",
         "rawValue": true
       },
       {
@@ -20,7 +26,14 @@
       },
       {
         "id": "27bacfbe-a34e-498a-9637-30c5d76b5bb2",
-        "type": "session-usage"
+        "type": "session-usage",
+        "rawValue": true,
+        "merge": true
+      },
+      {
+        "id": "7ce81256-e639-470c-b60c-98baa61d3621",
+        "type": "reset-timer",
+        "rawValue": true
       },
       {
         "id": "5",
@@ -42,6 +55,7 @@
   "defaultPadding": " ",
   "inheritSeparatorColors": false,
   "globalBold": false,
+  "gitCacheTtlSeconds": 5,
   "minimalistMode": false,
   "powerline": {
     "enabled": true,
