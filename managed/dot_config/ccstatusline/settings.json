@@ -5,7 +5,7 @@
       {
         "id": "b3cfc55f-25cf-42b0-a387-2fcdd51cdaf1",
         "type": "custom-command",
-        "commandPath": "basename `pwd`"
+        "commandPath": "basename \"$PWD\""
       },
       {
         "id": "6e5d6588-535d-435f-ac53-85687d42e1f0",
