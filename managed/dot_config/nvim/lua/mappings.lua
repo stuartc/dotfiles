@@ -82,7 +82,11 @@ vim.keymap.del("n", "<leader>h")   -- Frees <leader>h* for gitsigns hunks
 -- HARPOON (custom)
 --   <leader>a     Add file to harpoon
 --   <C-e>         Toggle harpoon menu
---   <C-h/j/k/l>   Jump to harpoon file 1/2/3/4
+--   <leader>1-4   Jump to harpoon file 1/2/3/4
+--
+-- WINDOW / PANE NAVIGATION (smart-splits.nvim)
+--   <C-h/j/k/l>   Move between splits; crosses into tmux panes at the edge
+--   <leader>rr    Resize submode (then hjkl to resize, <Esc>/q to leave)
 --
 -- SURROUND (nvim-surround)
 --   ys{motion}{char}  Add surround (e.g. ysiw" surrounds word with ")
@@ -219,10 +223,21 @@ map("n", "<leader>ft", "<cmd>Telescope terms<cr>", { desc = "Find terminals" })
 local harpoon = require("harpoon")
 map("n", "<leader>a", function() harpoon:list():add() end, { desc = "Harpoon add file" })
 map("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = "Harpoon menu" })
-map("n", "<C-h>", function() harpoon:list():select(1) end, { desc = "Harpoon file 1" })
-map("n", "<C-j>", function() harpoon:list():select(2) end, { desc = "Harpoon file 2" })
-map("n", "<C-k>", function() harpoon:list():select(3) end, { desc = "Harpoon file 3" })
-map("n", "<C-l>", function() harpoon:list():select(4) end, { desc = "Harpoon file 4" })
+-- <C-hjkl> now drive smart-splits navigation (see plugins/smart-splits.lua);
+-- harpoon file-jumps moved to <leader>1-4.
+map("n", "<leader>1", function() harpoon:list():select(1) end, { desc = "Harpoon file 1" })
+map("n", "<leader>2", function() harpoon:list():select(2) end, { desc = "Harpoon file 2" })
+map("n", "<leader>3", function() harpoon:list():select(3) end, { desc = "Harpoon file 3" })
+map("n", "<leader>4", function() harpoon:list():select(4) end, { desc = "Harpoon file 4" })
+
+-- Window / pane navigation (smart-splits.nvim). Defined here, after
+-- `require "nvchad.mappings"` above, so they override NvChad's default
+-- <C-hjkl> = <C-w>hjkl window maps — those move between nvim splits but do NOT
+-- hand off to tmux panes at the layout edge, which is the whole point.
+map("n", "<C-h>", function() require("smart-splits").move_cursor_left() end, { desc = "Move to split/pane left" })
+map("n", "<C-j>", function() require("smart-splits").move_cursor_down() end, { desc = "Move to split/pane down" })
+map("n", "<C-k>", function() require("smart-splits").move_cursor_up() end, { desc = "Move to split/pane up" })
+map("n", "<C-l>", function() require("smart-splits").move_cursor_right() end, { desc = "Move to split/pane right" })
 
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
 
