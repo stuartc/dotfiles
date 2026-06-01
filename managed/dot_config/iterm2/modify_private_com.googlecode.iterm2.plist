@@ -47,6 +47,39 @@ GLOBAL_SETTINGS = {
     "UseLionStyleFullscreen": False,  # Disable macOS native full-screen windows
 }
 
+# Global key bindings (GlobalKeyMap) — apply across all profiles, mirroring the
+# equivalent Ghostty keybinds so tmux sees identical bytes in both terminals.
+#   Action 10 = Send Escape Sequence (iTerm2 prepends ESC to Text)
+#   Action 11 = Send Hex Codes (Text is space-separated hex bytes)
+# Key format: char-modifiers-keyCode. Modifiers: 0x20000 = Shift; 0x380000 =
+# Cmd+Opt + the numeric-pad flag (0x200000) that arrow keys always carry.
+GLOBAL_KEYMAP = {
+    # Shift+Enter -> CSI-u Shift+Enter (\e[13;2u). Deliberately NOT a bare LF:
+    # a literal \n is Ctrl+J, which the smart-splits `bind -n C-j` in tmux.conf
+    # would swallow (moving the pane down) instead of letting Claude Code insert
+    # a newline. \e[13;2u is the exact byte sequence Ghostty emits natively via
+    # CSI-u, tmux forwards it untouched, and Claude reads it as Shift+Enter.
+    "0xd-0x20000-0x24": {
+        "Action": 10, "Apply Mode": 0, "Escaping": 2, "Text": "[13;2u", "Version": 2,
+    },
+    # Cmd+Opt+Arrow -> tmux prefix (NUL = C-Space) + hjkl = seamless pane nav.
+    # Mirror of Ghostty `super+alt+arrow=text:\x00<hjkl>`. Cmd/Super can't be
+    # encoded by CSI-u and tmux doesn't speak the Kitty protocol, so this
+    # translation has to live terminal-side rather than as a tmux binding.
+    "0xf700-0x380000-0x7e": {  # Up -> prefix + k
+        "Action": 11, "Apply Mode": 0, "Escaping": 2, "Text": "0x00 0x6b", "Version": 2,
+    },
+    "0xf701-0x380000-0x7d": {  # Down -> prefix + j
+        "Action": 11, "Apply Mode": 0, "Escaping": 2, "Text": "0x00 0x6a", "Version": 2,
+    },
+    "0xf702-0x380000-0x7b": {  # Left -> prefix + h
+        "Action": 11, "Apply Mode": 0, "Escaping": 2, "Text": "0x00 0x68", "Version": 2,
+    },
+    "0xf703-0x380000-0x7c": {  # Right -> prefix + l
+        "Action": 11, "Apply Mode": 0, "Escaping": 2, "Text": "0x00 0x6c", "Version": 2,
+    },
+}
+
 # Default profile settings (applied to "New Bookmarks" array, first profile)
 DEFAULT_PROFILE_SETTINGS = {
     # Font
@@ -159,6 +192,11 @@ def main():
 
     # Apply global settings
     plist.update(GLOBAL_SETTINGS)
+
+    # Apply global key bindings (merge into any existing GlobalKeyMap so other
+    # user-defined global bindings are preserved; ours win on key collision)
+    plist.setdefault("GlobalKeyMap", {})
+    plist["GlobalKeyMap"].update(GLOBAL_KEYMAP)
 
     # Apply profile settings to the first profile (default)
     if "New Bookmarks" in plist and len(plist["New Bookmarks"]) > 0:
