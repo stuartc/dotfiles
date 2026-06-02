@@ -1,5 +1,10 @@
 require "nvchad.options"
 
+-- Assert 24-bit colour explicitly. Nvim 0.10+ auto-detects this from
+-- $COLORTERM, but that silently fails if COLORTERM isn't forwarded
+-- (e.g. some SSH sessions), collapsing the theme to 256 colours.
+vim.opt.termguicolors = true
+
 -- OSC 52 clipboard for remote sessions (yank reaches macOS clipboard over SSH)
 -- Paste direction can't round-trip through tmux, so use Cmd+V (bracketed paste)
 if vim.env.SSH_CONNECTION and vim.fn.has("nvim-0.10") == 1 then
