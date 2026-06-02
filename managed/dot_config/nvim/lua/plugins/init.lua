@@ -270,12 +270,39 @@ return {
     keys = {
       { "<leader>cs", mode = "v", "<cmd>ClaudeCodeSend<cr>", desc = "Claude send selection" },
     },
-    opts = {
-      auto_start = true,  -- Start WebSocket server when Neovim launches
-      terminal = {
-        provider = "none",  -- Disable Neovim terminal; use external terminal (iTerm2, tmux)
-      },
-    },
+    config = function()
+      -- Workaround for coder/claudecode.nvim#166: the keepalive timer (30s) tears
+      -- down an idle client via two close paths; the async write callback in
+      -- close_client hits an unguarded tcp_handle:close(), so libuv throws
+      -- "handle is already closing" ~30s into edit mode. Guard the close like
+      -- tcp.lua already does. Remove once #166 merges upstream.
+      local client = require("claudecode.server.client")
+      local frame = require("claudecode.server.frame")
+      function client.close_client(c, code, reason)
+        if c.state == "closed" or c.state == "closing" then
+          return
+        end
+        c.state = "closing"
+        local function safe_close()
+          c.state = "closed"
+          if c.tcp_handle and not c.tcp_handle:is_closing() then
+            c.tcp_handle:close()
+          end
+        end
+        if c.handshake_complete then
+          c.tcp_handle:write(frame.create_close_frame(code or 1000, reason or ""), safe_close)
+        else
+          safe_close()
+        end
+      end
+
+      require("claudecode").setup({
+        auto_start = true,  -- Start WebSocket server when Neovim launches
+        terminal = {
+          provider = "none",  -- Disable Neovim terminal; use external terminal (iTerm2, tmux)
+        },
+      })
+    end,
   },
 
   -- {
