@@ -19,7 +19,7 @@ if [ -z "${TMUX:-}" ]; then
   exit 1
 fi
 
-WORKBOOK_SESSION="workbook"
+WORKBOOK_SESSION="main"
 WORKBOOK_WINDOW="Workbook"
 NVIM_SOCKET="/tmp/nvim-workbook.sock"
 NVIM_CMD="${1:-}"
