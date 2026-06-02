@@ -7,6 +7,14 @@ return {
           resize_window = false,
         },
       },
+      git = {
+        enable = true,
+        timeout = 3000,
+      },
+      filesystem_watchers = {
+        enable = true,
+        debounce_delay = 200,
+      },
       renderer = {
         highlight_git = "name",
         icons = {
