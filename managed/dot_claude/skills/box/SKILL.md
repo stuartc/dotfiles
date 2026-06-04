@@ -1,0 +1,160 @@
+---
+name: box
+description: A file-first work-driver for a single multi-day/week body of work. Use when work spans sessions and needs a durable spine that outlives session churn — the box is the continuity layer the disposable session leans on.
+argument-hint: "<subcommand> [args] — eg. new <slug>, status, plan, park <text>, note <text>, rollup, close"
+---
+
+# Box
+
+Multi-day work outlives the session it's done in. A live Claude session is RAM: disposable, ejected around 140–180k tokens. The box is disk: the continuity layer that survives the churn. One box = one contained body of work. You open the box and you're loaded — no surgical context reconstruction every fresh session.
+
+The core idea, inherited from `triage`: the main session is a **dispatcher with a typed vocabulary**. Each subcommand reads its `protocols/<name>.md` and produces a named artefact in a predictable place. History is append-only. The README is a thin, always-current index — not the substance.
+
+The format scales **stub → tome without restructuring**. A freshly-born box is one README with the plan inline. Structure accretes on demand; you never restructure.
+
+## What it is
+
+A box does five jobs, in priority order:
+
+1. **Drive the work** — hold an ordered plan of the next few things, some crisp, some marked `needs-discovery` and fleshed out only when you arrive at them.
+2. **Capture with discipline** — when something surfaces mid-flow, park it cheaply with a disposition instead of polluting the session or forgetting it.
+3. **Archive without polluting** — demote done/superseded work *out of the active view* while preserving it; keep open questions *visible*.
+4. **Preserve provenance** — the lineage of how the work came to be.
+5. **Bootstrap the next session** — the box *is* the rich start.
+
+It generalises `triage` from bug-investigation to general work. Triage folds in as a flavour later — not in v1. Build box fresh; leave triage untouched.
+
+## When to use
+
+- A body of work that spans days or weeks and several sessions.
+- Work that needs a durable spine — a plan you return to, follow-ups you park, provenance you keep.
+- Taking over someone else's in-flight work (seed a box from a PR or issue).
+- A homeless prompt that has grown into something worth keeping — materialise the box the instant it's worth keeping.
+
+## When NOT to use
+
+- A task you finish in one session — just do it.
+- A production bug investigation — use `triage`.
+- A meeting note or write-up — use the workbook.
+- Portfolio coordination across many bodies of work — out of scope. One box, one body of work.
+
+## Box layout (stub → tome)
+
+A freshly-born box is **just `README.md`** with the plan inline. Structure accretes on demand — never restructure.
+
+```
+<slug>/
+├── README.md          # the head: static top + projected "where things stand". Plan lives inline here until it splits.
+├── plan.md            # the work track — split out of the README on demand, once it outgrows the head
+├── follow-ups.md      # the parked track — created on first park
+├── log/               # append-only events + decisions — created on the 2nd entry
+│   └── 2026-06-04T09-10-born.md
+├── handoffs/          # carry-forward prompts — created lazily on the first carry-forward
+└── archive/           # demoted superseded docs, each with a death-banner
+```
+
+**Location:** `.context/stuart/boxes/<slug>/` in the current project (parallel to triage's `investigations/`). Assume `.context/` exists; **ask or refuse** if it genuinely doesn't. "Homeless" never means *outside a repo* — it means *in a repo with `.context/`, but the session started without a box open*.
+
+## Subcommand vocabulary
+
+| Verb | Purpose | Produces | Protocol |
+|---|---|---|---|
+| `new <slug> [--pr REF \| --issue REF]` | Open a box. Backfill origin from the live session, **or** seed from a PR/issue. Scaffold README (+ first Log entry). | box tree | `protocols/new.md` |
+| `status` | Read-only orientation — the conversational entry point. Prints the README head: state, next moves, open follow-ups, open questions. No edits. | conversation only | `protocols/status.md` |
+| `plan` | Work the plan: add/reorder items, set states. `plan next` pulls the next `ready` item. Split the plan out to `plan.md` when it outgrows the head. | inline `## Plan` or `plan.md` | `protocols/plan.md` |
+| `park <text>` | **The headline gesture.** Capture a follow-up with a disposition; if it's a future-session thing, offer the carry-forward prompt. | `follow-ups.md` entry (+ optional handoff) | `protocols/park.md` |
+| `note <text>` | Log a decision / discovery / open question. Lighter than park — no disposition. | `log/` entry | `protocols/note.md` |
+| `rollup` | Regenerate the README projected zone from plan/follow-ups/log. Demote done & superseded material out of the active view. | updated README | `protocols/rollup.md` |
+| `close` | End-of-box: reconcile every open follow-up, demote done work to `archive/`, record terminal state, draft the PR description. | closing Log entry + README | `protocols/close.md` |
+
+## Routing
+
+Parse the **first token** of the argument as the subcommand. Everything after it is optional **steer**: pass it verbatim to the dispatched agent as extra context, don't ignore it.
+
+For each subcommand, **read the corresponding `protocols/<name>.md` file in this skill folder** and follow it. The protocol files hold the dispatch templates and step-by-step rules. Don't try to remember them from this index.
+
+If the subcommand is unrecognised, list the vocabulary back to the user and ask.
+
+**Conversational on top of explicit.** Stu's real invocation style is conversational: he points at a box (`box is here: <path>` + `status`) then describes the situation in natural language and lets the dispatcher route it. Support that — explicit verbs underneath, smart routing on top. When he describes a situation rather than naming a verb, infer the verb (a thing to park → `park`; a decision made → `note`; "where are we" → `status`; "what's next" → `plan next`) and proceed, confirming only when genuinely ambiguous.
+
+## Conventions across all subcommands
+
+**Box root resolution.** Resolve once per invocation: `.context/stuart/boxes/<slug>/` relative to `pwd`. If the user pointed at a box (`box is here: <path>`), use that. If no slug context exists yet (first call wasn't `new`), use the most-recently-modified box under `.context/stuart/boxes/`, or ask if it's ambiguous.
+
+**Vocabulary.** Five plain words. Do not collapse the README/Log split into "context" — they do two different jobs.
+
+- **Box** — the container; one body of work. The folder.
+- **README** — the head: always-current navigation. State, current-vs-superseded document map, next moves, open follow-ups, open questions. ~100 lines, always current.
+- **Plan** — the work track: ordered, intent-level items, each with a state. Lives inline in the README until it splits to `plan.md`.
+- **Follow-ups** — the parked track: each entry carries a disposition naming where it goes. In `follow-ups.md`.
+- **Log** — append-only provenance and narrative: what happened, decisions, open questions. Can be long. In `log/`.
+
+**Plan item states.** `stub` (placeholder, `<TODO: spec out>`) → `needs-discovery` (known but not understood; engage when reached) → `ready` (crisp, actionable) → `in-progress` (being worked) → `done`. The `needs-discovery → ready` transition is where discovery happens — for v1 this is **conversational, no dedicated verb**. You dispatch discovery agents in the moment when you reach the item.
+
+**Follow-up dispositions.** Every park names where it goes — disposal language, not deferral. `in-scope-later` (do during this box, on the tail) / `→ issue` (becomes a GitHub issue, provenance linked back) / `→ new box` / `dropped` (explicitly killed, with a reason). At `close`, **every open follow-up reconciles to a terminal disposition** — that's the normal ending for a box, not an edge case.
+
+**Follow-up IDs.** `F1`, `F2`, … — assigned by `park`, **never reused, never renumbered**. A dropped or spun-out follow-up keeps its ID forever. Entries live in `follow-ups.md`, each carrying enough context to make sense in five days without re-discovery.
+
+**Event log.** Append-only, never edited. One short file per major transition, named `YYYY-MM-DDTHH-MM-<event-type>.md`, usually 5–20 lines: timestamp, what changed, pointer to the artefact, one line of context. Only log when state Stu cares about has shifted — not every edit. Event types:
+
+- `born` — box created
+- `seeded-from-pr` / `seeded-from-issue` — box seeded from a public ref
+- `plan-updated` — plan items added / reordered / state-changed
+- `followup-parked:F<id>` — one event per park (or one covering several parked together)
+- `note` — a logged decision / discovery / observation
+- `decision` — a decision recorded
+- `open-question` — an unresolved question surfaced (stays visible in the README)
+- `rolled-up` — README projected zone regenerated
+- `handoff` — a carry-forward prompt written (points at the `handoffs/` file)
+- `superseded:<doc>` — a document demoted to `archive/`
+- `closed` — box closed, terminal state recorded
+
+**Commit-before-edit.** Baked into every state-modifying verb (`new`, `plan`, `park`, `note`, `rollup`, `close`). Before the edit, stage and commit the current state with a generic message: `box: snapshot before <verb>`. No co-author lines, no skip-hooks. If the working tree has **unrelated** changes, **stop and ask** rather than sweeping them in. Note: `.context/` is usually its own git repo, often a symlink — `cd` into the symlink target to run git there.
+
+**Discovery before commitment.** Any dispatched subagent about to run something potentially long (big SQL, codebase-wide grep, large fan-out, PR/issue fetch with pagination) **must** spend ≤5 tool calls confirming the data shape exists before committing to the work. This is the stuck-agent insurance.
+
+**Subagent dispatch shape.** When a protocol dispatches a subagent, the brief always includes: (1) the box root path, (2) which specific files to read first, (3) the named artefact path it must produce, (4) the ≤5-line return format expected, (5) the discovery-before-commitment rule. Never dispatch with "go do X" — always with the artefact path and shape. If the subagent produces anything public-facing, pass it the leak-free rule below.
+
+**Public artefacts never leak the box.** The box is a private working tool (it lives in a private context repo; most of the code it describes is open source). Anything that leaves the box for a public surface — a GitHub issue, a PR description, an external comment — must stand on its own in plain English and **must not** carry the box's internal vocabulary: no follow-up IDs (`F1`, `F2`), no slug references, no "the box found…", no `plan.md`/`follow-ups.md` pointers. Translate into how a person would naturally write it. And per Stu's standing rule, **draft only — never post to a public surface unprompted.**
+
+**Projected-zone markers.** The README has a hand-curated static zone and a regenerated projected zone, delimited by:
+
+```
+<!-- BOX: BEGIN PROJECTED -->
+…
+<!-- BOX: END PROJECTED -->
+```
+
+`rollup` only ever replaces the content **between** the markers. The static zone above is hand-curated and never touched by rollup. If the markers are missing, warn and ask before reconstructing.
+
+## Resolved design decisions
+
+These were open questions in the design brief; they are now locked.
+
+1. **Plan is born inline in the README.** The `plan` verb migrates it to `plan.md` only once it exceeds ~12–15 items or visibly crowds the head. One-way split, on demand — once split, it stays in `plan.md`.
+2. **No discovery verb in v1.** The `needs-discovery → ready` transition is conversational.
+3. **Rollup is manual only.** Source files (`plan`, `follow-ups.md`, `log/`) are the truth; the projected zone is a view. No auto-trigger.
+4. **Carry-forward prompts live in the box.** `park` writes them to a lazily-created `handoffs/` subdir; a short `handoff` Log event points at the file. This reuses the `handoff` skill's format but persists it in the box (the durable record), not the OS temp dir.
+5. **`close` drafts the PR description.** It composes a PR-description **draft** from the box and prints it for Stu to send — never posts.
+6. **Slash-arg parsing follows triage's convention** (first token = verb, the rest = verbatim steer). Treat as unconfirmed; verify on first real use and fall back to prefix-only invocation if trailing text doesn't arrive.
+
+## Pickup ergonomics
+
+When a fresh session starts mid-box, run `box status` to get current state without re-reading anything. `status` prints: the one-line state, next moves, open follow-ups, open questions, and a "point me at" prompt asking which thing to fire next.
+
+`/handoff` and `/pickup` work alongside. The park gesture's carry-forward prompt *is* a handoff scoped to a box — reuse that format, don't duplicate it. `pickup` can open a box by reading its README.
+
+## Style
+
+- British English in scaffolded files.
+- No emoji.
+- Short, opinionated, complete sentences.
+- File templates use Markdown; YAML frontmatter only where a field is load-bearing (e.g. `superseded_by:` on demoted docs).
+- No back-references in artefacts ("as discussed earlier") — every artefact stands alone or links explicitly.
+
+## Out of scope (v1)
+
+- **The agentic execution loop.** The `run.sh` / `queue.json` / driver fan-out harness is its own beast. The box *feeds* it later but does not contain it.
+- **Cross-box / portfolio machinery.** One box, one body of work. Boxes may reference each other; nothing coordinates above them.
+- **Triage migration.** Fold triage in once box has proven out.
+- **The beads projection.** The box owns the whole climb; beads only ever sees the ready top rungs — and not in v1.
