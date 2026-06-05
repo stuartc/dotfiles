@@ -2,13 +2,21 @@
 name: box
 description: A file-first work-driver for a single multi-day/week body of work. Use when work spans sessions and needs a durable spine that outlives session churn — the box is the continuity layer the disposable session leans on.
 argument-hint: "<subcommand> [args] — eg. new <slug>, status, plan, park <text>, note <text>, rollup, close"
+# Scoped git pre-approval for the commit-before-edit convention. FLAGGED FOR LIVE
+# TESTING: verify these multi-`*`/slash globs actually match `.context/` repo
+# paths via /doctor or a live prompt. If they don't fire, fall back to the
+# broader `Bash(git -C *)` (still narrows away rm/curl/etc.).
+allowed-tools:
+  - "Bash(git -C * add -A)"
+  - "Bash(git -C * commit -m *)"
+  - "Bash(git -C * status --porcelain)"
 ---
 
 # Box
 
 Multi-day work outlives the session it's done in. A live Claude session is RAM: disposable, ejected around 140–180k tokens. The box is disk: the continuity layer that survives the churn. One box = one contained body of work. You open the box and you're loaded — no surgical context reconstruction every fresh session.
 
-The core idea, inherited from `triage`: the main session is a **dispatcher with a typed vocabulary**. Each subcommand reads its `protocols/<name>.md` and produces a named artefact in a predictable place. History is append-only. The README is a thin, always-current index — not the substance.
+The core idea, inherited from `triage`: the main session is a **dispatcher with a typed vocabulary**. Each subcommand reads its `protocols/<name>.md` and produces a named artefact in a predictable place. History is append-only. The README is a thin, always-current index — not the substance. In v1, all verbs run inline — no subagents are dispatched; the dispatch-shape rules below apply when a protocol does fork one, and to any in-session discovery agents.
 
 The format scales **stub → tome without restructuring**. A freshly-born box is one README with the plan inline. Structure accretes on demand; you never restructure.
 
@@ -38,7 +46,7 @@ It generalises `triage` from bug-investigation to general work. Triage folds in 
 - A meeting note or write-up — use the workbook.
 - Portfolio coordination across many bodies of work — out of scope. One box, one body of work.
 
-## Box layout (stub → tome)
+## Working layout (stub → tome)
 
 A freshly-born box is **just `README.md`** with the plan inline. Structure accretes on demand — never restructure.
 
@@ -71,7 +79,7 @@ A freshly-born box is **just `README.md`** with the plan inline. Structure accre
 
 Parse the **first token** of the argument as the subcommand. Everything after it is optional **steer**: pass it verbatim to the dispatched agent as extra context, don't ignore it.
 
-For each subcommand, **read the corresponding `protocols/<name>.md` file in this skill folder** and follow it. The protocol files hold the dispatch templates and step-by-step rules. Don't try to remember them from this index.
+For each subcommand, **read the corresponding `${CLAUDE_SKILL_DIR}/protocols/<name>.md` file** and follow it. The protocol files hold the dispatch templates and step-by-step rules. Don't try to remember them from this index.
 
 If the subcommand is unrecognised, list the vocabulary back to the user and ask.
 
@@ -89,11 +97,13 @@ If the subcommand is unrecognised, list the vocabulary back to the user and ask.
 - **Follow-ups** — the parked track: each entry carries a disposition naming where it goes. In `follow-ups.md`.
 - **Log** — append-only provenance and narrative: what happened, decisions, open questions. Can be long. In `log/`.
 
-**Plan item states.** `stub` (placeholder, `<TODO: spec out>`) → `needs-discovery` (known but not understood; engage when reached) → `ready` (crisp, actionable) → `in-progress` (being worked) → `done`. The `needs-discovery → ready` transition is where discovery happens — for v1 this is **conversational, no dedicated verb**. You dispatch discovery agents in the moment when you reach the item.
+**Plan item states.** `stub` (placeholder, `<TODO: spec out>`) → `needs-discovery` (known but not understood; engage when reached) → `ready` (crisp, actionable) → `done`. The `needs-discovery → ready` transition is where discovery happens — for v1 this is **conversational, no dedicated verb**. You dispatch discovery agents in the moment when you reach the item. There's no stored "in-progress" tag: "currently working an item" is conveyed by the live session plus any carry-forward handoff, not a state on the item.
 
 **Follow-up dispositions.** Every park names where it goes — disposal language, not deferral. `in-scope-later` (do during this box, on the tail) / `→ issue` (becomes a GitHub issue, provenance linked back) / `→ new box` / `dropped` (explicitly killed, with a reason). At `close`, **every open follow-up reconciles to a terminal disposition** — that's the normal ending for a box, not an edge case.
 
 **Follow-up IDs.** `F1`, `F2`, … — assigned by `park`, **never reused, never renumbered**. A dropped or spun-out follow-up keeps its ID forever. Entries live in `follow-ups.md`, each carrying enough context to make sense in five days without re-discovery.
+
+**Open-question IDs.** `Q1`, `Q2`, … — assigned by `note` when the type is `open-question`, **never reused, never renumbered**. A resolved question keeps its ID forever. The authoritative source for the highest `Q`-ID and the resolved set is the `log/` filenames (`…-open-question-Q<n>.md` raised, `…-question-resolved-Q<n>.md` settled) — the README projected zone is a lagging view. Resolution is **conversational, not a verb**: when Stu's text settles a question, the `Q<id>` in it is the dispatch signal and the resolution lands as a `question-resolved:Q<id>` Log event.
 
 **Event log.** Append-only, never edited. One short file per major transition, named `YYYY-MM-DDTHH-MM-<event-type>.md`, usually 5–20 lines: timestamp, what changed, pointer to the artefact, one line of context. Only log when state Stu cares about has shifted — not every edit. Event types:
 
@@ -103,13 +113,18 @@ If the subcommand is unrecognised, list the vocabulary back to the user and ask.
 - `followup-parked:F<id>` — one event per park (or one covering several parked together)
 - `note` — a logged decision / discovery / observation
 - `decision` — a decision recorded
-- `open-question` — an unresolved question surfaced (stays visible in the README)
+- `open-question:Q<id>` — an unresolved question raised (the `Q<id>` is assigned at creation, never reused or renumbered; stays visible in the README until settled)
+- `question-resolved:Q<id>` — a previously-raised question settled (drops off the README, lives in the Log forever)
 - `rolled-up` — README projected zone regenerated
 - `handoff` — a carry-forward prompt written (points at the `handoffs/` file)
 - `superseded:<doc>` — a document demoted to `archive/`
 - `closed` — box closed, terminal state recorded
 
-**Commit-before-edit.** Baked into every state-modifying verb (`new`, `plan`, `park`, `note`, `rollup`, `close`). Before the edit, stage and commit the current state with a generic message: `box: snapshot before <verb>`. No co-author lines, no skip-hooks. If the working tree has **unrelated** changes, **stop and ask** rather than sweeping them in. Note: `.context/` is usually its own git repo, often a symlink — `cd` into the symlink target to run git there.
+**Commit-before-edit.** Baked into every state-modifying verb (`new`, `plan`, `park`, `note`, `rollup`, `close`). Before the edit, stage and commit the current state with a generic message: `box: snapshot before <verb>`; after the edit, commit `box: <verb> <slug>`. No co-author lines, no skip-hooks. If the working tree has **unrelated** changes, **stop and ask** rather than sweeping them in.
+
+`.context/` is usually its own git repo, often a symlink. Run git against the resolved repo root with `-C` — **do NOT `cd` into the target**, because a command starting with `cd` can never be pre-approved. Resolve the repo root once per invocation: `CONTEXT_REPO=$(readlink -f .context)` (use `greadlink -f` if `readlink -f` is unavailable; it's native on macOS 12.3+). Then `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: <verb> <slug>"`. If `.context/` isn't a git repo, skip the commit and tell the user.
+
+**Clean-tree skip.** If `git -C "$CONTEXT_REPO" status --porcelain` is empty, skip the snapshot commit silently and proceed to the edit. The clean-tree skip applies only to the snapshot step — unrelated changes still mean **stop and ask**.
 
 **Discovery before commitment.** Any dispatched subagent about to run something potentially long (big SQL, codebase-wide grep, large fan-out, PR/issue fetch with pagination) **must** spend ≤5 tool calls confirming the data shape exists before committing to the work. This is the stuck-agent insurance.
 

@@ -6,7 +6,6 @@ _A single plan-item snippet. Plan items are intent-level — one line of intent 
 - [ ] {{INTENT}}  `[stub]`
 - [ ] {{INTENT}}  `[needs-discovery]`
 - [ ] {{INTENT}}  `[ready]`
-- [ ] {{INTENT}}  `[in-progress]`
 - [x] {{INTENT}}  `[done]`
 ```
 
@@ -15,5 +14,4 @@ _A single plan-item snippet. Plan items are intent-level — one line of intent 
 - `stub` — placeholder only; body is `<TODO: spec out>`. Known to exist, not yet described.
 - `needs-discovery` — known but not understood. Engage discovery when you reach it (conversational in v1 — no verb).
 - `ready` — crisp and actionable. A fresh session could pick it up and run.
-- `in-progress` — being worked right now.
-- `done` — complete. Checkbox ticked; `box rollup` demotes it out of the active Next-moves view into the Log.
+- `done` — complete. Checkbox ticked; stays in place — `box rollup`'s Next moves excludes it by construction (no Log entry, no move).

@@ -18,16 +18,17 @@ Resolve the box root per the contract: `.context/stuart/boxes/<slug>/` relative 
 
 These are the truth. The projected zone is derived from them, not the other way round.
 
-- **The Plan** — for item states. Inline `## Plan` in `README.md` if it hasn't split, else `plan.md`. Read every item's trailing `` `[state]` `` tag (`stub` / `needs-discovery` / `ready` / `in-progress` / `done`).
+- **The Plan** — for item states. Inline `## Plan` in `README.md` if it hasn't split, else `plan.md`. Read every item's trailing `` `[state]` `` tag (`stub` / `needs-discovery` / `ready` / `done`).
 - **`follow-ups.md`** — for open `F<id>` entries and their dispositions (`in-scope-later` / `→ issue` / `→ new box` / `dropped`). Reconciled or dropped entries are not "open".
-- **The last several `log/*.md`** — filenames are timestamped, so sort by name and read the latest N (≈5–8). Care most about `open-question`, `decision`, and `note` events: open questions feed the projection, decisions and notes inform the one-line state.
+- **The open-question set** — derive it from `log/` **filenames** (the append-only truth, not the README): the open questions are all `…-open-question-Q<n>.md` files **minus** any `Q<n>` that also appears in a `…-question-resolved-Q<n>.md` filename. Scan the full set for this — a resolution can predate the latest events.
+- **The last several `log/*.md`** — filenames are timestamped, so sort by name and read the latest N (≈5–8). Care most about `decision` and `note` events to inform the one-line state. (Open questions come from the filename scan above, not from reading these bodies.)
 - **The `archive/` listing** — for docs already demoted, so the document map can name them as superseded rather than re-demoting them.
 
 Apply the discovery-before-commitment rule: this is all local file reads, so no fan-out — but don't paginate through the entire log history; the latest several events are enough.
 
 ### 3. Compose the projected zone
 
-Compose the `## Where things stand` block exactly as the template ships it (`templates/README.md`), regenerating these `###` sub-sections in this order:
+Compose the `## Where things stand` block exactly as the template ships it (`${CLAUDE_SKILL_DIR}/templates/README.md`), regenerating these `###` sub-sections in this order:
 
 ```markdown
 ## Where things stand
@@ -62,24 +63,25 @@ _Last rolled up: <ISO datetime>_
 
 ### Open questions
 
-<from `open-question` log events still unresolved — these stay visible even while undecided>
+<raised minus resolved: every `open-question-Q<n>` filename whose `Q<n>` has no matching `question-resolved-Q<n>` — these stay visible even while undecided>
 
-- <question>  (raised <date>, still open)
+- Q<n> — <question>  (raised <date>, still open)
 ```
 
 Notes on composition:
 
-- **State** is one honest line about the present, not a status badge. Derive it from the latest plan/log activity — what's in-progress, what just landed, what's blocked.
+- **State** is one honest line about the present, not a status badge. Derive it from the latest plan/log activity — what's actively being worked (the nearest `ready` item), what just landed, what's blocked.
 - **Document map** is current vs superseded. Live docs sit in the box root; superseded docs live in `archive/` and are named as such, each pointing at what replaced it.
 - **Next moves** lists only Plan items not yet `done`, in plan order, the next few. A `needs-discovery` item is called out as such — never dressed up as `ready`. Done items do not appear here (see step 4).
 - **Open follow-ups** shows only open `F<id>` entries. An entry that has been reconciled or `dropped` falls off this list; its ID lives on in `follow-ups.md` (IDs are never reused).
-- **Open questions** comes from `open-question` log events that haven't been resolved. **These stay visible even while undecided — never demote an undecided question.** Visibility over tidiness.
+- **Open questions** is the raised-minus-resolved set from the `log/` filenames (step 2): every `open-question-Q<n>` with no matching `question-resolved-Q<n>`. Each bullet carries its `Q`-ID. **These stay visible even while undecided — never demote an undecided question.** Visibility over tidiness.
+- **Empty sections.** An empty section writes `_None yet._` as its sole body line — never omit a `###` sub-section. The structure stays constant whether or not there's content, so the live-adds (`park`/`note`) always have a coherent head to replace into.
 
 ### 4. Demote done & superseded (archival without pollution)
 
 The discipline that keeps the active surface small. Drive status honestly by construction — `rollup` owns these transitions so they don't rot the way hand-maintained status does.
 
-- **Done plan items** move out of the active Next-moves view. Record them in the Log (or a `## Done` tail on the Plan), not in the live projection. Leave the ticked `- [x] … `` `[done]` `` `` item where `plan` left it; `rollup` is what stops surfacing it as a next move. (`plan` sets the `done` state; `rollup` demotes it. Don't double-own this — `plan` never archives.)
+- **Done plan items** stay ticked in place — `rollup`'s Next moves excludes them by construction (the section lists only items not yet `done`). There is no recording step: no Log entry, no `## Done` tail, no move. `plan` sets the `done` state; `rollup` stops surfacing it; neither relocates it.
 - **Superseded docs** move to `archive/`. Each demoted doc gets, at the very top of its body, the death-banner:
 
   ```
@@ -111,17 +113,17 @@ If the markers are missing — someone hand-edited them out — **warn the user 
 
 ### 6. Commit-before-edit, then write
 
-Per the contract: before editing, stage and commit the current state — `box: snapshot before rollup`. If the working tree has unrelated changes, stop and ask rather than sweeping them in. `.context/` is usually its own git repo (often a symlink) — `cd` into the target to run git there.
+Per the contract: before editing, stage and commit the current state — `box: snapshot before rollup`. If the working tree has unrelated changes, stop and ask rather than sweeping them in. `.context/` is usually its own git repo (often a symlink) — resolve the repo root via `readlink -f .context` and run git with `git -C <repo> …`; do **not** `cd` into the target.
 
-Write the README projected zone and any `archive/` demotions. Append a `rolled-up` Log event (short: timestamp, that the projection was regenerated, the counts). Then commit `box: rollup <slug>`. No co-author lines, no skip-hooks.
+Write the README projected zone and any `archive/` demotions. Append a `rolled-up` Log event (short: timestamp, that the projection was regenerated, the counts). Then `git -C <repo> add -A` and `git -C <repo> commit -m "box: rollup <slug>"`. No co-author lines, no skip-hooks.
 
 ### 7. Report
 
-One line: the projected zone was regenerated, with counts — N plan items, M open follow-ups, K open questions, and any docs demoted this run.
+One line: the projected zone was regenerated, with counts — N plan items, M open follow-ups, K open questions (raised minus resolved), any `Q<id>`s resolved since the last rollup, and any docs demoted this run.
 
 ## Notes
 
 - **Rollup is derived data.** The projected zone is replaceable; the source files (the Plan, `follow-ups.md`, `log/*.md`, `archive/`) are the truth. To recover from a botched rollup, delete the projected zone between the markers and re-run — nothing is lost.
 - **The static zone is hand-curated and never touched.** The prize, repo facts, and origin live above the `<!-- BOX: BEGIN PROJECTED -->` marker. If they need updating, edit them by hand — `rollup` only ever rewrites between the markers.
 - **Archival demotes the done, never the undecided.** Done plan items and superseded docs leave the active view; open questions stay visible until resolved. Visibility over tidiness.
-- **`close` also demotes.** `rollup` and `close` share the archival machinery; `close` additionally reconciles every open follow-up to a terminal disposition and records terminal state. `plan` sets `done` states but never archives — `rollup` is the demoter.
+- **`close` also demotes.** `rollup` and `close` share the archival machinery; `close` additionally reconciles every open follow-up to a terminal disposition and records terminal state. `rollup` excludes done plan items from Next moves by construction **and** demotes superseded docs to `archive/` — it's the demoter for documents. `plan` sets `done` states but never archives.

@@ -22,7 +22,7 @@ Read the first token after `plan`.
   - If it's `ready` → surface it: print the intent and any body, and hand it to the user to start. Do **not** begin the work — `plan next` stops at surfacing.
   - If it's `needs-discovery` → say so plainly. Don't pretend it's ready. Prompt that discovery is **conversational in v1** — there is no discovery verb. Stu dispatches tracing agents in-session ("send off two agents to trace the frontend call…") and the item is promoted to `ready` once understood.
   - If it's `stub` → prompt to flesh it out first. A stub is a placeholder (`<TODO: spec out>`); it needs a description before it can be made ready.
-  - If it's `in-progress` → it's already being worked; surface it as the live item rather than pulling a new one.
+  - There is no `in-progress` state — "currently working" is carried by the live session and any handoff, not a tag.
 - **bare `plan`** — print the current plan (every item with its state tag) and offer edits.
 - **freeform steer** — interpret against the item list (reorder, mark item X `done`, promote Y to `ready`, demote Z) and apply. Confirm only if the target is genuinely ambiguous.
 
@@ -35,22 +35,20 @@ Resolve the box root per the contract (`.context/stuart/boxes/<slug>/`, or the b
 
 ### 3. States
 
-Five states, set via the trailing tag convention — a Markdown checklist line with the state in a trailing `` `[state]` `` tag. The checkbox tracks completion; the tag tracks lifecycle:
+Four states, set via the trailing tag convention — a Markdown checklist line with the state in a trailing `` `[state]` `` tag. The checkbox tracks completion; the tag tracks lifecycle:
 
 ```
 - [ ] <intent>  `[stub]`
 - [ ] <intent>  `[needs-discovery]`
 - [ ] <intent>  `[ready]`
-- [ ] <intent>  `[in-progress]`
 - [x] <intent>  `[done]`
 ```
 
-Setting a state rewrites the item's tag in place. The lifecycle is `stub` → `needs-discovery` → `ready` → `in-progress` → `done`:
+Setting a state rewrites the item's tag in place. The lifecycle is `stub` → `needs-discovery` → `ready` → `done`:
 
 - `stub` — placeholder; body is `<TODO: spec out>`. Known to exist, not yet described.
 - `needs-discovery` — known but not understood. Discovery happens conversationally when you reach it (no verb in v1).
 - `ready` — crisp and actionable; a fresh session could pick it up and run.
-- `in-progress` — being worked right now.
 - `done` — complete. Tick the checkbox (`- [x]`) **and** set the tag to `` `[done]` ``.
 
 These aren't a strict ladder — a steer may promote a `stub` straight to `ready`, or mark a `ready` item `done` if it turned out trivial. Apply what the user asks; the ordering is the common path, not a gate.
@@ -67,13 +65,13 @@ This is **one-way and on-demand**: once the plan lives in `plan.md` it stays the
 
 ### 5. Done items
 
-When an item hits `done`, `plan` only sets the state — it does **not** archive. `rollup` is what demotes done items out of the active Next-moves view into the Log. Leave the ticked item in place; don't move or delete it. This avoids double-owning archival between `plan` and `rollup`.
+When an item hits `done`, `plan` only sets the state — it does **not** archive. Done items stay ticked in place; don't move or delete them. `rollup`'s Next moves excludes them by construction (it lists only items not yet `done`), so there's nothing to record and nowhere to move them. `plan` sets the state; `rollup` stops surfacing it. Single source of truth, matching `rollup`.
 
 ### 6. Commit-before-edit, then apply
 
-Per the contract: before editing, stage and commit the current state — `box: snapshot before plan`. If the working tree has unrelated changes, stop and ask rather than sweeping them in. `.context/` is usually its own git repo (often a symlink) — `cd` into the target to run git there.
+Per the contract: before editing, stage and commit the current state — `box: snapshot before plan`. If the working tree has unrelated changes, stop and ask rather than sweeping them in. `.context/` is usually its own git repo (often a symlink) — resolve the repo root via `readlink -f .context` and run git with `git -C <repo> …`; do **not** `cd` into the target.
 
-Apply the edits. Append a `plan-updated` Log event — short, naming what changed (items added, reordered, or state-changed). Then commit `box: plan <slug>`.
+Apply the edits. Append a `plan-updated` Log event — short, naming what changed (items added, reordered, or state-changed). Then `git -C <repo> add -A` and `git -C <repo> commit -m "box: plan <slug>"`.
 
 ### 7. Report
 

@@ -17,7 +17,7 @@ Park is a **session boundary**, not a mid-flow micro-eject. The dominant real be
 
 Resolve the box root per the contract (`.context/stuart/boxes/<slug>/`, or the box Stu pointed at, or the most-recently-modified box). Read `follow-ups.md` if it exists, to find the highest existing `F<id>` — the next ID is +1. IDs are never reused, never renumbered. Single digit is fine; no zero-padding.
 
-If `follow-ups.md` doesn't exist, this is the first park — create it from the header in `templates/follow-up.md` (the `# Follow-ups` heading and the two italic preamble paragraphs, down to the `---`), then append the entry below.
+If `follow-ups.md` doesn't exist, this is the first park — create it from the header in `${CLAUDE_SKILL_DIR}/templates/follow-up.md` (the `# Follow-ups` heading and the two italic preamble paragraphs, down to the `---`), then append the entry below.
 
 ### 2. Backfill origin from the live session
 
@@ -42,7 +42,7 @@ If Stu's text already speaks disposal ("bin it", "we'll do this in a later sessi
 
 ### 4. Write the Follow-up entry
 
-Append to `follow-ups.md` using the heavy grain from `templates/follow-up.md`:
+Append to `follow-ups.md` using the heavy grain from `${CLAUDE_SKILL_DIR}/templates/follow-up.md`:
 
 ```markdown
 ### F<id> · <title>   <date>  [<disposition>]
@@ -79,17 +79,17 @@ Present the drafted title + body to Stu in chat. **Per Stu's standing rule, draf
 
 ### 7. Live-update the README
 
-Add the follow-up to the projected zone's `### Open follow-ups` section — one line: `F<id>`, a one-line summary, and the disposition. This mirrors the format `rollup` regenerates from `follow-ups.md`, so a live edit and a later rollup stay consistent. Only touch content between the `<!-- BOX: BEGIN PROJECTED -->` / `<!-- BOX: END PROJECTED -->` markers; if they're missing, warn and don't reconstruct.
+Add the follow-up to the projected zone's `### Open follow-ups` section — one line: `F<id>`, a one-line summary, and the disposition. This mirrors the format `rollup` regenerates from `follow-ups.md`, so a live edit and a later rollup stay consistent. If the section reads `_None yet._`, **replace** that line with the new entry (don't append beneath it). Only touch content between the `<!-- BOX: BEGIN PROJECTED -->` / `<!-- BOX: END PROJECTED -->` markers; if they're missing, warn and don't reconstruct.
 
 ### 8. Log
 
-Append a `followup-parked:F<id>` Log event from `templates/log-entry.md` — one event per park, or a single event covering several if they were parked together (`followup-parked:F<id>,F<id>`). Name the disposition and point at `follow-ups.md`.
+Append a `followup-parked:F<id>` Log event from `${CLAUDE_SKILL_DIR}/templates/log-entry.md` — one event per park, or a single event covering several if they were parked together (`followup-parked:F<id>,F<id>`). Name the disposition and point at `follow-ups.md`.
 
 If a carry-forward prompt was written in step 5, append a separate `handoff` Log event pointing at the `handoffs/` file.
 
 ### 9. Commit
 
-Commit-before-edit applies. Before editing, stage and commit the current state — `box: snapshot before park`. If the working tree has unrelated changes, stop and ask rather than sweeping them in. `.context/` is usually its own git repo (often a symlink) — `cd` into the target to run git there. After applying the edits, commit `box: park F<id>`.
+Commit-before-edit applies. Before editing, stage and commit the current state — `box: snapshot before park`. If the working tree has unrelated changes, stop and ask rather than sweeping them in. `.context/` is usually its own git repo (often a symlink) — resolve the repo root via `readlink -f .context` and run git with `git -C <repo> …`; do **not** `cd` into the target. After applying the edits, `git -C <repo> add -A` and `git -C <repo> commit -m "box: park F<id>"`.
 
 ### 10. Return Stu to his thread
 

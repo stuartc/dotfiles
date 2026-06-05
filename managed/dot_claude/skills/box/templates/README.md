@@ -48,22 +48,24 @@ _Not yet rolled up. Run `box rollup` to populate._
 
 ### State
 
-_(one line: what's happening right now)_
+_None yet._
 
 ### Document map
 
-_Current vs superseded documents. Populated by rollup; superseded docs live in `archive/`._
+_None yet._
 
 ### Next moves
 
-_The next few Plan items, with `needs-discovery` markers called out._
+_None yet._
 
 ### Open follow-ups
 
-_Open `F<id>` entries from `follow-ups.md` — one line each, with disposition._
+_None yet._
 
 ### Open questions
 
-_Unresolved questions. These stay visible even while undecided — visibility over tidiness._
+_None yet._
+
+_Raised minus resolved: every `open-question-Q<n>` Log event with no matching `question-resolved-Q<n>`. One bullet each, carrying its `Q`-ID — `- Q<n> — <question>  (raised <YYYY-MM-DD>, still open)`. These stay visible even while undecided — visibility over tidiness._
 
 <!-- BOX: END PROJECTED -->

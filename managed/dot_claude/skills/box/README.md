@@ -68,6 +68,8 @@ Inherited from triage and worth restating:
 
 Tick these off as you confirm them on the first real boxes.
 
+- [ ] `allowed-tools` glob match: do the scoped `Bash(git -C * …)` patterns actually fire on `.context/` repo paths containing slashes? Confirm via `/doctor` or a live prompt; if the multi-`*` form fails to match, fall back to `Bash(git -C *)`.
+- [ ] Q-resolution visibility in `status`: `status` reads only the last ~10 `log/` filenames, so a `question-resolved` event can fall outside the window and leave a question showing as open. Accept the "run `box rollup` if counts look off" note, or widen the scan?
 - [ ] Slash-arg parsing: does `box park <long text>` reliably pass the trailing text as args? If not, fall back to prefix-only invocation.
 - [ ] Does the inline → `plan.md` split threshold (~12–15 items) feel right, or does it split too early / too late?
 - [ ] Does `note`'s three-way classification (`decision` / `open-question` / `note`) earn its keep, or do the distinctions blur in practice?

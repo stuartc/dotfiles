@@ -58,8 +58,8 @@ Write a **closing summary block** in the README **static zone** (above the proje
 
 Before writing, **warn and force a deliberate acknowledgement** if either holds:
 
-- A plan item is still `in-progress` (or `ready`/`needs-discovery` with real work left) — the box is closing with work unfinished.
-- An open question is still unresolved.
+- A plan item is still `ready`/`needs-discovery` with real work left — the box is closing with work unfinished.
+- An open question is still unresolved — name the specific `Q<id>`s left open (e.g. "closing with Q2, Q4 unresolved").
 
 Don't block — Stu may legitimately close a box with loose ends — but make him say so. The acknowledgement is recorded in the closing summary ("closed with X unresolved, deliberately") and in the `closed` Log event. Silent closure over loose ends is the thing to prevent.
 
@@ -73,15 +73,16 @@ If the terminal state is `abandoned` or `spun-out` with nothing merged, there ma
 
 ### 7. Closing Log event + commit
 
-Commit-before-edit applies. Snapshot the current state first (`box: snapshot before close`) — if the working tree has unrelated changes, stop and ask rather than sweeping them in. `cd` into the `.context/` symlink target to run git there. No co-author lines, no skip-hooks.
+Commit-before-edit applies. Snapshot the current state first (`box: snapshot before close`) — if the working tree has unrelated changes, stop and ask rather than sweeping them in. Resolve the repo root via `readlink -f .context` and run git with `git -C <repo> …`; do **not** `cd` into the target. No co-author lines, no skip-hooks.
 
-Write the closing Log event `log/YYYY-MM-DDTHH-MM-closed.md` from `templates/log-entry.md` (event type `closed`). It records:
+Write the closing Log event `log/YYYY-MM-DDTHH-MM-closed.md` from `${CLAUDE_SKILL_DIR}/templates/log-entry.md` (event type `closed`). It records:
 
 - The terminal state.
 - A per-`F<id>` follow-up reconciliation summary — each open follow-up and where it went (`→ issue` + URL, `→ new box` + slug, done + pointer, or dropped + reason).
+- Any still-open questions, recorded by `Q<id>` (the deliberate "closed with Q2, Q4 unresolved" from step 5) — they keep their IDs and stay visible in the README.
 - The outcome in one line, and any deliberate loose ends acknowledged in step 5.
 
-The Log is append-only — never edit an event after writing it. After writing everything, commit `box: close <slug>`.
+The Log is append-only — never edit an event after writing it. After writing everything, `git -C <repo> add -A` and `git -C <repo> commit -m "box: close <slug>"`.
 
 ### 8. Report
 

@@ -27,9 +27,17 @@ Infer the Log event type from the text. Confirm only if it's genuinely ambiguous
 
 When the text reads like both a decision and the reasoning behind it, prefer `decision`. When it ends in a question or names something unknown, prefer `open-question`.
 
-### 3. Write the Log event
+If the text instead **settles** a question already raised — Stu names a `Q<id>` or clearly answers a standing open question ("Q2's settled, going with X") — this is a resolution, not a new event type. Skip to step 6, the Resolution path.
 
-`log/` exists from the box's birth (the `new` protocol writes the first event). Create `log/YYYY-MM-DDTHH-MM-<type>.md` from `templates/log-entry.md`, where `<type>` is `decision`, `open-question`, or `note`. Fill it:
+### 3. Assign a Q-ID (open-question only)
+
+Only for the `open-question` type. The authoritative source is the `log/` **filenames**, not the README. Scan them for the highest existing `Q`-number across **both** `…-open-question-Q<n>.md` and `…-question-resolved-Q<n>.md`; the new ID is `max + 1`, or `Q1` if none exist yet. IDs are **never reused or renumbered**. (The README `### Open questions` section is a secondary cross-check only — the filenames are the truth.)
+
+For `decision` and `note` types, skip this step.
+
+### 4. Write the Log event
+
+`log/` exists from the box's birth (the `new` protocol writes the first event). Create `log/YYYY-MM-DDTHH-MM-<type>.md` from `${CLAUDE_SKILL_DIR}/templates/log-entry.md`, where `<type>` is `decision`, `note`, or — for a question — `open-question-Q<n>` (carrying the ID assigned in step 3, e.g. `…-open-question-Q3.md`). Fill it:
 
 - **When:** the ISO datetime.
 - **What changed:** the decision / question / observation in one line, plus one line of context — enough that it stands alone in five days without re-reading the session.
@@ -38,23 +46,40 @@ When the text reads like both a decision and the reasoning behind it, prefer `de
 
 Keep it 5–20 lines. The Log is append-only — never edit an event after writing it.
 
-### 4. Open questions stay visible
+### 5. Open questions stay visible
 
 If the type is `open-question`, the question must surface in the README's projected `### Open questions` section. It must never be hidden — visibility over tidiness; archival demotes the *done*, never the *undecided*.
 
-`rollup` regenerates `### Open questions` from `open-question` Log events, so the question will appear there on the next `rollup` regardless. But don't make visibility wait on a rollup: live-add the bullet to `### Open questions` now (between the projected-zone markers), mirroring how `park` live-adds to `### Open follow-ups`. A live edit and a later rollup stay consistent because both read from the same `open-question` events.
+`rollup` regenerates `### Open questions` from the `open-question`/`question-resolved` filename set, so the question will appear there on the next `rollup` regardless. But don't make visibility wait on a rollup: live-add the bullet to `### Open questions` now (between the projected-zone markers), mirroring how `park` live-adds to `### Open follow-ups`. The bullet **must carry its `Q`-ID** so it can be matched at resolution, in the standard format:
+
+```
+- Q<n> — <question>  (raised <YYYY-MM-DD>, still open)
+```
+
+If the section reads `_None yet._`, **replace** that line with the new bullet (don't append beneath it). A live edit and a later rollup stay consistent because both derive from the same `open-question-Q<n>` filenames.
 
 If the projected-zone markers are missing, warn and ask before touching the README — don't reconstruct it.
 
 For `decision` and `note` types, the README is not touched here; `rollup` folds them into the projected zone when it next runs.
 
-### 5. Commit
+### 6. Resolution path (settling a raised question)
 
-Commit-before-edit applies. Snapshot the current state first (`box: snapshot before note`), then write. After writing, commit `box: note <slug>`. `cd` into the `.context/` symlink target to run git there. No co-author lines, no skip-hooks. If the working tree has unrelated changes, stop and ask rather than sweeping them in.
+When Stu's text settles an already-raised question (step 2 routed here), there's no new verb — the `Q<id>` in his words is the dispatch signal:
 
-### 6. Report
+- Identify the `Q<id>` — named explicitly, or matched against the open `### Open questions` bullets / the `…-open-question-Q<n>.md` filenames.
+- Write a resolution Log event `log/YYYY-MM-DDTHH-MM-question-resolved-Q<n>.md` from `${CLAUDE_SKILL_DIR}/templates/log-entry.md` (event type `question-resolved:Q<n>`): what was decided, one line of why, the pointer.
+- Remove the `Q<n>` bullet from the README's `### Open questions` section (between the markers) — it drops off the live view but lives in the Log forever.
+- Commit `box: question-resolved Q<n> <slug>` (commit-before-edit applies as below).
 
-One line: the type recorded (`decision` / `open-question` / `note`) and the event filename. For an `open-question`, add that it's now visible in the README's `### Open questions` and will persist there until resolved.
+If you can't confidently match the text to a single `Q<id>`, ask rather than guess — resolving the wrong question is a silent error.
+
+### 7. Commit
+
+Commit-before-edit applies. Snapshot the current state first (`box: snapshot before note`), then write. Resolve the repo root via `readlink -f .context` and run git with `git -C <repo> …`; do **not** `cd` into the target. After writing, `git -C <repo> add -A` and `git -C <repo> commit -m "box: note <slug>"` — or `box: question-resolved Q<n> <slug>` for a resolution. No co-author lines, no skip-hooks. If the working tree has unrelated changes, stop and ask rather than sweeping them in.
+
+### 8. Report
+
+One line: the type recorded (`decision` / `open-question` / `note`) and the event filename. For an `open-question`, surface the assigned `Q`-ID and add that it's now visible in the README's `### Open questions` and will persist there until resolved. For a resolution, name the `Q<id>` settled and note it's dropped off the live view.
 
 ## Notes
 
@@ -66,3 +91,5 @@ The park-vs-note line, drawn clearly:
 The test: if it needs to be done or routed somewhere, it's a `park`. If it just needs to be remembered, it's a `note`. A decision you've already made is a `note` (`decision`); a decision you still have to make is usually an `open-question` note, and only becomes a `park` once acting on it is itself a unit of work.
 
 An `open-question` note is the one type with README presence — because an undecided thing left invisible is the failure mode the box exists to prevent. Everything else in the Log waits for `rollup` to project it.
+
+**Resolution is conversational, not a verb.** A question gets a `Q`-ID at creation and is settled by a `question-resolved:Q<id>` Log event — but there's no `resolve` subcommand. When Stu's text answers a standing question, the `Q<id>` he names (or the question he clearly settles) is the dispatch signal; `note` writes the resolution event and drops the bullet. This mirrors `park`'s `F`-IDs: an ID assigned once, never reused, carried through to its terminal event.

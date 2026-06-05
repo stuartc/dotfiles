@@ -23,6 +23,8 @@ Read only — fast orientation, under a second of reading:
 
 Do not read every file. If the projected-zone markers are missing, say so and fall back to whatever the README shows; don't reconstruct.
 
+**Open-question caveat.** `status` reads only the last ~10 `log/` filenames, so a `question-resolved-Q<n>` event in a long-lived box can fall outside that window — making a settled question still look open. The projected zone (from the last rollup) is the more reliable source for the count here. If the open-question count looks off, run `box rollup` first — it scans the **full** `log/` set (raised minus resolved) and refreshes the projection.
+
 ### 3. Compose the report
 
 Print to the conversation (do not write to any file). Shape it on the README projected zone:
@@ -45,7 +47,8 @@ Open follow-ups:
   ...
 
 Open questions:
-  - <unresolved question, still visible>
+  Q1  <unresolved question, still visible>
+  Q3  <unresolved question, still visible>
   ...
 
 Recent activity (last ~5–10):

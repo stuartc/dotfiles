@@ -36,20 +36,20 @@ Apply the discovery-before-commitment rule (see bottom): fetch the summary and o
 
 ### 3. Scaffold the README
 
-Copy `templates/README.md` into `<slug>/README.md`, substituting slug + today's date. Fill the static zone:
+Copy `${CLAUDE_SKILL_DIR}/templates/README.md` into `<slug>/README.md`, substituting slug + today's date. Fill the static zone:
 
 - **`## The prize`** — the intent and what "done" looks like. Backfilled from the live session, or distilled from the seed.
 - **`## Repo facts`** — repo, branch, key paths, build/test commands. The stable facts a fresh session needs to orient. Leave a placeholder for any you can't determine cheaply rather than guessing.
 - **`## Origin`** — from step 2. Provenance, not status.
 - **`## Plan`** — seed inline with a first item or two, each carrying a state marker per the contract (`` `[stub]` `` for a placeholder, `` `[ready]` `` for something crisp and actionable). A seeded box usually yields one or two `[ready]` items; a deliberate box may be a single `[stub]`.
 
-Leave the projected zone exactly as the template ships it — the "Not yet rolled up" placeholder between the `<!-- BOX: BEGIN PROJECTED -->` / `<!-- BOX: END PROJECTED -->` markers. `new` does not rollup.
+Leave the projected zone exactly as the template ships it — the structured empty sections between the `<!-- BOX: BEGIN PROJECTED -->` / `<!-- BOX: END PROJECTED -->` markers. `new` does not rollup.
 
 The box is born as **just `README.md`** plus the first log entry. Don't create `plan.md`, `follow-ups.md`, `handoffs/`, or `archive/` — those accrete on demand from their own verbs.
 
 ### 4. First Log event
 
-Create `log/YYYY-MM-DDTHH-MM-<event>.md` from `templates/log-entry.md`, where `<event>` is:
+Create `log/YYYY-MM-DDTHH-MM-<event>.md` from `${CLAUDE_SKILL_DIR}/templates/log-entry.md`, where `<event>` is:
 
 - `born` — no seed flag
 - `seeded-from-pr` — `--pr`
@@ -61,7 +61,7 @@ Fill it: slug, created ISO datetime, origin/refs (the PR/issue ref, or "live ses
 
 This is creation, not modification, so there's no prior state to snapshot — just stage and commit the new tree.
 
-`cd` into the `.context/` symlink target (it's likely its own git repo), `git add -A`, and commit `box: new <slug>`. No co-author lines, no skip-hooks.
+Resolve the repo root via `readlink -f .context` (it's likely its own git repo), then `git -C <repo> add -A` and `git -C <repo> commit -m "box: new <slug>"`. Do **not** `cd` into the target. No co-author lines, no skip-hooks.
 
 If `.context/` is not a git repo, skip the commit and tell the user.
 
