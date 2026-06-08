@@ -1,11 +1,11 @@
 ---
 name: box
 description: A file-first work-driver for a single multi-day/week body of work. Use when work spans sessions and needs a durable spine that outlives session churn — the box is the continuity layer the disposable session leans on.
-argument-hint: "<subcommand> [args] — eg. new <slug>, status, plan, park <text>, note <text>, rollup, close"
-# Scoped git pre-approval for the commit-before-edit convention. FLAGGED FOR LIVE
-# TESTING: verify these multi-`*`/slash globs actually match `.context/` repo
-# paths via /doctor or a live prompt. If they don't fire, fall back to the
-# broader `Bash(git -C *)` (still narrows away rm/curl/etc.).
+argument-hint: "new · open · status · plan · park · note · handoff · pickup · rollup · close"
+# Scoped git pre-approval for the commit-before-edit convention. Only matters
+# outside bypassPermissions/acceptEdits mode — in Stu's normal setup these are
+# largely moot, but they narrow tool exposure for default-permission runs,
+# headless/cron contexts, and other users.
 allowed-tools:
   - "Bash(git -C * add -A)"
   - "Bash(git -C * commit -m *)"
@@ -70,10 +70,13 @@ A freshly-born box is **just `README.md`** with the plan inline. Structure accre
 | Verb | Purpose | Produces | Protocol |
 |---|---|---|---|
 | `new <slug> [--pr REF \| --issue REF]` | Open a box. Backfill origin from the live session, **or** seed from a PR/issue. Scaffold README (+ first Log entry). | box tree | `protocols/new.md` |
-| `status` | Read-only orientation — the conversational entry point. Prints the README head: state, next moves, open follow-ups, open questions. No edits. | conversation only | `protocols/status.md` |
-| `plan` | Work the plan: add/reorder items, set states. `plan next` pulls the next `ready` item. Split the plan out to `plan.md` when it outgrows the head. | inline `## Plan` or `plan.md` | `protocols/plan.md` |
+| `open [path]` | Resume an existing box: resolve the box root (explicit path, or most-recently-modified box), load vocabulary, read the README head, flag any handoffs, and orient. The explicit front door for picking a box back up across sessions. | conversation only | `protocols/open.md` |
+| `status` | Read-only orientation — re-orients when the box is already open. Prints the README head: state, next moves, open follow-ups, open questions. No edits. | conversation only | `protocols/status.md` |
+| `plan` | Work the plan: add/reorder items, set states. `plan next` pulls the next `ready` item. For non-trivial planning, uses Claude Code's native plan mode (inheriting Stu's global planning conventions — fresh agents per logical phase, etc.). After planning, offers three doors: action now / write into the box / just discuss. Light edits (add/reorder one item, flip a state) stay inline. Split plan to `plan.md` when it outgrows the head. | inline `## Plan` or `plan.md` | `protocols/plan.md` |
 | `park <text>` | **The headline gesture.** Capture a follow-up with a disposition; if it's a future-session thing, offer the carry-forward prompt. | `follow-ups.md` entry (+ optional handoff) | `protocols/park.md` |
 | `note <text>` | Log a decision / discovery / open question. Lighter than park — no disposition. | `log/` entry | `protocols/note.md` |
+| `handoff [text]` | Write a standalone carry-forward prompt into `handoffs/`, with a box-aware resume protocol baked in. A first-class verb; `park` may also emit one for future-session dispositions. | `handoffs/` entry + `handoff` Log event | `protocols/handoff.md` |
+| `pickup [path]` | Box-aware resume from a handoff (defaults to the latest in `handoffs/`): load vocabulary, read the handoff + README head, orient, and treat the handoff as a brief to act on. The box-flavoured pickup — unlike the standalone `/pickup`, which is box-blind. | conversation only | `protocols/pickup.md` |
 | `rollup` | Regenerate the README projected zone from plan/follow-ups/log. Demote done & superseded material out of the active view. | updated README | `protocols/rollup.md` |
 | `close` | End-of-box: reconcile every open follow-up, demote done work to `archive/`, record terminal state, draft the PR description. | closing Log entry + README | `protocols/close.md` |
 
@@ -85,7 +88,7 @@ For each subcommand, **read the corresponding `${CLAUDE_SKILL_DIR}/protocols/<na
 
 If the subcommand is unrecognised, list the vocabulary back to the user and ask.
 
-**Conversational on top of explicit.** Stu's real invocation style is conversational: he points at a box (`box is here: <path>` + `status`) then describes the situation in natural language and lets the dispatcher route it. Support that — explicit verbs underneath, smart routing on top. When he describes a situation rather than naming a verb, infer the verb (a thing to park → `park`; a decision made → `note`; "where are we" → `status`; "what's next" → `plan next`) and proceed, confirming only when genuinely ambiguous.
+**Conversational on top of explicit.** Stu's real invocation style is conversational: he opens a box (`box open <path>` or `box pickup <handoff>`) then describes the situation in natural language and lets the dispatcher route it. Support that — explicit verbs underneath, smart routing on top. When he describes a situation rather than naming a verb, infer the verb (a thing to park → `park`; a decision made → `note`; "where are we" → `status`; "what's next" → `plan next`; "resume / where was I / pick the box back up" → `open`; "write a handoff / carry this forward" → `handoff`; "pick up from <handoff>" → `pickup`) and proceed, confirming only when genuinely ambiguous.
 
 ## Conventions across all subcommands
 
@@ -157,11 +160,15 @@ These were open questions in the design brief; they are now locked.
 
 ## Pickup ergonomics
 
-When a fresh session starts mid-box, run `box status` to get current state without re-reading anything. `status` prints: the one-line state, next moves, open follow-ups, open questions, and a "point me at" prompt asking which thing to fire next.
+The explicit front doors for picking a box back up across sessions are `box open <path>` and `box pickup <handoff>`. Both load the box vocabulary and hydrate you before handing the next move back.
 
-`status` **hydrates context; it does not decide for you, and it does not manufacture a resume document.** It loads your bearings and hands the next move back to you — getting oriented and then choosing what to do is deliberately the human's job, not something `status` does on your behalf off the back of a status check. Making a resume-able document is `/handoff`'s job; `status` is orientation only.
+**The trio, clearly:**
 
-`/handoff` and `/pickup` work alongside, with distinct jobs — not as substitutes for `status`. The park gesture's carry-forward prompt *is* a handoff scoped to a box — reuse that format, don't duplicate it. `/pickup` is the thin, context-agnostic tool for resuming unstructured handoffs outside a box; inside a box, reach for `/handoff` to write a resume prompt. `status` replaces neither — it only gets you your bearings.
+- `box open [path]` — resolves the box root, reads the README head, flags any handoffs, and orients. Use when you're returning to a box in general and don't have a specific handoff to resume from.
+- `box pickup [path]` — like `open`, but leads with a specific handoff doc (defaults to the latest in `handoffs/`). Treats the handoff as a brief to act on, not just a summary to acknowledge. The box-flavoured pickup — because it loads the box vocabulary first, it knows what a follow-up ID or plan state means. The standalone `/pickup` is box-blind and misses that.
+- `box status` — re-orients when the box is already open in the current session. Prints the one-line state, next moves, open follow-ups, and open questions. Lighter than `open`; use it for mid-session bearings.
+
+All three are orientation only — they hydrate and hand the next move back to you. Deciding what to do next is deliberately the human's job. Making a resume-able document is `box handoff`'s job (or `park`'s carry-forward offer); none of the resume verbs manufacture one on your behalf.
 
 ## Style
 

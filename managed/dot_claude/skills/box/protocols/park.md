@@ -40,6 +40,10 @@ Every park names where it goes. Disposal language, not deferral. Infer the dispo
 
 If Stu's text already speaks disposal ("bin it", "we'll do this in a later session", "raise it as an issue"), take the disposition from it and don't ask.
 
+### 3a. Commit-before-edit (snapshot)
+
+Before writing anything below (steps 4–8 are all edits), snapshot the current state. `.context/` is usually its own git repo (often a symlink) — resolve the repo root once: `CONTEXT_REPO=$(readlink -f .context)` (use `greadlink -f` if `readlink -f` is unavailable). If `git -C "$CONTEXT_REPO" status --porcelain` is non-empty with **unrelated** changes, stop and ask rather than sweeping them in; if it's only box state, `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: snapshot before park"`. If the tree is clean, skip the snapshot silently. If `.context/` isn't a git repo, skip and tell Stu.
+
 ### 4. Write the Follow-up entry
 
 Append to `follow-ups.md` using the heavy grain from `${CLAUDE_SKILL_DIR}/templates/follow-up.md`:
@@ -58,13 +62,13 @@ Append to `follow-ups.md` using the heavy grain from `${CLAUDE_SKILL_DIR}/templa
 
 If the disposition is a **future session** — `→ new box`, or an `in-scope-later` item Stu will pick up in a dedicated session — **offer in one line** to generate the carry-forward prompt now: "Want a carry-forward prompt for this?"
 
-If yes, reuse the **`handoff` skill's format** — don't reinvent it. The carry-forward prompt *is* a handoff scoped to this box; the only difference is where it's persisted. Write it to the box's lazily-created `handoffs/` subdir (create it now if absent) as:
+If yes, use the canonical handoff format from `${CLAUDE_SKILL_DIR}/protocols/handoff.md` — don't reinvent it. The carry-forward prompt *is* a handoff scoped to this box; the only difference is that it's scoped to *this one parked thing*, not the full box state. Write it to the box's lazily-created `handoffs/` subdir (create it now if absent) as:
 
 ```
 handoffs/YYYY-MM-DDTHH-MM-<short-slug>.md
 ```
 
-`<short-slug>` is a kebab-case identifier for the parked work (e.g. `loader-version-mismatch`). Compose the body per `handoff`'s SKILL.md: a "Suggested skills" section (each with a one-line reason), and a "State at handoff" section splitting **Done** (already in the tree) from **Todo** (what the next session does). Reference source artefacts (the box README, the `F<id>` entry) by path rather than duplicating them. Redact any secrets. The prompt is scoped to *this one parked thing*, not the whole box.
+`<short-slug>` is a kebab-case identifier for the parked work (e.g. `loader-version-mismatch`). Follow the structure in `protocols/handoff.md` for the RESUME PROTOCOL, Suggested skills, and State at handoff sections. Reference source artefacts (the box README, the `F<id>` entry) by path rather than duplicating them. Redact any secrets.
 
 Then log a `handoff` event pointing at the file (step 8). If Stu declines, skip — the follow-up still stands; the prompt can be generated later.
 
@@ -89,7 +93,7 @@ If a carry-forward prompt was written in step 5, append a separate `handoff` Log
 
 ### 9. Commit
 
-Commit-before-edit applies. Before editing, stage and commit the current state — `box: snapshot before park`. If the working tree has unrelated changes, stop and ask rather than sweeping them in. `.context/` is usually its own git repo (often a symlink) — resolve the repo root via `readlink -f .context` and run git with `git -C <repo> …`; do **not** `cd` into the target. After applying the edits, `git -C <repo> add -A` and `git -C <repo> commit -m "box: park F<id>"`.
+The pre-edit snapshot was taken at step 3a. Now commit the park itself: `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: park F<id>"` (reusing the `$CONTEXT_REPO` resolved at step 3a). Do **not** `cd` into the target. If `.context/` isn't a git repo, skip and tell Stu.
 
 ### 10. Return Stu to his thread
 
