@@ -10,6 +10,8 @@ allowed-tools:
   - "Bash(git -C * add -A)"
   - "Bash(git -C * commit -m *)"
   - "Bash(git -C * status --porcelain)"
+  - "Bash(readlink -f *)"
+  - "Bash(greadlink -f *)"
 ---
 
 # Box
@@ -105,7 +107,7 @@ If the subcommand is unrecognised, list the vocabulary back to the user and ask.
 
 **Open-question IDs.** `Q1`, `Q2`, … — assigned by `note` when the type is `open-question`, **never reused, never renumbered**. A resolved question keeps its ID forever. The authoritative source for the highest `Q`-ID and the resolved set is the `log/` filenames (`…-open-question-Q<n>.md` raised, `…-question-resolved-Q<n>.md` settled) — the README projected zone is a lagging view. Resolution is **conversational, not a verb**: when Stu's text settles a question, the `Q<id>` in it is the dispatch signal and the resolution lands as a `question-resolved:Q<id>` Log event.
 
-**Event log.** Append-only, never edited. One short file per major transition, named `YYYY-MM-DDTHH-MM-<event-type>.md`, usually 5–20 lines: timestamp, what changed, pointer to the artefact, one line of context. Only log when state Stu cares about has shifted — not every edit. Event types:
+**Event log.** Append-only, never edited. One short file per major transition, named `YYYY-MM-DDTHH-MM-<event-type>.md`, usually 5–20 lines: timestamp, what changed, pointer to the artefact, one line of context. Only log when state Stu cares about has shifted — not every edit. **Filename rule for parameterised types:** the `:` in an event type renders as `-` in the filename (colons in filenames are a portability footgun), ID suffix retained — `question-resolved:Q3` → `…-question-resolved-Q3.md`, `followup-parked:F1` → `…-followup-parked-F1.md`. The hyphenated form is what `rollup` scans for. Event types:
 
 - `born` — box created
 - `seeded-from-pr` / `seeded-from-issue` — box seeded from a public ref
@@ -120,7 +122,7 @@ If the subcommand is unrecognised, list the vocabulary back to the user and ask.
 - `superseded:<doc>` — a document demoted to `archive/`
 - `closed` — box closed, terminal state recorded
 
-**Commit-before-edit.** Baked into every state-modifying verb (`new`, `plan`, `park`, `note`, `rollup`, `close`). Before the edit, stage and commit the current state with a generic message: `box: snapshot before <verb>`; after the edit, commit `box: <verb> <slug>`. No co-author lines, no skip-hooks. If the working tree has **unrelated** changes, **stop and ask** rather than sweeping them in.
+**Commit-before-edit.** Baked into every state-modifying verb (`plan`, `park`, `note`, `rollup`, `close`). Before the edit, stage and commit the current state with a generic message: `box: snapshot before <verb>`; after the edit, commit `box: <verb> <slug>`. `new` is the exception — there's no prior state to snapshot, so it commits just once after scaffolding (`box: new <slug>`), giving the box birth a clean boundary in the history. No co-author lines, no skip-hooks. If the working tree has **unrelated** changes, **stop and ask** rather than sweeping them in.
 
 `.context/` is usually its own git repo, often a symlink. Run git against the resolved repo root with `-C` — **do NOT `cd` into the target**, because a command starting with `cd` can never be pre-approved. Resolve the repo root once per invocation: `CONTEXT_REPO=$(readlink -f .context)` (use `greadlink -f` if `readlink -f` is unavailable; it's native on macOS 12.3+). Then `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: <verb> <slug>"`. If `.context/` isn't a git repo, skip the commit and tell the user.
 
@@ -157,7 +159,9 @@ These were open questions in the design brief; they are now locked.
 
 When a fresh session starts mid-box, run `box status` to get current state without re-reading anything. `status` prints: the one-line state, next moves, open follow-ups, open questions, and a "point me at" prompt asking which thing to fire next.
 
-`/handoff` and `/pickup` work alongside. The park gesture's carry-forward prompt *is* a handoff scoped to a box — reuse that format, don't duplicate it. `pickup` can open a box by reading its README.
+`status` **hydrates context; it does not decide for you, and it does not manufacture a resume document.** It loads your bearings and hands the next move back to you — getting oriented and then choosing what to do is deliberately the human's job, not something `status` does on your behalf off the back of a status check. Making a resume-able document is `/handoff`'s job; `status` is orientation only.
+
+`/handoff` and `/pickup` work alongside, with distinct jobs — not as substitutes for `status`. The park gesture's carry-forward prompt *is* a handoff scoped to a box — reuse that format, don't duplicate it. `/pickup` is the thin, context-agnostic tool for resuming unstructured handoffs outside a box; inside a box, reach for `/handoff` to write a resume prompt. `status` replaces neither — it only gets you your bearings.
 
 ## Style
 

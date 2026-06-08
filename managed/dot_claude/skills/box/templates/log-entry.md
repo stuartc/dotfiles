@@ -1,6 +1,6 @@
 # {{EVENT_TYPE}}
 
-_Append-only event. One file per major transition: `YYYY-MM-DDTHH-MM-<event-type>.md`. Never edited after writing. 5–20 lines. Only logged when state Stu cares about has shifted._
+_Append-only event. One file per major transition: `YYYY-MM-DDTHH-MM-<event-type>.md` (any `:` in a parameterised event type becomes `-` in the filename — `question-resolved:Q3` → `…-question-resolved-Q3.md`). Never edited after writing. 5–20 lines. Only logged when state Stu cares about has shifted._
 
 **When:** {{ISO_DATETIME}}
 

@@ -74,7 +74,7 @@ Tick these off as you confirm them on the first real boxes.
 - [ ] Does the inline → `plan.md` split threshold (~12–15 items) feel right, or does it split too early / too late?
 - [ ] Does `note`'s three-way classification (`decision` / `open-question` / `note`) earn its keep, or do the distinctions blur in practice?
 - [ ] Does the carry-forward handoff offer fire at the right moments (future-session dispositions), or too often / too rarely?
-- [ ] Is `box status` alone enough orientation to skip `/pickup` on a fresh session? If yes, document the substitution.
+- [ ] Does `box status` hydrate you well enough to get your bearings before you choose your own next move? It's orientation only — *not* a `/pickup` substitute and not meant to produce a resume-able doc (that's `/handoff`). Confirm the hydration is enough; the decision stays yours.
 - [ ] Should `rollup` ever auto-trigger (e.g. after a burst of parks), or stay strictly manual?
 
 ## What's deliberately NOT built (v1)
@@ -89,7 +89,7 @@ The box is the spine that feeds those later. v1 earns them first.
 ## Related skills
 
 - **`handoff`** — park's carry-forward prompt *is* a handoff scoped to a box; it reuses the format but persists it inside the box (`handoffs/`) rather than the OS temp dir.
-- **`pickup`** — can open a box by reading its README. `box status` is the faster, read-only alternative when there's no handoff.
+- **`pickup`** — the thin, context-agnostic tool for resuming unstructured handoffs outside a box. Not a peer of `box status`: `status` hydrates your bearings and hands the next move back to you; it never manufactures a resume document. Inside a box, reach for `/handoff` to write one.
 - **`triage`** — the embryo box generalises. Folds in later; left untouched for now.
 - **`slice` / `work-bd` / `beads`** — the optional downstream ladder. Not in v1; a ready plan item can emit a `bd` issue once the loop is built.
 
