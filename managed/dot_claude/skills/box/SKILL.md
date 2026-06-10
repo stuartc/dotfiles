@@ -1,7 +1,7 @@
 ---
 name: box
 description: A file-first work-driver for a single multi-day/week body of work. Use when work spans sessions and needs a durable spine that outlives session churn — the box is the continuity layer the disposable session leans on.
-argument-hint: "new · open · status · plan · park · note · handoff · pickup · rollup · close"
+argument-hint: "new · open · status · plan · spec · do · migrate · park · note · handoff · pickup · rollup · close"
 # Scoped git pre-approval for the commit-before-edit convention. Only matters
 # outside bypassPermissions/acceptEdits mode — in Stu's normal setup these are
 # largely moot, but they narrow tool exposure for default-permission runs,
@@ -20,13 +20,13 @@ Multi-day work outlives the session it's done in. A live Claude session is RAM: 
 
 The core idea, inherited from `triage`: the main session is a **dispatcher with a typed vocabulary**. Each subcommand reads its `protocols/<name>.md` and produces a named artefact in a predictable place. History is append-only. The README is a thin, always-current index — not the substance. In v1, all verbs run inline — no subagents are dispatched; the dispatch-shape rules below apply when a protocol does fork one, and to any in-session discovery agents.
 
-The format scales **stub → tome without restructuring**. A freshly-born box is one README with the plan inline. Structure accretes on demand; you never restructure.
+The format scales **stub → tome without restructuring**. A freshly-born box is one README — a projected index over a work-track that is still empty. The unit of work is the **item**; each item that earns substance gets its own folder under `items/<id>/`. Structure accretes on demand; you never restructure. The README is a projected index *over* the items, never a container of their bodies.
 
 ## What it is
 
 A box does five jobs, in priority order:
 
-1. **Drive the work** — hold an ordered plan of the next few things, some crisp, some marked `needs-discovery` and fleshed out only when you arrive at them.
+1. **Drive the work** — hold an ordered track of items, each carrying a *state*. Items are projected units of work, not a script — some still stubs, some `needs-discovery` (spec'd when you reach them), some `ready` (planned and actionable). A box is for *many* items; the track is the spine the session leans on.
 2. **Capture with discipline** — when something surfaces mid-flow, park it cheaply with a disposition instead of polluting the session or forgetting it.
 3. **Archive without polluting** — demote done/superseded work *out of the active view* while preserving it; keep open questions *visible*.
 4. **Preserve provenance** — the lineage of how the work came to be.
@@ -48,20 +48,36 @@ It generalises `triage` from bug-investigation to general work. Triage folds in 
 - A meeting note or write-up — use the workbook.
 - Portfolio coordination across many bodies of work — out of scope. One box, one body of work.
 
+## A box is for many items
+
+A box exists because the work is **big**. The items, plural, *are* the work — the things to be done or covered. If a box ever reduces to one item → one spec → one plan, there was little point opening a box at all; that's just a task. So **do not be eager to mint a single all-encompassing item and march it through spec → plan → do.**
+
+The opening move is to **orient and decompose**, not to record one big item. The cleanest model: **decomposition/design is itself the opening item** — the head item whose job is to understand the shape of the work and *project the other items*. Those projected items then graduate, individually, through `spec` → `plan` → `do`. An orienting first pass (a `findings/`-style bearings document) is the *output* of that opening work — bearings that tell you what the items are. The bearings need not be a first-class concept of the skill; the *step that produces them* is. `new` and `plan` steer toward this: when a box opens around something large, prompt to cut it up rather than recording a single item.
+
+**Not every item needs both artefacts.** Spec is *optional* when there's nothing to discover — promote `stub → ready` and skip it. A review item may be spec-heavy with a thin plan; a mechanical item may be plan-only. The `plan` is the thing `do` runs against; the `spec` is the thing you write when *understanding* is the risk. Forcing both on every item re-introduces the ceremony the box exists to avoid.
+
 ## Working layout (stub → tome)
 
-A freshly-born box is **just `README.md`** with the plan inline. Structure accretes on demand — never restructure.
+A freshly-born box is **just `README.md`** — a projected index over an empty track. Structure accretes on demand; everything that accretes is a *folder*. You never restructure.
 
 ```
 <slug>/
-├── README.md          # the head: static top + projected "where things stand". Plan lives inline here until it splits.
-├── plan.md            # the work track — split out of the README on demand, once it outgrows the head
-├── follow-ups.md      # the parked track — created on first park
+├── README.md          # the head: static top + projected index (track + open follow-ups + open questions). Frontmatter: box_schema: 1.3
+├── items/             # the work-track's bodies — created on the first non-stub item
+│   └── <id>/
+│       ├── spec.md    #   written at needs-discovery — what/why/some-how; open questions allowed
+│       └── plan.md    #   written at ready — agent-actionable; zero open questions; phased
+├── follow-ups/        # one file per parked follow-up (F<n>.md) — created on first park
+│   └── F1.md
 ├── log/               # append-only events + decisions — created on the 2nd entry
 │   └── 2026-06-04T09-10-born.md
 ├── handoffs/          # carry-forward prompts — created lazily on the first carry-forward
-└── archive/           # demoted superseded docs, each with a death-banner
+└── archive/           # demoted done/superseded items + docs, each with a death-banner
 ```
+
+The README keeps a short **track** — the ordered item list with states and one-liners — in its projected zone; the substance lives in `items/<id>/`. A stub box is still just a README; `items/` appears on the first non-stub item, `follow-ups/` on the first park. Same static-top + projected-zone discipline as before, now projecting over folders.
+
+**Schema stamp.** Every box README carries `box_schema: 1.3` in its frontmatter. It is the durable drift fix: any future review round reads the stamp and compares like-for-like, and `migrate` is the lever that converges stragglers to the current shape.
 
 **Location:** `.context/stuart/boxes/<slug>/` in the current project (parallel to triage's `investigations/`). Assume `.context/` exists; **ask or refuse** if it genuinely doesn't. "Homeless" never means *outside a repo* — it means *in a repo with `.context/`, but the session started without a box open*.
 
@@ -72,7 +88,10 @@ A freshly-born box is **just `README.md`** with the plan inline. Structure accre
 | `new <slug> [--pr REF \| --issue REF]` | Open a box. Backfill origin from the live session, **or** seed from a PR/issue. Scaffold README (+ first Log entry). | box tree | `protocols/new.md` |
 | `open [path]` | Resume an existing box: resolve the box root (explicit path, or most-recently-modified box), load vocabulary, read the README head, flag any handoffs, and orient. The explicit front door for picking a box back up across sessions. | conversation only | `protocols/open.md` |
 | `status` | Read-only orientation — re-orients when the box is already open. Prints the README head: state, next moves, open follow-ups, open questions. No edits. | conversation only | `protocols/status.md` |
-| `plan` | Work the plan: add/reorder items, set states. `plan next` pulls the next `ready` item. For non-trivial planning, uses Claude Code's native plan mode (inheriting Stu's global planning conventions — fresh agents per logical phase, etc.). After planning, offers three doors: action now / write into the box / just discuss. Light edits (add/reorder one item, flip a state) stay inline. Split plan to `plan.md` when it outgrows the head. | inline `## Plan` or `plan.md` | `protocols/plan.md` |
+| `plan` | **Arg-dependent.** Bare/steer = manage the **track**: add/reorder items, set states, record the items a decomposition produced; `plan next` surfaces the next `ready` item (orientation only). With an item id, `plan <id>` = compose/refine `items/<id>/plan.md` — the `needs-discovery → ready` transition. Box-native composition; **no plan mode**. Offers three doors: action now / write into the box / just discuss. | track edit in README, or `items/<id>/plan.md` | `protocols/plan.md` |
+| `spec <id>` | Compose/refine `items/<id>/spec.md` — the `needs-discovery` work. What/why and the load-bearing architectural how; **open questions allowed** and recorded as `[NEEDS CLARIFICATION]` markers; dispatches fresh research agents per area. Box-native; no plan mode. Also the natural vehicle for the decomposition item. | `items/<id>/spec.md` | `protocols/spec.md` |
+| `do <id>` | Resourceful **executor** — the harness layer. Reads spec **and** plan, gauges the work (size, file-disjointness, risk, the plan's explicit per-phase deps + `[P]` markers), and chooses an approach (single agent / fan-out / dynamic workflow / a per-box `workflow.js`). Runs only on an explicit go. Output is box-type-dependent: a review writes findings/draft *into* the box; a build writes code to the *real repo*. Logs the outcome to `log/` and offers done/rollup. | execution + `log/` event (+ box-type output) | `protocols/do.md` |
+| `migrate` | Bring a box up to `box_schema: 1.3`: split `follow-ups.md` → `follow-ups/F<n>.md`, hoist inline/`plan.md`/`plans/*` into `items/<id>/`, normalise log filenames, re-stamp the schema. Idempotent; never renumbers IDs; reports a diff + a "needs manual attention" list. | migrated box tree + `migrate` Log event | `protocols/migrate.md` |
 | `park <text>` | **The headline gesture.** Capture a follow-up with a disposition; if it's a future-session thing, offer the carry-forward prompt. | `follow-ups.md` entry (+ optional handoff) | `protocols/park.md` |
 | `note <text>` | Log a decision / discovery / open question. Lighter than park — no disposition. | `log/` entry | `protocols/note.md` |
 | `handoff [text]` | Write a standalone carry-forward prompt into `handoffs/`, with a box-aware resume protocol baked in. A first-class verb; `park` may also emit one for future-session dispositions. | `handoffs/` entry + `handoff` Log event | `protocols/handoff.md` |
@@ -94,15 +113,25 @@ If the subcommand is unrecognised, list the vocabulary back to the user and ask.
 
 **Box root resolution.** Resolve once per invocation: `.context/stuart/boxes/<slug>/` relative to `pwd`. If the user pointed at a box (`box is here: <path>`), use that. If no slug context exists yet (first call wasn't `new`), use the most-recently-modified box under `.context/stuart/boxes/`, or ask if it's ambiguous.
 
-**Vocabulary.** Five plain words. Do not collapse the README/Log split into "context" — they do two different jobs.
+**Vocabulary.** The core words. Do not collapse the README/Log split into "context" — they do two different jobs.
 
 - **Box** — the container; one body of work. The folder.
-- **README** — the head: always-current navigation. State, current-vs-superseded document map, next moves, open follow-ups, open questions. ~100 lines, always current.
-- **Plan** — the work track: ordered, intent-level items, each with a state. Lives inline in the README until it splits to `plan.md`.
-- **Follow-ups** — the parked track: each entry carries a disposition naming where it goes. In `follow-ups.md`.
+- **README** — the head: always-current navigation. State, current-vs-superseded document map, next moves, open follow-ups, open questions. A **projected index** over the items, ~100 lines, always current — never the bodies themselves.
+- **Item** — the unit of work; a projected unit, not a script. Each non-stub item lives at `items/<id>/` and carries a *state*, with up to two artefacts: `spec.md` (the `needs-discovery` understanding) and `plan.md` (the `ready`, agent-actionable plan). A box is for *many* items.
+- **Track** — the ordered list of items with their states and one-liners. Lives in the README's projected zone — the index over `items/`.
+- **Follow-ups** — the parked track: each entry carries a disposition naming where it goes. One file per follow-up under `follow-ups/`.
 - **Log** — append-only provenance and narrative: what happened, decisions, open questions. Can be long. In `log/`.
 
-**Plan item states.** `stub` (placeholder, `<TODO: spec out>`) → `needs-discovery` (known but not understood; engage when reached) → `ready` (crisp, actionable) → `done`. The `needs-discovery → ready` transition is where discovery happens — for v1 this is **conversational, no dedicated verb**. You dispatch discovery agents in the moment when you reach the item. There's no stored "in-progress" tag: "currently working an item" is conveyed by the live session plus any carry-forward handoff, not a state on the item.
+**Item states → artefacts.** Each item carries a state, and the state names which artefact has been written:
+
+| State | Artefact at `items/<id>/` | Meaning |
+|---|---|---|
+| `stub` | — | placeholder on the track (`<TODO: spec out>`) |
+| `needs-discovery` | `spec.md` | what/why/some-how; open questions allowed; the human slows down |
+| `ready` | `plan.md` | agent-actionable; **zero** open questions; phased; verification criteria |
+| `done` | demoted to `archive/` | — |
+
+The **`needs-discovery → ready` transition *is* the spec → plan progression** — `spec <id>` writes the understanding, `plan <id>` writes the actionable plan, and the move from one to the other is the deliberate human slow-down. **Not every item needs both artefacts:** spec is optional when there's nothing to discover (promote `stub → ready`, skip it); the plan is what `do` runs against. There's no stored "in-progress" tag — "currently working an item" is conveyed by the live session plus any carry-forward handoff, not a state on the item.
 
 **Follow-up dispositions.** Every park names where it goes — disposal language, not deferral. `in-scope-later` (do during this box, on the tail) / `→ issue` (becomes a GitHub issue, provenance linked back) / `→ new box` / `dropped` (explicitly killed, with a reason). At `close`, **every open follow-up reconciles to a terminal disposition** — that's the normal ending for a box, not an edge case.
 
@@ -135,7 +164,7 @@ If the subcommand is unrecognised, list the vocabulary back to the user and ask.
 
 **Subagent dispatch shape.** When a protocol dispatches a subagent, the brief always includes: (1) the box root path, (2) which specific files to read first, (3) the named artefact path it must produce, (4) the ≤5-line return format expected, (5) the discovery-before-commitment rule. Never dispatch with "go do X" — always with the artefact path and shape. If the subagent produces anything public-facing, pass it the leak-free rule below.
 
-**Public artefacts never leak the box.** The box is a private working tool (it lives in a private context repo; most of the code it describes is open source). Anything that leaves the box for a public surface — a GitHub issue, a PR description, an external comment — must stand on its own in plain English and **must not** carry the box's internal vocabulary: no follow-up IDs (`F1`, `F2`), no slug references, no "the box found…", no `plan.md`/`follow-ups.md` pointers. Translate into how a person would naturally write it. And per Stu's standing rule, **draft only — never post to a public surface unprompted.**
+**Public artefacts never leak the box.** The box is a private working tool (it lives in a private context repo; most of the code it describes is open source). Anything that leaves the box for a public surface — a GitHub issue, a PR description, an external comment — must stand on its own in plain English and **must not** carry the box's internal vocabulary: no follow-up IDs (`F1`, `F2`), no item ids, no slug references, no "the box found…", no `items/`/`follow-ups/`/`plan.md`/`spec.md` pointers. Translate into how a person would naturally write it. And per Stu's standing rule, **draft only — never post to a public surface unprompted.**
 
 **Projected-zone markers.** The README has a hand-curated static zone and a regenerated projected zone, delimited by:
 
@@ -151,8 +180,8 @@ If the subcommand is unrecognised, list the vocabulary back to the user and ask.
 
 These were open questions in the design brief; they are now locked.
 
-1. **Plan is born inline in the README.** The `plan` verb migrates it to `plan.md` only once it exceeds ~12–15 items or visibly crowds the head. One-way split, on demand — once split, it stays in `plan.md`.
-2. **No discovery verb in v1.** The `needs-discovery → ready` transition is conversational.
+1. **The track lives in the README; item bodies live in `items/<id>/`.** The README's projected zone holds the track (ordered items + states + one-liners) — the index. Substance (a `spec.md` and/or `plan.md`) lives under `items/<id>/`, created on the first non-stub item. No inline plan body in the README.
+2. **Discovery is the `spec` verb.** The `needs-discovery → ready` transition is the `spec → plan` progression: `spec <id>` writes `items/<id>/spec.md` (open questions allowed); `plan <id>` writes `items/<id>/plan.md` (zero open questions). Spec is optional when there's nothing to discover.
 3. **Rollup is manual only.** Source files (`plan`, `follow-ups.md`, `log/`) are the truth; the projected zone is a view. No auto-trigger.
 4. **Carry-forward prompts live in the box.** `park` writes them to a lazily-created `handoffs/` subdir; a short `handoff` Log event points at the file. This reuses the `handoff` skill's format but persists it in the box (the durable record), not the OS temp dir.
 5. **`close` drafts the PR description.** It composes a PR-description **draft** from the box and prints it for Stu to send — never posts.
