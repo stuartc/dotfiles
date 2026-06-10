@@ -45,7 +45,7 @@ Copy `${CLAUDE_SKILL_DIR}/templates/README.md` into `<slug>/README.md`, substitu
 
 Leave the projected zone exactly as the template ships it — the structured empty sections between the `<!-- BOX: BEGIN PROJECTED -->` / `<!-- BOX: END PROJECTED -->` markers. `new` does not rollup.
 
-The box is born as **just `README.md`** plus the first log entry. Don't create `plan.md`, `follow-ups.md`, `handoffs/`, or `archive/` — those accrete on demand from their own verbs.
+The box is born as **just `README.md`** plus the first log entry. Don't create `items/`, `follow-ups/`, `handoffs/`, or `archive/` — those accrete on demand from their own verbs.
 
 ### 4. First Log event
 

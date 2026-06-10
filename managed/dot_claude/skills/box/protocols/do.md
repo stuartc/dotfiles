@@ -46,7 +46,7 @@ State the chosen approach and why in one or two lines before dispatching. If non
 
 Every dispatched agent follows the **subagent dispatch shape** from the skill contract: (1) the box root path, (2) the specific files to read first (the item's `plan.md` + `spec.md`, plus any phase context excerpts), (3) the named artefact path it must produce, (4) the ≤5-line return format, (5) the discovery-before-commitment rule (≤5 tool calls to confirm the data shape before committing to long work). Never dispatch "go implement the plan" — always with the phase's acceptance criteria as the definition of done and the artefact path it writes.
 
-If anything dispatched produces a **public-facing** artefact (a PR description, a GitHub issue, an external comment), pass it the **leak-free rule**: it must stand alone in plain English, carry none of the box's internal vocabulary (no `F<id>`, no slug, no `plan.md`/`follow-ups.md` pointers), and per Stu's standing rule it is **draft only — never posted**.
+If anything dispatched produces a **public-facing** artefact (a PR description, a GitHub issue, an external comment), pass it the **leak-free rule**: it must stand alone in plain English, carry none of the box's internal vocabulary (no `F<id>`, no slug, no `plan.md`/`follow-ups/` pointers), and per Stu's standing rule it is **draft only — never posted**.
 
 ### 5. Run only on an explicit go
 

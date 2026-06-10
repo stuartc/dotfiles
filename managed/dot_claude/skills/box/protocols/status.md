@@ -18,7 +18,7 @@ Read only — fast orientation, under a second of reading:
 
 - `README.md` — just the projected zone (`## Where things stand`, between the `<!-- BOX: BEGIN PROJECTED -->` / `<!-- BOX: END PROJECTED -->` markers).
 - The `## Plan` — inline in the README, or `plan.md` if it has split out.
-- The open entries in `follow-ups.md` (if it exists).
+- The open entries under `follow-ups/` (each `follow-ups/F<id>.md`, if the folder exists).
 - The last ~10 `log/*.md` filenames (just the titles — don't open the bodies).
 
 Do not read every file. If the projected-zone markers are missing, say so and fall back to whatever the README shows; don't reconstruct.

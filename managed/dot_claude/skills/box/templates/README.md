@@ -41,7 +41,7 @@ _Then the work items it projects, e.g. `- [ ] 1 · <item one-liner>  `[stub]``. 
 │   └── <id>/
 │       ├── spec.md    # written at needs-discovery (what/why/some-how; open questions allowed)
 │       └── plan.md    # written at ready (agent-actionable; zero open questions)
-├── follow-ups/        # one file per parked follow-up — created on first `box park`
+├── follow-ups/         # parked track, one F<id>.md per entry (appears on first `box park`)
 │   └── F1.md
 ├── log/               # append-only events — created on the 2nd entry
 ├── handoffs/          # carry-forward prompts — created on first carry-forward

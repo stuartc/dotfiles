@@ -85,7 +85,7 @@ One line: the type recorded (`decision` / `open-question` / `note`) and the even
 
 The park-vs-note line, drawn clearly:
 
-- **`park`** — an actionable follow-up. It carries a **disposition** naming where it goes (`in-scope-later` / `→ issue` / `→ new box` / `dropped`), gets a permanent `F<id>`, lands in `follow-ups.md`, and may spin off a carry-forward handoff. At `close` it must reconcile to a terminal disposition. Park is for *work that still needs doing or routing*.
+- **`park`** — an actionable follow-up. It carries a **disposition** naming where it goes (`in-scope-later` / `→ issue` / `→ new box` / `dropped`), gets a permanent `F<id>`, lands under `follow-ups/` (its own `F<id>.md`), and may spin off a carry-forward handoff. At `close` it must reconcile to a terminal disposition. Park is for *work that still needs doing or routing*.
 - **`note`** — provenance into the Log. No disposition, no `F<id>`, no handoff, nothing to reconcile at `close`. Note is for *something worth remembering*, not something to do.
 
 The test: if it needs to be done or routed somewhere, it's a `park`. If it just needs to be remembered, it's a `note`. A decision you've already made is a `note` (`decision`); a decision you still have to make is usually an `open-question` note, and only becomes a `park` once acting on it is itself a unit of work.

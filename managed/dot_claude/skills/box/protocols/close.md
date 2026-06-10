@@ -24,11 +24,11 @@ Closing against a stale head is how a follow-up gets missed. The refresh is not 
 
 ### 3. Reconcile every open follow-up
 
-The real work of `close`. Read `follow-ups.md`. For **each** open `F<id>` (anything not already at a terminal disposition), force a terminal fate — nothing stays merely `in-scope-later` or parked. Update each entry's disposition tag in place (the `[{{DISPOSITION}}]` in its heading) so the file itself records the outcome; the Log records the reconciliation summary.
+The real work of `close`. Read each `follow-ups/F<id>.md`. For **each** open `F<id>` (anything not already at a terminal disposition), force a terminal fate — nothing stays merely `in-scope-later` or parked. Update each entry's disposition tag in place (the `[{{DISPOSITION}}]` in its heading) so the file itself records the outcome; the Log records the reconciliation summary.
 
 For each open follow-up, route it to one of:
 
-- **`→ issue`** — record the GitHub issue URL on the entry. If the issue isn't drafted yet, draft it now — leak-free (plain English, none of the box's internal vocabulary: no `F<id>`, no slug, no `plan.md`/`follow-ups.md` pointers), **draft only, never post** (per Stu's standing rule). Show Stu the draft; he sends it. Record the URL once it exists; if it doesn't exist yet, record "issue draft ready — pending Stu" against the entry so the routing is unambiguous.
+- **`→ issue`** — record the GitHub issue URL on the entry. If the issue isn't drafted yet, draft it now — leak-free (plain English, none of the box's internal vocabulary: no `F<id>`, no slug, no `plan.md`/`follow-ups/` pointers), **draft only, never post** (per Stu's standing rule). Show Stu the draft; he sends it. Record the URL once it exists; if it doesn't exist yet, record "issue draft ready — pending Stu" against the entry so the routing is unambiguous.
 - **`→ new box`** — record the new box slug on the entry. Offer to `box new <slug>` it, but do **not** auto-execute the spun-out work — `close` records the routing, the new box drives the work later.
 - **`in-scope-later` that got done** — mark it done with a pointer to where it landed (the merged change, the plan item, the commit).
 - **`dropped`** — an explicit kill, with a one-line reason on the entry. A dropped follow-up keeps its `F<id>` forever; it is killed, not deleted.
@@ -67,7 +67,7 @@ Don't block — Stu may legitimately close a box with loose ends — but make hi
 
 Compose a PR-description **DRAFT** from the box, then **PRINT it to the conversation** for Stu to copy and send. Never post — draft only, per Stu's standing rule.
 
-Source it from the box but translate fully into leak-free plain English: intent from `## The prize`, the shipped (done) plan items, resolved decisions from the Log, and any caveats or known follow-ups worth flagging to a reviewer. Carry **none** of the box's internal vocabulary — no `F<id>`, no slug, no "the box found…", no `plan.md`/`follow-ups.md` pointers. Write it the way a person would naturally describe the change to a reviewer who's never heard of the box.
+Source it from the box but translate fully into leak-free plain English: intent from `## The prize`, the shipped (done) plan items, resolved decisions from the Log, and any caveats or known follow-ups worth flagging to a reviewer. Carry **none** of the box's internal vocabulary — no `F<id>`, no slug, no "the box found…", no `plan.md`/`follow-ups/` pointers. Write it the way a person would naturally describe the change to a reviewer who's never heard of the box.
 
 If the terminal state is `abandoned` or `spun-out` with nothing merged, there may be no PR to describe — say so and skip, rather than drafting a hollow description.
 

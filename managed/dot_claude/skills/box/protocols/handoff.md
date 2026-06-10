@@ -17,7 +17,7 @@ Resolve the box root per the contract (`.context/stuart/boxes/<slug>/`, or the b
 
 - The full `README.md` static zone (prize, origin, repo facts) and the projected zone.
 - The `## Plan` — inline or `plan.md`.
-- Open entries in `follow-ups.md` (if it exists).
+- Open entries under `follow-ups/` (each `follow-ups/F<id>.md`, if the folder exists).
 - The last several `log/*.md` filenames, plus the bodies of the ~3–5 most recent.
 
 This is more depth than `status` reads — the handoff must stand alone without the session, so it needs the substance, not just the head.
@@ -68,7 +68,7 @@ Read these first, in order, before acting:
 
 1. `README.md` — the head: prize, state, next moves
 2. `<plan.md or inline ## Plan>` — the current work track
-3. `follow-ups.md` — open parked items (if it exists)
+3. `follow-ups/` — open parked items, one `F<id>.md` each (if it exists)
 4. <any specific log entries worth calling out, by filename>
 
 ## State at handoff
@@ -88,6 +88,14 @@ Open follow-ups that are still live:
 Open questions still unresolved:
 - Q<id> — <question>
 
+**Dead ends / do-not** — approaches already ruled out; do not re-walk these:
+
+- <approach tried> — <why it failed / why it's wrong>
+
+**Validation evidence** — the test/lint/build output that confirms the "Done" items above actually hold:
+
+- <command run> → <result, e.g. "42 passing, 0 failures" / "dialyzer clean">
+
 ## Concrete work to do next
 
 <one or two paragraphs describing the actual next action, crisp enough that a fresh session could pick it up without re-discovery>
@@ -101,6 +109,8 @@ Open questions still unresolved:
 ```
 
 ---
+
+The **Dead ends / do-not** field is negative knowledge — without it a fresh session re-walks the same dead paths the last one did; record every approach already ruled out and why. The **Validation evidence** field is the concrete output (test counts, lint/dialyzer status) proving the Done items are real, not assumed. Both may read `_None._` if genuinely empty.
 
 Fold any trailing `[text]` steer from the user into the Purpose or Concrete-work section as additional context. Do not invent structure for it — incorporate it naturally.
 
@@ -144,4 +154,5 @@ No recap of the handoff body. The file is the artefact.
 - **Standalone is non-negotiable.** A session reading this file cannot reach back into the conversation history. Every pointer is a path or a reference; every claim stands on its own.
 - **Box vocabulary is safe inside a handoff.** The `handoffs/` directory is private. `F<id>`, `Q<id>`, slugs, and file-path references are fine. If the handoff were ever forwarded to a public surface, it would need a leak-free translation first — the RESUME PROTOCOL section says as much.
 - **The resume protocol matters.** A fresh session without the box skill loaded will not have the box vocabulary. The RESUME PROTOCOL section must explicitly instruct loading the skill — otherwise a naive pickup may stumble over `box plan`, `F<id>`, projected-zone markers, and so on.
+- **Carry negative knowledge forward.** The **Dead ends / do-not** field records approaches already ruled out — the single highest-value thing to hand a fresh session, because re-walking a dead path is pure waste. The **Validation evidence** field pins the Done claims to real output (test counts, dialyzer/lint status) so the next session trusts them. `park`'s carry-forward fusion inherits both.
 - **`park` and `handoff`.** `park` offers the carry-forward prompt for future-session dispositions and writes the same handoff format to `handoffs/`. It points here as the canonical form — it does not duplicate the steps. `handoff` as a first-class verb produces the same artefact without the follow-up entry overhead; use it when you want a carry-forward prompt without a new `F<id>`.

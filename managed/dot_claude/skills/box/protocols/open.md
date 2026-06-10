@@ -30,7 +30,7 @@ Read — fast orientation, the same read that `status` does:
 
 - The projected zone of `README.md` — the content between the `<!-- BOX: BEGIN PROJECTED -->` / `<!-- BOX: END PROJECTED -->` markers. This is `## Where things stand`.
 - The `## Plan` — inline in `README.md`, or `plan.md` if it has split out.
-- Open entries in `follow-ups.md` (if it exists).
+- Open entries under `follow-ups/` (each `follow-ups/F<id>.md`, if the folder exists).
 - The last ~10 `log/*.md` filenames (titles only — do not open the bodies).
 
 If the projected-zone markers are missing, say so and fall back to whatever the README shows; do not reconstruct.

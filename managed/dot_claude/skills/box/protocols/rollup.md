@@ -1,6 +1,6 @@
 # Protocol: rollup
 
-Regenerate the README's projected zone from the source-of-truth files, and demote done/superseded material out of the active view. The source files (Plan, `follow-ups.md`, `log/`, `archive/`) are the truth; the projected zone is a *view* composed from them. `rollup` recomposes that view and keeps the active surface small — it never invents state the sources don't carry.
+Regenerate the README's projected zone from the source-of-truth files, and demote done/superseded material out of the active view. The source files (Plan, `follow-ups/`, `log/`, `archive/`) are the truth; the projected zone is a *view* composed from them. `rollup` recomposes that view and keeps the active surface small — it never invents state the sources don't carry.
 
 Manual only. There is no auto-trigger — Stu runs this by hand when the README feels out of sync, after a burst of activity, or before bootstrapping a fresh session.
 
@@ -19,7 +19,7 @@ Resolve the box root per the contract: `.context/stuart/boxes/<slug>/` relative 
 These are the truth. The projected zone is derived from them, not the other way round.
 
 - **The Plan** — for item states. Inline `## Plan` in `README.md` if it hasn't split, else `plan.md`. Read every item's trailing `` `[state]` `` tag (`stub` / `needs-discovery` / `ready` / `done`).
-- **`follow-ups.md`** — for open `F<id>` entries and their dispositions (`in-scope-later` / `→ issue` / `→ new box` / `dropped`). Reconciled or dropped entries are not "open".
+- **`follow-ups/`** — read each `follow-ups/F<id>.md` for open entries and their dispositions (`in-scope-later` / `→ issue` / `→ new box` / `dropped`). Reconciled or dropped entries are not "open".
 - **The open-question set** — derive it from `log/` **filenames** (the append-only truth, not the README): the open questions are all `…-open-question-Q<n>.md` files **minus** any `Q<n>` that also appears in a `…-question-resolved-Q<n>.md` filename. Scan the full set for this — a resolution can predate the latest events.
 - **The last several `log/*.md`** — filenames are timestamped, so sort by name and read the latest N (≈5–8). Care most about `decision` and `note` events to inform the one-line state. (Open questions come from the filename scan above, not from reading these bodies.)
 - **The `archive/` listing** — for docs already demoted, so the document map can name them as superseded rather than re-demoting them.
@@ -73,7 +73,7 @@ Notes on composition:
 - **State** is one honest line about the present, not a status badge. Derive it from the latest plan/log activity — what's actively being worked (the nearest `ready` item), what just landed, what's blocked.
 - **Document map** is current vs superseded. Live docs sit in the box root; superseded docs live in `archive/` and are named as such, each pointing at what replaced it.
 - **Next moves** lists only Plan items not yet `done`, in plan order, the next few. A `needs-discovery` item is called out as such — never dressed up as `ready`. Done items do not appear here (see step 4).
-- **Open follow-ups** shows only open `F<id>` entries. An entry that has been reconciled or `dropped` falls off this list; its ID lives on in `follow-ups.md` (IDs are never reused).
+- **Open follow-ups** shows only open `F<id>` entries. An entry that has been reconciled or `dropped` falls off this list; its ID lives on as `follow-ups/F<id>.md` (IDs are never reused; the file is never deleted, only its disposition tag changes).
 - **Open questions** is the raised-minus-resolved set from the `log/` filenames (step 2): every `open-question-Q<n>` with no matching `question-resolved-Q<n>`. Each bullet carries its `Q`-ID. **These stay visible even while undecided — never demote an undecided question.** Visibility over tidiness.
 - **Empty sections.** An empty section writes `_None yet._` as its sole body line — never omit a `###` sub-section. The structure stays constant whether or not there's content, so the live-adds (`park`/`note`) always have a coherent head to replace into.
 
@@ -123,7 +123,7 @@ One line: the projected zone was regenerated, with counts — N plan items, M op
 
 ## Notes
 
-- **Rollup is derived data.** The projected zone is replaceable; the source files (the Plan, `follow-ups.md`, `log/*.md`, `archive/`) are the truth. To recover from a botched rollup, delete the projected zone between the markers and re-run — nothing is lost.
+- **Rollup is derived data.** The projected zone is replaceable; the source files (the Plan, `follow-ups/F<id>.md`, `log/*.md`, `archive/`) are the truth. To recover from a botched rollup, delete the projected zone between the markers and re-run — nothing is lost.
 - **The static zone is hand-curated and never touched.** The prize, repo facts, and origin live above the `<!-- BOX: BEGIN PROJECTED -->` marker. If they need updating, edit them by hand — `rollup` only ever rewrites between the markers.
 - **Archival demotes the done, never the undecided.** Done plan items and superseded docs leave the active view; open questions stay visible until resolved. Visibility over tidiness.
 - **`close` also demotes.** `rollup` and `close` share the archival machinery; `close` additionally reconciles every open follow-up to a terminal disposition and records terminal state. `rollup` excludes done plan items from Next moves by construction **and** demotes superseded docs to `archive/` — it's the demoter for documents. `plan` sets `done` states but never archives.
