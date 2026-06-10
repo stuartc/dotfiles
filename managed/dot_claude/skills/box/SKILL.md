@@ -18,7 +18,7 @@ allowed-tools:
 
 Multi-day work outlives the session it's done in. A live Claude session is RAM: disposable, ejected around 140–180k tokens. The box is disk: the continuity layer that survives the churn. One box = one contained body of work. You open the box and you're loaded — no surgical context reconstruction every fresh session.
 
-The core idea, inherited from `triage`: the main session is a **dispatcher with a typed vocabulary**. Each subcommand reads its `protocols/<name>.md` and produces a named artefact in a predictable place. History is append-only. The README is a thin, always-current index — not the substance. In v1, all verbs run inline — no subagents are dispatched; the dispatch-shape rules below apply when a protocol does fork one, and to any in-session discovery agents.
+The core idea, inherited from `triage`: the main session is a **dispatcher with a typed vocabulary**. Each subcommand reads its `protocols/<name>.md` and produces a named artefact in a predictable place. History is append-only. The README is a thin, always-current index — not the substance. Most verbs run inline; `spec` and `do` dispatch subagents (research fan-outs, executors), and the dispatch-shape rules below govern every fork — plus any in-session discovery agents.
 
 The format scales **stub → tome without restructuring**. A freshly-born box is one README — a projected index over a work-track that is still empty. The unit of work is the **item**; each item that earns substance gets its own folder under `items/<id>/`. Structure accretes on demand; you never restructure. The README is a projected index *over* the items, never a container of their bodies.
 
@@ -107,7 +107,7 @@ For each subcommand, **read the corresponding `${CLAUDE_SKILL_DIR}/protocols/<na
 
 If the subcommand is unrecognised, list the vocabulary back to the user and ask.
 
-**Conversational on top of explicit.** Stu's real invocation style is conversational: he opens a box (`box open <path>` or `box pickup <handoff>`) then describes the situation in natural language and lets the dispatcher route it. Support that — explicit verbs underneath, smart routing on top. When he describes a situation rather than naming a verb, infer the verb (a thing to park → `park`; a decision made → `note`; "where are we" → `status`; "what's next" → `plan next`; "resume / where was I / pick the box back up" → `open`; "write a handoff / carry this forward" → `handoff`; "pick up from <handoff>" → `pickup`) and proceed, confirming only when genuinely ambiguous.
+**Conversational on top of explicit.** Stu's real invocation style is conversational: he opens a box (`box open <path>` or `box pickup <handoff>`) then describes the situation in natural language and lets the dispatcher route it. Support that — explicit verbs underneath, smart routing on top. When he describes a situation rather than naming a verb, infer the verb (a thing to park → `park`; a decision made → `note`; "where are we" → `status`; "what's next" → `plan next`; "resume / where was I / pick the box back up" → `open`; "write a handoff / carry this forward" → `handoff`; "pick up from <handoff>" → `pickup`; a thing to spec out / "understand this first" → `spec <id>`; "build it / run the plan / execute <id>" → `do <id>`; "bring this old box up to date" → `migrate`) and proceed, confirming only when genuinely ambiguous.
 
 ## Conventions across all subcommands
 
@@ -209,9 +209,9 @@ All three are orientation only — they hydrate and hand the next move back to y
 - File templates use Markdown; YAML frontmatter only where a field is load-bearing (e.g. `superseded_by:` on demoted docs).
 - No back-references in artefacts ("as discussed earlier") — every artefact stands alone or links explicitly.
 
-## Out of scope (v1)
+## Out of scope
 
-- **The agentic execution loop.** The `run.sh` / `queue.json` / driver fan-out harness is its own beast. The box *feeds* it later but does not contain it.
+- **A persistent agentic execution loop.** The `run.sh` / `queue.json` driver fan-out is its own beast, deferred. `do` is a resourceful per-invocation dispatcher, not that loop: it gauges one item's plan and dispatches it (a single agent, a fan-out, a dynamic `Workflow`, or a per-box `workflow.js`), then stops. It does not drain a queue unattended.
 - **Cross-box / portfolio machinery.** One box, one body of work. Boxes may reference each other; nothing coordinates above them.
 - **Triage migration.** Fold triage in once box has proven out.
-- **The beads projection.** The box owns the whole climb; beads only ever sees the ready top rungs — and not in v1.
+- **The beads projection.** The box owns the whole climb; beads only ever sees the ready top rungs — and not here.
