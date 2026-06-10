@@ -32,6 +32,12 @@ _The triple that frames the gap. For a decomposition item, "desired behaviour" i
 
 _What we're taking on and why it's worth doing. Include the **load-bearing architectural decisions** — the choices the whole thing turns on (e.g. "where bucket state lives across BEAM nodes"). Architectural substance belongs here; **implementation code does not** — that's the plan's job. Don't keep the spec religiously sky-high for inherently technical work, but don't paste code into it either._
 
+## Non-goals
+
+_What this item is explicitly **not** doing — the scope fence that keeps the plan honest. Distinct from Open Questions: a non-goal is a deliberate exclusion, not an unknown._
+
+- {{NON_GOAL}}
+
 ## Acceptance criteria
 
 _3–5 criteria, EARS format — enough to **prove understanding**, not to be exhaustive (exhaustiveness is the plan's job)._

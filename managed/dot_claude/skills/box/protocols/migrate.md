@@ -24,7 +24,7 @@ Migration only ever moves **forward**. If `box_schema` reads *higher* than the c
 
 ### 2. Snapshot (commit-before-edit)
 
-This verb rewrites many files, so the snapshot matters more here than anywhere. Resolve the repo root (`readlink -f .context`, or `greadlink -f`) and commit the current state: `git -C "$CONTEXT_REPO" commit -m "box: snapshot before migrate"`. If the working tree has **unrelated** changes, **stop and ask** — never sweep a half-migrated tree in with someone else's work. If `git -C "$CONTEXT_REPO" status --porcelain` is empty, skip the snapshot silently. If `.context/` isn't a git repo, tell the user there's no safety net and ask before proceeding.
+This verb rewrites many files, so the snapshot matters more here than anywhere. Resolve the repo root once: `CONTEXT_REPO=$(readlink -f .context)` (use `greadlink -f` if `readlink -f` is unavailable). Stage and commit the current state: `git -C "$CONTEXT_REPO" add -A && git -C "$CONTEXT_REPO" commit -m "box: snapshot before migrate"`. If the working tree has **unrelated** changes, **stop and ask** — never sweep a half-migrated tree in with someone else's work. If `git -C "$CONTEXT_REPO" status --porcelain` is empty, skip the snapshot silently. If `.context/` isn't a git repo, tell the user there's no safety net and ask before proceeding.
 
 ### 3. Split follow-ups → `follow-ups/<F-id>.md`
 

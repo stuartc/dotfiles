@@ -21,12 +21,15 @@ Validated against the real `Lightning.Adaptors` rewrite: a 7-week, 5-burst proje
 box new worker-backpressure          # open a box (or --pr / --issue to seed from someone's work)
 box open worker-backpressure         # resume an existing box — loads vocab, reads head, flags handoffs
 box plan                             # lay out the work track — arranges, never executes
+box spec 1                           # compose items/1/spec.md — what/why; open questions allowed
+box do 1                             # the resourceful executor — reads spec + plan, dispatches; explicit go only
 box status                           # re-orient mid-session once the box is already open
 box park "loader swallows version mismatches"   # the headline gesture — capture + disposition
 box note "we'll treat the PR as source of truth"  # lighter: a decision/discovery/open-question into the Log
 box handoff                          # write a standalone carry-forward prompt into handoffs/
 box pickup                           # resume from the latest handoff (box-aware, vocabulary loaded)
 box rollup                           # regenerate the README head from the source files
+box migrate                          # bring an older box up to box_schema: 1.3
 box close                            # reconcile every follow-up, demote done work, draft the PR
 ```
 
@@ -38,7 +41,7 @@ Five plain words, all drawn from artefacts Stu already hand-rolled.
 
 - **Box** — the container; one body of work. The folder.
 - **README** — the head: always-current navigation (state, current-vs-superseded document map, next moves, open follow-ups, open questions), ~100 lines.
-- **Plan** — the work track: ordered, intent-level items, each with a state. Per item, at `items/<id>/plan.md`, once the item is `ready`.
+- **Track** — the work track: the ordered list of items with their states and one-liners, living in the README's projected zone — an index over `items/`. The per-item actionable artefact is `items/<id>/plan.md`, written once the item is `ready`.
 - **Follow-ups** — the parked track: each entry carries a disposition naming where it goes.
 - **Log** — append-only provenance and narrative: what happened, decisions, open questions.
 
@@ -76,7 +79,7 @@ Inherited from triage and worth restating:
 Items ticked or annotated were addressed in v1.2.
 
 - [x] `allowed-tools` glob match: do the scoped `Bash(git -C * …)` patterns actually fire on `.context/` repo paths containing slashes? — **Resolved by reframing (v1.2):** these globs only matter outside `bypassPermissions`/`acceptEdits` mode. In Stu's normal setup they are moot; in default-permission/headless/cron/other-user runs the globs remain as scoped as possible. No functional change; the comment in `SKILL.md` now reflects this.
-- [x] Discoverability: the verb set was not visible until you typed `/box` with no args. — **Addressed (v1.2):** `argument-hint` now lists all ten verbs at a glance.
+- [x] Discoverability: the verb set was not visible until you typed `/box` with no args. — **Addressed (v1.2):** `argument-hint` now lists all ten verbs at a glance (13 as of v1.3).
 - [x] Planning approach: was routing to the legacy `/create-plan` skill. — **Addressed (v1.2):** `plan` now uses Claude Code's native plan mode for non-trivial planning; `/create-plan` is explicitly marked legacy and not routed to. — **Superseded (v1.3):** `plan` is box-native composition now; neither `/create-plan` nor Claude Code plan mode is used.
 - [ ] Q-resolution visibility in `status`: `status` reads only the last ~10 `log/` filenames, so a `question-resolved` event can fall outside the window and leave a question showing as open. Accept the "run `box rollup` if counts look off" note, or widen the scan?
 - [ ] Slash-arg parsing: does `box park <long text>` reliably pass the trailing text as args? If not, fall back to prefix-only invocation.

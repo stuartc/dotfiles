@@ -23,7 +23,7 @@ If `follow-ups/` doesn't exist, this is the first park — create the directory 
 
 Before writing, reconstruct from context — this is what keeps the friction budget low. From the live session, work out:
 
-- **Why it surfaced** — what Stu was doing when this came up: the Plan item, the question, the line of work it came off. One line, written so it makes sense in five days with no re-discovery.
+- **Why it surfaced** — what Stu was doing when this came up: the track item, the question, the line of work it came off. One line, written so it makes sense in five days with no re-discovery.
 - **Load-bearing facts** — the 2–3 facts that make the follow-up legible later. Not a transcript; the few things a fresh session can't re-derive cheaply.
 - **Recommendation** — if you have one. Optional.
 
@@ -88,9 +88,9 @@ Add the follow-up to the projected zone's `### Open follow-ups` section — one 
 
 ### 8. Log
 
-Append a `followup-parked:F<id>` Log event from `${CLAUDE_SKILL_DIR}/templates/log-entry.md` — one event per park, or a single event covering several if they were parked together (`followup-parked:F<id>,F<id>`). Name the disposition and point at `follow-ups/F<id>.md`.
+Create `log/YYYY-MM-DDTHH-MM-followup-parked-F<id>.md` from `${CLAUDE_SKILL_DIR}/templates/log-entry.md` (event type `followup-parked:F<id>`; per the template's filename rule, the `:` becomes `-` in the filename, ID suffix retained). One event per park, or a single event covering several if they were parked together (event type `followup-parked:F<id>,F<id>`, filename `…-followup-parked-F<id>-F<id>.md`). Name the disposition and point at `follow-ups/F<id>.md`.
 
-If a carry-forward prompt was written in step 5, append a separate `handoff` Log event pointing at the `handoffs/` file.
+If a carry-forward prompt was written in step 5, also write its `handoff` Log event per `${CLAUDE_SKILL_DIR}/protocols/handoff.md` (it owns the canonical filename `log/YYYY-MM-DDTHH-MM-handoff.md` and fields) — don't re-specify it here.
 
 ### 9. Commit
 

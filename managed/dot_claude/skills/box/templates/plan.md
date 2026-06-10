@@ -1,7 +1,6 @@
 ---
 item: {{ID}}
 state: ready
-satisfies_spec: {{ID}}
 ---
 
 # Plan — {{ID}}: {{TITLE}}

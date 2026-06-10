@@ -17,13 +17,13 @@ Resolve the box root (per the contract's box-root resolution rule): `.context/st
 Read only — fast orientation, under a second of reading:
 
 - `README.md` — just the projected zone (`## Where things stand`, between the `<!-- BOX: BEGIN PROJECTED -->` / `<!-- BOX: END PROJECTED -->` markers).
-- The `## Plan` — inline in the README, or `plan.md` if it has split out.
+- The **track** — the ordered item list with states, from the README's `## Track` / projected zone. Item bodies live under `items/<id>/`; don't open them.
 - The open entries under `follow-ups/` (each `follow-ups/F<id>.md`, if the folder exists).
-- The last ~10 `log/*.md` filenames (just the titles — don't open the bodies).
+- The last ~5–10 `log/*.md` filenames (just the titles — don't open the bodies).
 
 Do not read every file. If the projected-zone markers are missing, say so and fall back to whatever the README shows; don't reconstruct.
 
-**Open-question caveat.** `status` reads only the last ~10 `log/` filenames, so a `question-resolved-Q<n>` event in a long-lived box can fall outside that window — making a settled question still look open. The projected zone (from the last rollup) is the more reliable source for the count here. If the open-question count looks off, run `box rollup` first — it scans the **full** `log/` set (raised minus resolved) and refreshes the projection.
+**Open-question caveat.** `status` reads only the last ~5–10 `log/` filenames, so a `question-resolved-Q<n>` event in a long-lived box can fall outside that window — making a settled question still look open. The projected zone (from the last rollup) is the more reliable source for the count here. If the open-question count looks off, run `box rollup` first — it scans the **full** `log/` set (raised minus resolved) and refreshes the projection.
 
 ### 3. Compose the report
 
@@ -37,8 +37,8 @@ Path: <full path>
 State: <the one-line state>
 
 Next moves:
-  <next Plan item>
-  <next Plan item>   needs-discovery
+  <next track item>
+  <next track item>   needs-discovery
   ...
 
 Open follow-ups:
@@ -57,14 +57,14 @@ Recent activity (last ~5–10):
   ...
 ```
 
-Call out `needs-discovery` Plan items explicitly — they're not actionable until engaged. If a section is empty (no follow-ups, no open questions), say so in one line rather than printing an empty heading.
+Call out `needs-discovery` track items explicitly — they're not actionable until engaged. If a section is empty (no follow-ups, no open questions), say so in one line rather than printing an empty heading.
 
 ### 4. Suggest next steps
 
 Based on the state, offer one or two short, optional questions — the "point me at" prompt. Stu redirects easily, so keep them terse and easy to wave off:
 
-- No Plan items ready (all `stub`/`needs-discovery`/`done`) → suggest `box plan`.
-- A `ready` item exists → "Want to pick up <item>?" (it becomes `box plan next`).
+- No items ready (all `stub`/`needs-discovery`/`done`) → suggest `box spec <id>` for the next `needs-discovery` item, or `box plan` to flesh out the track.
+- A `ready` item exists → "Want to pick up <item>?" (it becomes `box do <id>`).
 - Stale, or the projected zone looks out of sync with the source files → suggest `box rollup`.
 - Lots of open follow-ups → flag they'll need reconciling at `box close`.
 

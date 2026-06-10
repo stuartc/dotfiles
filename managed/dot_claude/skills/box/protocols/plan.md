@@ -26,20 +26,20 @@ Either way, `plan` **arranges** the work — it does not execute it. Stu compose
 Read the first token after `plan`.
 
 - **An item id** (e.g. `i3`, or whatever id convention the track uses) → §Composing an item plan. This is the heavyweight path: it authors `items/<id>/plan.md`.
-- **`add <text>`** — append a track line per `templates/plan-item.md`: `` - [ ] <text>  `[stub]` ``. If `<text>` reads as crisp and immediately actionable (a verb, a concrete target, no open unknowns), use `` `[ready]` `` instead. Don't over-classify — when unsure, `stub` is the honest default. Light edit, inline.
+- **`add <text>`** — append a track line per `templates/plan-item.md`: `` - [ ] <id> · <text>  `[stub]` `` (assign the next free item id). If `<text>` reads as crisp and immediately actionable (a verb, a concrete target, no open unknowns), use `` `[ready]` `` instead. Don't over-classify — when unsure, `stub` is the honest default. Light edit, inline.
 - **`next`** — find the first item that isn't `done`, in track order.
   - `ready` → surface it: print the intent and point at `items/<id>/plan.md` if it exists, then hand it to the user to start (`box do <id>`). Do **not** begin the work.
   - `needs-discovery` → say so plainly; the next move is `box spec <id>`, not execution.
   - `stub` → prompt to flesh it out first — `box spec <id>` (if there's discovery to do) or `plan add`-style description before it can be made `ready`.
   - There is no `in-progress` state — "currently working" is carried by the live session and any handoff, not a tag.
-- **bare `plan`** — print the current track (every item with its state tag) and offer edits. Light edit, or §Reshaping the track for substantial work.
-- **freeform steer** — interpret against the item list and apply (reorder, mark X `done`, promote Y, demote Z, **record the items a decomposition item produced** — adding several new stubs/needs-discovery items at once is the normal decomposition output). Confirm only if the target is genuinely ambiguous. Light edit for a single item; §Reshaping the track for a substantial reshape.
+- **bare `plan`** — print the current track (every item with its state tag) and offer edits. Light edit, or a substantial reshape (see the *Reshaping the track* bullet in §2).
+- **freeform steer** — interpret against the item list and apply (reorder, mark X `done`, promote Y, demote Z, **record the items a decomposition item produced** — adding several new stubs/needs-discovery items at once is the normal decomposition output). Confirm only if the target is genuinely ambiguous. Light edit for a single item; for a substantial reshape see the *Reshaping the track* bullet in §2.
 
 ### 2. Track edits (inline, box-native — never plan mode)
 
 The track lives in the README's projected/index zone (and migrates to a fuller list as the box grows). **All track operations are box-native and conversational. Never invoke Claude Code's native plan mode, and never call `ExitPlanMode`** — those gate *code* execution; the box `plan` produces a *document* track and executes in a later session via `box do`. The code-gate is the wrong shape and was the v1 friction this verb is built to remove.
 
-- **Light edits** — add/reorder one item, flip one item's state, surface the next item, record a handful of decomposition-produced items. Apply directly, inline. After applying: commit (§Commit) and report (§Report).
+- **Light edits** — add/reorder one item, flip one item's state, surface the next item, record a handful of decomposition-produced items. Apply directly, inline. After applying: commit (§Commit-before-edit) and report (§Report).
 - **Reshaping the track** — laying out the work track from scratch, or substantially reordering many items: do it **box-natively in conversation** — propose the reshaped track, let Stu react, then write it in. No mode switch, no three-door code-gate. This is composition, not a build trigger.
 
 ### 3. States
@@ -47,10 +47,10 @@ The track lives in the README's projected/index zone (and migrates to a fuller l
 Four states, set via the trailing tag convention — a Markdown checklist line with the state in a trailing `` `[state]` `` tag (see `templates/plan-item.md`). The checkbox tracks completion; the tag tracks lifecycle:
 
 ```
-- [ ] <intent>  `[stub]`
-- [ ] <intent>  `[needs-discovery]`
-- [ ] <intent>  `[ready]`
-- [x] <intent>  `[done]`
+- [ ] <id> · <intent>  `[stub]`
+- [ ] <id> · <intent>  `[needs-discovery]`
+- [ ] <id> · <intent>  `[ready]`
+- [x] <id> · <intent>  `[done]`
 ```
 
 The lifecycle is `stub` → `needs-discovery` → `ready` → `done`, mapped onto the per-item artefacts:
@@ -66,7 +66,7 @@ These aren't a strict ladder. **Not every item needs both artefacts:** spec is o
 
 This authors `items/<id>/plan.md` — the agent-actionable artefact, the `→ ready` transition. It is box-native composition: **no plan mode, no `ExitPlanMode`**.
 
-1. **Resolve and read.** Resolve the box root (§Resolve). Read `items/<id>/spec.md` if it exists (the plan executes what the spec decided); read any existing `items/<id>/plan.md` to refine rather than clobber.
+1. **Resolve and read.** Resolve the box root (§Resolve and read). Read `items/<id>/spec.md` if it exists (the plan executes what the spec decided); read any existing `items/<id>/plan.md` to refine rather than clobber.
 2. **Refuse to finalise with open questions.** A plan is `ready` only when there are **zero open questions** — no `[NEEDS CLARIFICATION]` markers, no "TBD", no unresolved design forks. If discovery is incomplete, the item belongs in `spec` (`box spec <id>`), not here. Say so and stop rather than writing a plan over unanswered questions.
 3. **Compose from `templates/plan.md`.** Copy `${CLAUDE_SKILL_DIR}/templates/plan.md` into `items/<id>/plan.md` and fill it. The plan is **much closer to real code than the spec** — implementation mechanics live here. Sections (per the template): Overview · Current State · Desired End State + how to verify · What We're NOT Doing · Phases · References.
 4. **Phrase phases as WHAT, not HOW.** Each phase names a **unit of work + its acceptance + constraints + injected context excerpts** — not a command script, not "run these tool calls in this order". A plan that prescribes the *how* (specific tool calls, file-write order) bleeds into harness territory and ages badly; a plan that specifies *what* + acceptance + constraints stays useful. **`box do` is the harness layer that assigns the agents and decides how to dispatch.** The plan does not script execution; it names the phases as units. The global fresh-agent-per-phase rule still holds — it means the plan *names* phases as the units `do` will hand to fresh agents, not that the plan scripts their commands.
@@ -83,7 +83,7 @@ This authors `items/<id>/plan.md` — the agent-actionable artefact, the `→ re
 After composing or reshaping (a `plan <id>` author, or a substantial track reshape), **do not auto-execute.** Offer three doors explicitly:
 
 1. **Action it now** — for an item plan: "Want me to `box do <id>`?" For the track: "Ready to spec/plan the head item?"
-2. **Write it into the box** — commit the artefact (`items/<id>/plan.md`, or the reshaped track) per §Commit.
+2. **Write it into the box** — commit the artefact (`items/<id>/plan.md`, or the reshaped track) per §Commit-before-edit.
 3. **Discuss / iterate further** — "Want to reshape anything before we write it in?"
 
 Wait for Stu to choose. Never proceed to execution (`box do`) without an explicit go. This is the same plan-vs-execute boundary `new` and `spec` respect.
@@ -100,7 +100,7 @@ When an item hits `done`, `plan` only sets the state — it does **not** archive
 
 Per the contract: before editing, stage and commit the current state — `box: snapshot before plan`. If the working tree has unrelated changes, stop and ask rather than sweeping them in. `.context/` is usually its own git repo (often a symlink) — resolve the repo root once: `CONTEXT_REPO=$(readlink -f .context)` (use `greadlink -f` if unavailable) and run git with `git -C "$CONTEXT_REPO" …`; do **not** `cd` into the target. Snapshot with `git -C "$CONTEXT_REPO" commit -m "box: snapshot before plan"` (skip silently if the tree is clean).
 
-Apply the edits. Append a Log event: `plan-updated` for a track change (name what changed — items added, reordered, state-changed), or `plan-written` when `items/<id>/plan.md` is authored/refined (name the item). Then `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: plan <slug>"`.
+Apply the edits. Append a Log event from `${CLAUDE_SKILL_DIR}/templates/log-entry.md`: `log/YYYY-MM-DDTHH-MM-plan-updated.md` for a track change (name what changed — items added, reordered, state-changed), or `log/YYYY-MM-DDTHH-MM-plan-written.md` when `items/<id>/plan.md` is authored/refined (name the item). Then `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: plan <slug>"`.
 
 ### 9. Report
 

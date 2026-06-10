@@ -28,9 +28,9 @@ Three kickoff modes, same machinery, different doors. Pick by the flag (or absen
 
 **Born-on-first-value / deliberate (no flag).** Backfill the origin from the live session: what was being worked on, and the question or realisation that made this worth keeping. This becomes the `## Origin` section and informs `## The prize`. Don't interrogate Stu — reconstruct from what's already in the session, and ask only if the intent is genuinely unclear.
 
-**`--pr REF`.** Run `gh pr view <REF>` for the title, description, and state, plus `gh pr diff <REF> --stat` (or the diff summary) for the shape of the change. Seed `## Origin` from the PR (ref, author, what it does) and the first `## Plan` items from what the PR still needs. Log event `seeded-from-pr`.
+**`--pr REF`.** Run `gh pr view <REF>` for the title, description, and state, plus `gh pr diff <REF> --stat` (or the diff summary) for the shape of the change. Seed `## Origin` from the PR (ref, author, what it does) and the first `## Track` items from what the PR still needs. Log event `seeded-from-pr`.
 
-**`--issue REF`.** Run `gh issue view <REF>` (add `--comments` only if the thread is likely load-bearing). Seed `## Origin` from the issue and the first `## Plan` items from what it asks for. Log event `seeded-from-issue`.
+**`--issue REF`.** Run `gh issue view <REF>` (add `--comments` only if the thread is likely load-bearing). Seed `## Origin` from the issue and the first `## Track` items from what it asks for. Log event `seeded-from-issue`.
 
 Apply the discovery-before-commitment rule (see bottom): fetch the summary and one level of detail, no fan-out, no pagination through history.
 
@@ -41,7 +41,7 @@ Copy `${CLAUDE_SKILL_DIR}/templates/README.md` into `<slug>/README.md`, substitu
 - **`## The prize`** — the intent and what "done" looks like. Backfilled from the live session, or distilled from the seed.
 - **`## Repo facts`** — repo, branch, key paths, build/test commands. The stable facts a fresh session needs to orient. Leave a placeholder for any you can't determine cheaply rather than guessing.
 - **`## Origin`** — from step 2. Provenance, not status.
-- **`## Plan`** — seed inline with a first item or two, each carrying a state marker per the contract (`` `[stub]` `` for a placeholder, `` `[ready]` `` for something crisp and actionable). A seeded box usually yields one or two `[ready]` items; a deliberate box may be a single `[stub]`.
+- **`## Track`** — seed the index with a first item or two, each a line per `${CLAUDE_SKILL_DIR}/templates/plan-item.md` (`` - [ ] <id> · <one-liner>  `[state]` ``), carrying a state marker per the contract (`` `[stub]` `` for a placeholder, `` `[ready]` `` for something crisp and actionable). When the box opens around something large, steer toward a **decomposition/design item as the head** (`D1`) whose job is to project the other items, rather than minting one all-encompassing item. A seeded box usually yields one or two `[ready]` items; a deliberate box may be a single `[stub]` or a decomposition head.
 
 Leave the projected zone exactly as the template ships it — the structured empty sections between the `<!-- BOX: BEGIN PROJECTED -->` / `<!-- BOX: END PROJECTED -->` markers. `new` does not rollup.
 

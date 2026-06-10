@@ -16,7 +16,7 @@ Write a standalone carry-forward prompt that a fresh session can act on immediat
 Resolve the box root per the contract (`.context/stuart/boxes/<slug>/`, or the box the user pointed at, or the most-recently-modified box). Read:
 
 - The full `README.md` static zone (prize, origin, repo facts) and the projected zone.
-- The `## Plan` — inline or `plan.md`.
+- The **track** in the README's `## Track` / projected zone (ordered items + states), and the `items/<id>/` folders for any items in play — each item's `spec.md` and/or `plan.md`.
 - Open entries under `follow-ups/` (each `follow-ups/F<id>.md`, if the folder exists).
 - The last several `log/*.md` filenames, plus the bodies of the ~3–5 most recent.
 
@@ -66,9 +66,9 @@ Box vocabulary will load automatically. Do not try to interpret this handoff wit
 
 Read these first, in order, before acting:
 
-1. `README.md` — the head: prize, state, next moves
-2. `<plan.md or inline ## Plan>` — the current work track
-3. `follow-ups/` — open parked items, one `F<id>.md` each (if it exists)
+1. `README.md` — the head: prize, state, next moves (the `## Track`)
+2. `items/<id>/` for the in-play items — each item's `spec.md` and/or `plan.md`, the current work
+3. `follow-ups/` — open parked follow-ups, one `F<id>.md` each (if it exists)
 4. <any specific log entries worth calling out, by filename>
 
 ## State at handoff

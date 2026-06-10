@@ -43,6 +43,7 @@ Write (or refine) `items/<id>/spec.md` from `${CLAUDE_SKILL_DIR}/templates/spec.
 
 - **Problem / Current behaviour / Desired behaviour**, and **What / Why**.
 - **The load-bearing architectural how, bounded.** For inherently technical work, architectural decisions belong *in the spec* — designing a distributed rate limiter, *where the bucket state lives across BEAM nodes* is the very thing you're slowing down to decide, and it earns its place here. The boundary: the spec holds load-bearing **architectural** decisions; **implementation mechanics and code belong in the plan.** Don't keep the spec religiously sky-high, and don't paste code into it either.
+- **Non-goals** — what this item is explicitly *not* doing. The scope fence that keeps the plan honest; distinct from Open Questions (a deliberate exclusion, not an unknown). This is one of the readiness-gate ticks, so capture it here.
 - **3–5 EARS acceptance criteria** (`WHEN <condition> THE SYSTEM SHALL <behaviour>`) — enough to prove understanding, not exhaustive; exhaustiveness is the plan's job.
 - **Assumptions** — things being treated as true — kept *distinct* from Open Questions. An unchallenged assumption is exactly the "bad line of research"; treating-as-true and don't-know are different failure modes and live in different sections.
 - **Open Questions**, recorded as inline `[NEEDS CLARIFICATION]` markers — visible in place, greppable. **Open questions are allowed and expected** in a spec; that's the whole point of the slow-down. They are *not* a defect to hide.

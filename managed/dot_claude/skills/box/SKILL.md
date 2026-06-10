@@ -145,7 +145,10 @@ The **`needs-discovery → ready` transition *is* the spec → plan progression*
 
 - `born` — box created
 - `seeded-from-pr` / `seeded-from-issue` — box seeded from a public ref
-- `plan-updated` — plan items added / reordered / state-changed
+- `plan-updated` — track items added / reordered / state-changed
+- `spec-written` — an item's `spec.md` authored or refined
+- `plan-written` — an item's `plan.md` authored or refined (the `→ ready` transition)
+- `do-ran` — an item executed; points at where the output landed
 - `followup-parked:F<id>` — one event per park (or one covering several parked together)
 - `note` — a logged decision / discovery / observation
 - `decision` — a decision recorded
@@ -156,7 +159,7 @@ The **`needs-discovery → ready` transition *is* the spec → plan progression*
 - `superseded:<doc>` — a document demoted to `archive/`
 - `closed` — box closed, terminal state recorded
 
-**Commit-before-edit.** Baked into every state-modifying verb (`plan`, `park`, `note`, `rollup`, `close`). Before the edit, stage and commit the current state with a generic message: `box: snapshot before <verb>`; after the edit, commit `box: <verb> <slug>`. `new` is the exception — there's no prior state to snapshot, so it commits just once after scaffolding (`box: new <slug>`), giving the box birth a clean boundary in the history. No co-author lines, no skip-hooks. If the working tree has **unrelated** changes, **stop and ask** rather than sweeping them in.
+**Commit-before-edit.** Baked into every state-modifying verb (`plan`, `spec`, `do`, `migrate`, `park`, `note`, `rollup`, `close`). Before the edit, stage and commit the current state with a generic message: `box: snapshot before <verb>`; after the edit, commit `box: <verb> <slug>`. `new` is the exception — there's no prior state to snapshot, so it commits just once after scaffolding (`box: new <slug>`), giving the box birth a clean boundary in the history. No co-author lines, no skip-hooks. If the working tree has **unrelated** changes, **stop and ask** rather than sweeping them in.
 
 `.context/` is usually its own git repo, often a symlink. Run git against the resolved repo root with `-C` — **do NOT `cd` into the target**, because a command starting with `cd` can never be pre-approved. Resolve the repo root once per invocation: `CONTEXT_REPO=$(readlink -f .context)` (use `greadlink -f` if `readlink -f` is unavailable; it's native on macOS 12.3+). Then `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: <verb> <slug>"`. If `.context/` isn't a git repo, skip the commit and tell the user.
 

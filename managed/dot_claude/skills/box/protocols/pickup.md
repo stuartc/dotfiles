@@ -35,7 +35,7 @@ Do not read every box file before acting — the handoff is the brief; the READM
 
 Compare the handoff's "State at handoff" with the current README projected zone and any log entries more recent than the handoff's timestamp. Note any obvious drift:
 
-- Plan items the handoff calls "todo" that now show `done`.
+- Track items the handoff calls "todo" that now show `done`.
 - New log entries since the handoff was written (a burst of commits, a rollup, a new follow-up).
 - Missing files the handoff references.
 
