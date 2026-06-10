@@ -75,7 +75,7 @@ When the dispatched work returns:
 - **Report the diff + verification.** Show the diff (or, for a build, the branch and a `git -C <repo> diff --stat`-style summary) and walk **each plan success-criterion's status** — Automated (did the tests/lint/dialyzer pass) and Manual (what still needs Stu's eyes). Be honest about partials: a phase that ran but didn't meet its acceptance is not done.
 - **Offer the closing doors** (do not auto-advance):
   1. **Mark the item `done`** — flip the item's state tag to `` `[done]` `` via `plan` (tick the checkbox and set the tag). `do` does not relocate anything itself.
-  2. **Demote to `archive/`** — once `done`, the item's bodies can move to `archive/` per the archival rule (`rollup`/`close` own the demotion machinery; `do` offers it, doesn't reinvent it).
+  2. **Demote to `archive/`** — once `done`, `rollup` folds the item off the active track and `close` relocates its body to `archive/items/<id>/` at end-of-box (the archival rule owns the machinery; `do` offers the path, doesn't relocate anything itself).
   3. **`rollup`** — regenerate the README projected zone so the track reflects the new state.
 
 Then commit `box: do <slug>/<id>`.

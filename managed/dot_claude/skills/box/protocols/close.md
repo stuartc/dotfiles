@@ -39,16 +39,18 @@ For each open follow-up, route it to one of:
 
 If a follow-up genuinely can't be reconciled (Stu's away, the routing target is unknown), don't invent a disposition — surface it and ask. Limbo is the failure mode `close` exists to prevent; an honest "this one needs your call" beats a fabricated kill.
 
-### 4. Demote done work to `archive/`
+### 4. Demote done work and superseded docs to `archive/`
 
-Per the contract's archival rule, demote done and superseded documents out of the active surface into `archive/`. For each demoted doc:
+Per the contract's archival rule, demote out of the active surface into `archive/` (created on demand). Two distinct moves:
+
+**Superseded documents.** For each:
 
 - Add the death-banner at the top, in-doc — the same format `rollup` uses: `**SUPERSEDED (<date>) — see <X>. Do not act on this.**` where `<X>` names where the live truth now lives (the merged PR, the successor box, the closing summary).
 - Add closing frontmatter: `superseded_by: <X>` and a closing date.
-- Move the file into `archive/` (created on demand if it doesn't exist).
+- Move the file into `archive/`.
 - Append a `superseded:<doc>` Log event per demotion — one event each, naming the doc and where it went.
 
-Done items' Next-moves track lines are folded out of the active view by the rollup in step 2; `close` doesn't re-archive those track lines. (Whether a done item's *bodies* under `items/<id>/` should also be demoted to `archive/` is the open demotion-ownership question flagged for review — see Notes.)
+**Done item bodies.** `rollup` (step 2) has already folded done items off the active track view but leaves their bodies in place during active work; `close` is the terminal sweep that relocates them. For each `done` item, move its whole `items/<id>/` folder to `archive/items/<id>/`. A done item is *completed*, not *superseded* — so it gets **no** `superseded_by` banner; its `spec.md`/`plan.md` stay intact as the preserved record. The track line stays in place (it's the index entry; the body now lives under `archive/items/<id>/`). No per-item Log event is needed — the `closed` event (step 7) covers the terminal sweep. Items still `stub`/`needs-discovery`/`ready` at close are unfinished work: leave their bodies in `items/` and let the terminal state (`spun-out`/`abandoned`) and follow-up reconciliation account for them — don't archive an unfinished item as if it were done.
 
 **Keep open questions visible.** If the box closes with unresolved open questions, they stay surfaced in the README — archival demotes the *done*, never the *undecided*. Closing with open questions is a deliberate, recorded "yes, leaving these open", not a silent drop (see step 5).
 
@@ -104,4 +106,4 @@ If anything was left deliberately open (a loose track item, an unresolved questi
 - **Open questions may survive `close`** — but only as a deliberate, recorded choice (step 5), never a silent drop. Visibility over tidiness; archival demotes the done, never the undecided.
 - **The PR draft is draft-only.** `close` composes and prints it; Stu sends it. The same leak-free rule governs any GitHub issue drafted during reconciliation. Per Stu's standing rule, nothing public is posted unprompted.
 - **`close` records routing; it does not execute spun-out work.** A `→ new box` follow-up gets a slug and an offer to `box new` it — not the work itself. A `→ issue` follow-up gets a drafted issue — not a posted one.
-- **Open: demoting done item *bodies*.** The state→artefact tables (SKILL.md, `templates/plan-item.md`) say a `done` item is "demoted to `archive/`", and `do` (`do.md` step 7) defers that demotion to `rollup`/`close`. But `rollup` currently leaves done items ticked in place and demotes only *superseded documents*, and `close` step 4 demotes only superseded docs too — so a done item's `items/<id>/spec.md` + `plan.md` stay on the active surface at close. Whether `close` (or `rollup`) should also move done item bodies into `archive/`, and which verb owns that, is unresolved and left for a deliberate design call rather than fixed here — it touches the rollup-vs-close demotion boundary.
+- **Done-item demotion is `close`'s job, not `rollup`'s.** The state→artefact tables (SKILL.md, `templates/plan-item.md`) say a `done` item ends up in `archive/`. The split: `rollup` folds done items off the active *track view* during normal work (their bodies stay at `items/<id>/`, addressable); `close` performs the one terminal *body* relocation to `archive/items/<id>/` (step 4). A done item is completed, not superseded — it carries no `superseded_by` banner.

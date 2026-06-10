@@ -29,6 +29,7 @@ The spec/plan split. A usage sweep over four real boxes (flaky-tests, pr-4751-ss
 - **`plan` is box-native** — the `plan` verb no longer uses Claude Code's native plan mode. With an item id, `plan <id>` composes `items/<id>/plan.md` (the → `ready` transition); bare/steer `plan` manages the track (add/reorder/set-state, `plan next` surfaces the next ready item). Phases are phrased as WHAT (units + acceptance + constraints + context), not a HOW command script — `do` decides how to dispatch them. The plan refuses to finalise while any open question remains. All `ExitPlanMode` / native-plan-mode coupling removed.
 - **`argument-hint`** — now lists all 13 verbs: `new · open · status · plan · spec · do · migrate · park · note · handoff · pickup · rollup · close`.
 - **README is a projected index over items** — it carries the track (ordered items + states + one-liners) in its projected zone; the substance lives in `items/<id>/`. No inline plan body.
+- **Done-item demotion ownership made explicit** — `rollup` folds a `done` item off the active track view but leaves its body at `items/<id>/` (addressable during active work); `close` performs the one terminal relocation of the body to `archive/items/<id>/`. A done item is *completed*, not *superseded*, so it carries no `superseded_by` banner. (Resolves the rollup-vs-close boundary the build review flagged.)
 
 ### Removed
 

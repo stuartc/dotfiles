@@ -119,7 +119,7 @@ If the subcommand is unrecognised, list the vocabulary back to the user and ask.
 
 - **Box** — the container; one body of work. The folder.
 - **README** — the head: always-current navigation. State, current-vs-superseded document map, next moves, open follow-ups, open questions. A **projected index** over the items, ~100 lines, always current — never the bodies themselves.
-- **Item** — the unit of work; a projected unit, not a script. Each non-stub item lives at `items/<id>/` and carries a *state*, with up to two artefacts: `spec.md` (the `needs-discovery` understanding) and `plan.md` (the `ready`, agent-actionable plan). A box is for *many* items.
+- **Item** — the unit of work; a projected unit, not a script. Each non-stub item lives at `items/<id>/` and carries a *state*, with up to two artefacts: `spec.md` (the `needs-discovery` understanding) and `plan.md` (the `ready`, agent-actionable plan). A box is for *many* items. Items are id'd `D1` for the decomposition/design head, then `1`, `2`, … for the work items it projects; the id is the folder name under `items/`.
 - **Track** — the ordered list of items with their states and one-liners. Lives in the README's projected zone — the index over `items/`.
 - **Follow-ups** — the parked track: each entry carries a disposition naming where it goes. One file per follow-up under `follow-ups/`.
 - **Log** — append-only provenance and narrative: what happened, decisions, open questions. Can be long. In `log/`.
@@ -131,7 +131,7 @@ If the subcommand is unrecognised, list the vocabulary back to the user and ask.
 | `stub` | — | placeholder on the track (`<TODO: spec out>`) |
 | `needs-discovery` | `spec.md` | what/why/some-how; open questions allowed; the human slows down |
 | `ready` | `plan.md` | agent-actionable; **zero** open questions; phased; verification criteria |
-| `done` | demoted to `archive/` | — |
+| `done` | body demoted to `archive/` at `close` | completed; folded off the active track by `rollup`, body relocated at `close` |
 
 The **`needs-discovery → ready` transition *is* the spec → plan progression** — `spec <id>` writes the understanding, `plan <id>` writes the actionable plan, and the move from one to the other is the deliberate human slow-down. **Not every item needs both artefacts:** spec is optional when there's nothing to discover (promote `stub → ready`, skip it); the plan is what `do` runs against. There's no stored "in-progress" tag — "currently working an item" is conveyed by the live session plus any carry-forward handoff, not a state on the item.
 

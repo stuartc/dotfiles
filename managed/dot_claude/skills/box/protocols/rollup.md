@@ -81,7 +81,7 @@ Notes on composition:
 
 The discipline that keeps the active surface small. Drive status honestly by construction — `rollup` owns these transitions so they don't rot the way hand-maintained status does.
 
-- **Done items** stay ticked in place — `rollup`'s Next moves excludes them by construction (the section lists only items not yet `done`). There is no recording step: no Log entry, no `## Done` tail, no move. `plan` sets the `done` state; `rollup` stops surfacing it; neither relocates it.
+- **Done items** stay ticked in place — `rollup`'s Next moves excludes them by construction (the section lists only items not yet `done`). There is no recording step: no Log entry, no `## Done` tail, no move. `plan` sets the `done` state; `rollup` stops surfacing it and leaves the body at `items/<id>/` (still addressable during active work). `rollup` never relocates a done item — `close` performs the one terminal body demotion to `archive/items/<id>/` at end-of-box.
 - **Superseded docs** move to `archive/`. Each demoted doc gets, at the very top of its body, the death-banner:
 
   ```
@@ -126,4 +126,4 @@ One line: the projected zone was regenerated, with counts — N items, M open fo
 - **Rollup is derived data.** The projected zone is replaceable; the source files (the track + `items/<id>/`, `follow-ups/F<id>.md`, `log/*.md`, `archive/`) are the truth. To recover from a botched rollup, delete the projected zone between the markers and re-run — nothing is lost.
 - **The static zone is hand-curated and never touched.** The prize, repo facts, and origin live above the `<!-- BOX: BEGIN PROJECTED -->` marker. If they need updating, edit them by hand — `rollup` only ever rewrites between the markers.
 - **Archival demotes the done, never the undecided.** Done items and superseded docs leave the active view; open questions stay visible until resolved. Visibility over tidiness.
-- **`close` also demotes.** `rollup` and `close` share the archival machinery; `close` additionally reconciles every open follow-up to a terminal disposition and records terminal state. `rollup` excludes done items from Next moves by construction **and** demotes superseded docs to `archive/` — it's the demoter for documents. `plan` sets `done` states but never archives.
+- **`close` also demotes.** `rollup` and `close` share the archival machinery. `rollup` excludes done items from Next moves by construction **and** demotes superseded docs to `archive/` — it's the demoter for *documents*. `close` additionally reconciles every open follow-up to a terminal disposition, records terminal state, and is the demoter for *done item bodies* (`items/<id>/` → `archive/items/<id>/`, the one terminal relocation). `plan` sets `done` states but never archives.
