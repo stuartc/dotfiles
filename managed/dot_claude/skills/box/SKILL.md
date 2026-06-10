@@ -77,7 +77,7 @@ A freshly-born box is **just `README.md`** — a projected index over an empty t
 
 The README keeps a short **track** — the ordered item list with states and one-liners — in its projected zone; the substance lives in `items/<id>/`. A stub box is still just a README; `items/` appears on the first non-stub item, `follow-ups/` on the first park. Same static-top + projected-zone discipline as before, now projecting over folders.
 
-**Schema stamp.** Every box README carries `box_schema: 1.3` in its frontmatter. It is the durable drift fix: any future review round reads the stamp and compares like-for-like, and `migrate` is the lever that converges stragglers to the current shape.
+**Schema stamp.** Every box README carries `box_schema: 1.3` in its frontmatter — the durable drift-control anchor (see Conventions below for the full rule).
 
 **Location:** `.context/stuart/boxes/<slug>/` in the current project (parallel to triage's `investigations/`). Assume `.context/` exists; **ask or refuse** if it genuinely doesn't. "Homeless" never means *outside a repo* — it means *in a repo with `.context/`, but the session started without a box open*.
 

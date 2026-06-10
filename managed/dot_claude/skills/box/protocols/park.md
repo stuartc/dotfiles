@@ -15,7 +15,7 @@ Park is a **session boundary**, not a mid-flow micro-eject. The dominant real be
 
 ### 1. Resolve and read
 
-Resolve the box root per the contract (`.context/stuart/boxes/<slug>/`, or the box Stu pointed at, or the most-recently-modified box). Determine the next follow-up ID by listing `follow-ups/F*.md` — the next ID is (highest existing F-number) + 1. IDs are never reused, never renumbered. Single digit is fine; no zero-padding.
+Resolve the box root per the contract. Determine the next follow-up ID by listing `follow-ups/F*.md` — the next ID is (highest existing F-number) + 1. IDs are never reused, never renumbered. Single digit is fine; no zero-padding.
 
 If `follow-ups/` doesn't exist, this is the first park — create the directory now. Each follow-up is its own file `follow-ups/F<id>.md` (mirroring `log/`, `handoffs/`, `archive/`); there is no aggregate follow-ups file.
 
@@ -42,7 +42,7 @@ If Stu's text already speaks disposal ("bin it", "we'll do this in a later sessi
 
 ### 3a. Commit-before-edit (snapshot)
 
-Before writing anything below (steps 4–8 are all edits), snapshot the current state. `.context/` is usually its own git repo (often a symlink) — resolve the repo root once: `CONTEXT_REPO=$(readlink -f .context)` (use `greadlink -f` if `readlink -f` is unavailable). If `git -C "$CONTEXT_REPO" status --porcelain` is non-empty with **unrelated** changes, stop and ask rather than sweeping them in; if it's only box state, `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: snapshot before park"`. If the tree is clean, skip the snapshot silently. If `.context/` isn't a git repo, skip and tell Stu.
+Steps 4–8 are all edits, so snapshot the current state first per the contract's commit-before-edit rule (`box: snapshot before park`).
 
 ### 4. Write the Follow-up entry
 
@@ -94,7 +94,7 @@ If a carry-forward prompt was written in step 5, also write its `handoff` Log ev
 
 ### 9. Commit
 
-The pre-edit snapshot was taken at step 3a. Now commit the park itself: `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: park F<id>"` (reusing the `$CONTEXT_REPO` resolved at step 3a). Do **not** `cd` into the target. If `.context/` isn't a git repo, skip and tell Stu.
+The pre-edit snapshot was taken at step 3a. Now commit the park itself: `box: park F<id>`.
 
 ### 10. Return Stu to his thread
 

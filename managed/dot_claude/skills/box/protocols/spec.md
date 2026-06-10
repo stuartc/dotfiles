@@ -17,7 +17,7 @@ A spec is **not mandatory for every item.** It's the artefact you write when *un
 
 ### 1. Resolve and read
 
-Resolve the box root per the contract (`.context/stuart/boxes/<slug>/`, or the box the user pointed at, or the most-recently-modified box). Confirm the item exists on the track and read whatever already stands for it:
+Resolve the box root per the contract. Confirm the item exists on the track and read whatever already stands for it:
 
 - Its track line and state (the `` `[state]` `` tag in the README / `plan.md` track).
 - `items/<id>/spec.md` if one already exists — `spec <id>` **refines** an existing spec as readily as it drafts a new one; never blow away prior thinking, build on it.
@@ -33,7 +33,7 @@ Specing an item *is* the `needs-discovery` work. If the item is still `stub`, pr
 
 Discovery is where the box earns its keep, and it's agent-heavy. Break the spec's unknowns into **areas** (a subsystem, a data path, a prior art survey, a distributed-primitive question) and dispatch **one fresh agent per area** to trace existing patterns, entry points, and prior work. Fan-out is the norm here, not the exception.
 
-Restate the dispatch rules **directly** — this protocol does not run inside any plan mode and cannot rely on inheriting them. Every brief includes, per the contract's subagent-dispatch-shape: (1) the box root path, (2) the specific files to read first, (3) the named artefact the agent must return (an area write-up, not a vibe), (4) the ≤5-line return format, (5) the discovery-before-commitment rule (≤5 calls to confirm the data shape before committing to a long trace). Anything that touches a public surface also carries the leak-free rule. Never dispatch "go research X" — always with the artefact and shape.
+Each brief follows the contract's subagent-dispatch-shape (box root, files to read first, the named artefact to return — an area write-up, not a vibe — return format, discovery-before-commitment), plus the leak-free rule for anything touching a public surface. Never dispatch "go research X" — always with the artefact and shape.
 
 Their findings feed the spec's **Context / reading-list** and tighten the **Open Questions** — an agent's trace often answers one question and raises a sharper one.
 
@@ -60,9 +60,9 @@ An item **cannot** move `needs-discovery → ready` while *any* `[NEEDS CLARIFIC
 
 ### 6. Commit-before-edit, then apply
 
-Per the contract: before editing, stage and commit the current state — `box: snapshot before spec`. Resolve the repo root once with `CONTEXT_REPO=$(readlink -f .context)` (use `greadlink -f` if unavailable) and run git with `-C` — do **not** `cd` into the target. Snapshot with `git -C "$CONTEXT_REPO" commit -m "box: snapshot before spec"` (skip silently if the tree is clean; **stop and ask** if there are unrelated changes rather than sweeping them in).
+Snapshot before editing per the contract's commit-before-edit rule (`box: snapshot before spec`).
 
-Apply the edits. Append a `spec-written` Log event (`log/YYYY-MM-DDTHH-MM-spec-written.md` from the log-entry template) — naming the item, what the spec now covers, and whether it's gated open (markers remaining) or checklist-clear. Then `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: spec <slug> <id>"`.
+Apply the edits. Append a `spec-written` Log event (`log/YYYY-MM-DDTHH-MM-spec-written.md` from the log-entry template) — naming the item, what the spec now covers, and whether it's gated open (markers remaining) or checklist-clear. Then commit `box: spec <slug> <id>`.
 
 ### 7. Offer three doors
 
@@ -80,15 +80,8 @@ One or two lines: which item was spec'd, how many `[NEEDS CLARIFICATION]` marker
 
 ## Notes
 
-- **Spec proves understanding; it does not execute.** Every mode stops at the artefact. The same plan-vs-execute boundary `new` and `plan` respect.
-- **Open questions are a feature, not a defect.** The spec exists to make unknowns *visible* via `[NEEDS CLARIFICATION]`. The item can't graduate while any remain — that constraint is the value.
+- **Spec proves understanding; it does not execute.** Every mode stops at the artefact — the same plan-vs-execute boundary `new` and `plan` respect. Composition is box-native: no plan mode, no `ExitPlanMode`.
+- **Open questions are a feature, not a defect.** The spec exists to make unknowns *visible* via `[NEEDS CLARIFICATION]`; the item can't graduate while any remain — that constraint is the value.
 - **Assumptions ≠ Open Questions.** Treating-as-true and don't-know are different failure modes; keep them in separate sections. An unexamined assumption is the dangerous one.
-- **"Some how" is allowed, bounded.** Load-bearing architectural decisions belong in the spec; implementation mechanics and code belong in the plan. Don't keep specs religiously sky-high; don't paste code into them.
-- **No plan mode, no `ExitPlanMode`.** Spec composition is box-native. The code-oriented gate is the wrong instrument for a document whose execution happens elsewhere.
-- **Not every item needs a spec.** Skip it when there's nothing to discover (`stub → ready` straight to `plan`). The spec is the thing you write when understanding is the risk; forcing it on every item re-introduces the ceremony the box exists to avoid.
-- **The decomposition item is a spec too.** A box's opening orient + decompose work is itself a spec whose acceptance is "the work is cut into items X, Y, Z". Don't be eager to mint one all-encompassing item — the items, plural, are the work.
+- **Not every item needs a spec.** Skip it when there's nothing to discover (`stub → ready` straight to `plan`). The decomposition item is a spec too — one whose acceptance is "the work is cut into items X, Y, Z".
 - **Spec refines, never overwrites.** Re-running `spec <id>` builds on the existing `items/<id>/spec.md`; prior thinking is never blown away.
-
-## Discovery rule
-
-When dispatching research agents, **do not paginate** through whole histories, codebase-wide greps, or large fan-outs blind. Each agent spends ≤5 tool calls confirming the data shape exists before committing to the trace, then writes its named area artefact. This is the stuck-agent insurance — confirm the shape, then commit.

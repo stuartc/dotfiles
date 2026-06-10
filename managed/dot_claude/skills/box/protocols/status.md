@@ -10,7 +10,7 @@ Print current box state without editing anything. Read-only orientation for fres
 
 ### 1. Resolve
 
-Resolve the box root (per the contract's box-root resolution rule): `.context/stuart/boxes/<slug>/` relative to `pwd`, or the box the user pointed at (`box is here: <path>`), or the most-recently-modified box under `.context/stuart/boxes/`. If multiple recent boxes exist and there's no clear context, list them and ask which one.
+Resolve the box root per the contract's box-root resolution rule. If multiple recent boxes exist and there's no clear context, list them and ask which one.
 
 ### 2. Read
 

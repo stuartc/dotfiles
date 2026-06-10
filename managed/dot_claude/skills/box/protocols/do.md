@@ -15,7 +15,7 @@ Execute one item. `do <id>` is the **harness layer**: the plan says *what* (the 
 
 ### 1. Resolve and read both artefacts
 
-Resolve the box root per the contract (`.context/stuart/boxes/<slug>/` relative to `pwd`, or the box the user pointed at, or the most-recently-modified box). Then read the item **in full**:
+Resolve the box root per the contract. Then read the item **in full**:
 
 - `items/<id>/plan.md` — the agent-actionable brief. Read every phase: its goal, acceptance criteria (Automated/Manual), constraints, injected context excerpts, the per-phase **dependencies** and **`[P]` parallel-safe markers**, and each phase's spec back-reference (`_satisfies: …_`).
 - `items/<id>/spec.md` — the what/why and the load-bearing architectural how. Read it even though the plan is the executable artefact: the spec carries the *intent* and the constraints the plan's phases compress. If the spec still has any `[NEEDS CLARIFICATION]` markers the item should not have reached `ready` — stop and flag it rather than executing over an open question.
@@ -44,9 +44,9 @@ State the chosen approach and why in one or two lines before dispatching. If non
 
 ### 4. Dispatch using the standard shape
 
-Every dispatched agent follows the **subagent dispatch shape** from the skill contract: (1) the box root path, (2) the specific files to read first (the item's `plan.md` + `spec.md`, plus any phase context excerpts), (3) the named artefact path it must produce, (4) the ≤5-line return format, (5) the discovery-before-commitment rule (≤5 tool calls to confirm the data shape before committing to long work). Never dispatch "go implement the plan" — always with the phase's acceptance criteria as the definition of done and the artefact path it writes.
+Every dispatched agent follows the contract's **subagent dispatch shape** (box root, files to read first — the item's `plan.md` + `spec.md` plus any phase context excerpts, the named artefact path, return format, discovery-before-commitment). Never dispatch "go implement the plan" — always with the phase's acceptance criteria as the definition of done and the artefact path it writes.
 
-If anything dispatched produces a **public-facing** artefact (a PR description, a GitHub issue, an external comment), pass it the **leak-free rule**: it must stand alone in plain English, carry none of the box's internal vocabulary (no `F<id>`, no slug, no `plan.md`/`follow-ups/` pointers), and per Stu's standing rule it is **draft only — never posted**.
+If anything dispatched produces a **public-facing** artefact, pass it the contract's **leak-free rule**: plain English, none of the box's internal vocabulary, and draft only — never posted.
 
 ### 5. Run only on an explicit go
 
@@ -71,20 +71,18 @@ When the box type is ambiguous, ask which output location is intended before dis
 
 When the dispatched work returns:
 
-- **Log the outcome to `log/`, not back into `plan.md`.** Box already carries execution state across sessions via `log/` + `handoff`/`pickup`; do not duplicate it into the plan file. Commit-before-edit applies — snapshot first (`box: snapshot before do`, skipped silently on a clean tree; stop and ask on **unrelated** changes), resolve `CONTEXT_REPO=$(readlink -f .context)`, run git with `git -C "$CONTEXT_REPO" …`, never `cd` into the target. Write `log/YYYY-MM-DDTHH-MM-do-ran.md` from `${CLAUDE_SKILL_DIR}/templates/log-entry.md`, mapping `{{EVENT_TYPE}}` → `do-ran`; `{{ISO_DATETIME}}` → now; `{{ARTEFACT_POINTER}}` → where the output landed (the `items/<id>/findings.md` path, or the real-repo branch name); `{{WHAT_CHANGED}}` and `{{ONE_LINE_CONTEXT}}` → one line naming the item run and the result.
+- **Log the outcome to `log/`, not back into `plan.md`.** Box already carries execution state across sessions via `log/` + `handoff`/`pickup`; do not duplicate it into the plan file. Commit-before-edit applies (snapshot `box: snapshot before do`). Write `log/YYYY-MM-DDTHH-MM-do-ran.md` from `${CLAUDE_SKILL_DIR}/templates/log-entry.md`, mapping `{{EVENT_TYPE}}` → `do-ran`; `{{ISO_DATETIME}}` → now; `{{ARTEFACT_POINTER}}` → where the output landed (the `items/<id>/findings.md` path, or the real-repo branch name); `{{WHAT_CHANGED}}` and `{{ONE_LINE_CONTEXT}}` → one line naming the item run and the result.
 - **Report the diff + verification.** Show the diff (or, for a build, the branch and a `git -C <repo> diff --stat`-style summary) and walk **each plan success-criterion's status** — Automated (did the tests/lint/dialyzer pass) and Manual (what still needs Stu's eyes). Be honest about partials: a phase that ran but didn't meet its acceptance is not done.
 - **Offer the closing doors** (do not auto-advance):
   1. **Mark the item `done`** — flip the item's state tag to `` `[done]` `` via `plan` (tick the checkbox and set the tag). `do` does not relocate anything itself.
   2. **Demote to `archive/`** — once `done`, the item's bodies can move to `archive/` per the archival rule (`rollup`/`close` own the demotion machinery; `do` offers it, doesn't reinvent it).
   3. **`rollup`** — regenerate the README projected zone so the track reflects the new state.
 
-Then commit: `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: do <slug>/<id>"`. No co-author lines, no skip-hooks. If `.context/` isn't a git repo, skip the commit and tell the user.
+Then commit `box: do <slug>/<id>`.
 
 ## Notes
 
-- **`do` is the harness, the plan is the brief.** The plan names *what* and its acceptance; `do` decides *how* to dispatch it. This is the "Code as Agent Harness" split (`[[box-skill-v1.3-context]]` §5): a plan that prescribes the *how* ages badly; `do` is where the *how* lives, freshly chosen per run.
-- **No fixed pipeline.** There is deliberately no implement→review→simplify→check sequence baked in. `do` gauges the work and picks an approach; a heavier harness (`workflow.js`) is authored only when a *repeatable* shape genuinely warrants it, and it lives in the box, never in the skill.
+- **`do` is the harness, the plan is the brief.** The plan names *what* and its acceptance; `do` decides *how* — freshly chosen per run. There is deliberately no implement→review→simplify→check pipeline baked in; a heavier harness (`workflow.js`) is authored only when a *repeatable* shape warrants it, and lives in the box, never in the skill.
 - **Output location is box-type-dependent and load-bearing.** Reviews write findings + a draft *into* the box; builds write code to the *real repo* and leave only thinking in the box. A build's code never lands in `.context/`.
-- **`do` runs only on an explicit go.** It is the one verb that moves; every composing verb (`spec`, `plan`) stops at the artefact. The proposal-then-go gate keeps the plan-vs-execute boundary intact.
-- **Execution state goes to `log/`, never back into `plan.md`.** The plan stays a clean brief; the log is the append-only record of what running it produced.
+- **`do` runs only on an explicit go.** It is the one verb that moves; every composing verb (`spec`, `plan`) stops at the artefact. Execution state goes to `log/`, never back into `plan.md`.
 - **Spans sessions cleanly.** A `do` run that doesn't finish in one session ends with `handoff` (carry-forward, including any dead-ends already ruled out); the next session `pickup`s it. Tangents surfaced mid-run go to `park`, not into the plan.

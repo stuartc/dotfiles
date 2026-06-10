@@ -37,7 +37,7 @@ Read the first token after `plan`.
 
 ### 2. Track edits (inline, box-native — never plan mode)
 
-The track lives in the README's projected/index zone (and migrates to a fuller list as the box grows). **All track operations are box-native and conversational. Never invoke Claude Code's native plan mode, and never call `ExitPlanMode`** — those gate *code* execution; the box `plan` produces a *document* track and executes in a later session via `box do`. The code-gate is the wrong shape and was the v1 friction this verb is built to remove.
+The track lives in the README's projected/index zone (and migrates to a fuller list as the box grows). All track operations are box-native and conversational — never plan mode, never `ExitPlanMode` (see Notes). Removing that v1 code-gate friction is what this verb is built for.
 
 - **Light edits** — add/reorder one item, flip one item's state, surface the next item, record a handful of decomposition-produced items. Apply directly, inline. After applying: commit (§Commit-before-edit) and report (§Report).
 - **Reshaping the track** — laying out the work track from scratch, or substantially reordering many items: do it **box-natively in conversation** — propose the reshaped track, let Stu react, then write it in. No mode switch, no three-door code-gate. This is composition, not a build trigger.
@@ -90,7 +90,7 @@ Wait for Stu to choose. Never proceed to execution (`box do`) without an explici
 
 ### 6. Resolve and read
 
-Resolve the box root per the contract (`.context/stuart/boxes/<slug>/`, or the box the user pointed at, or the most-recently-modified box). Read the track from the README's projected/index zone, and — for `plan <id>` — `items/<id>/spec.md` and any existing `items/<id>/plan.md`.
+Resolve the box root per the contract. Read the track from the README's projected/index zone, and — for `plan <id>` — `items/<id>/spec.md` and any existing `items/<id>/plan.md`.
 
 ### 7. Done items
 
@@ -98,9 +98,9 @@ When an item hits `done`, `plan` only sets the state — it does **not** archive
 
 ### 8. Commit-before-edit, then apply
 
-Per the contract: before editing, stage and commit the current state — `box: snapshot before plan`. If the working tree has unrelated changes, stop and ask rather than sweeping them in. `.context/` is usually its own git repo (often a symlink) — resolve the repo root once: `CONTEXT_REPO=$(readlink -f .context)` (use `greadlink -f` if unavailable) and run git with `git -C "$CONTEXT_REPO" …`; do **not** `cd` into the target. Snapshot with `git -C "$CONTEXT_REPO" commit -m "box: snapshot before plan"` (skip silently if the tree is clean).
+Snapshot before editing per the contract's commit-before-edit rule (`box: snapshot before plan`).
 
-Apply the edits. Append a Log event from `${CLAUDE_SKILL_DIR}/templates/log-entry.md`: `log/YYYY-MM-DDTHH-MM-plan-updated.md` for a track change (name what changed — items added, reordered, state-changed), or `log/YYYY-MM-DDTHH-MM-plan-written.md` when `items/<id>/plan.md` is authored/refined (name the item). Then `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: plan <slug>"`.
+Apply the edits. Append a Log event from `${CLAUDE_SKILL_DIR}/templates/log-entry.md`: `log/YYYY-MM-DDTHH-MM-plan-updated.md` for a track change (name what changed — items added, reordered, state-changed), or `log/YYYY-MM-DDTHH-MM-plan-written.md` when `items/<id>/plan.md` is authored/refined (name the item). Then commit `box: plan <slug>`.
 
 ### 9. Report
 
@@ -110,9 +110,7 @@ One or two lines: what changed, and — for `next` — the next `ready` item and
 
 - **Plan arranges; it does not execute.** Every mode stops at the artefact. `plan next` surfaces and hands over — it never starts. `box do <id>` is the execution verb; `plan` only readies items for it.
 - **`plan` is overloaded by the id arg.** Bare/steer manages the track; `plan <id>` authors `items/<id>/plan.md`. Disambiguated by the id (cf. `git stash` vs `git stash <cmd>`), and symmetric with `box spec <id>`.
-- **Box-native composition only — no native plan mode, ever.** The box `plan` produces a document track and an item plan, executed later by `box do`. Claude Code's native plan mode and `ExitPlanMode` gate *code* execution and are the wrong shape — never invoke them here. (`/create-plan` is the retired skill this verb's template was harvested from; do not route to it.)
-- **WHAT not HOW.** An item plan names units of work + acceptance + constraints + context. It does not script tool calls or file-write order — that's `box do`'s harness layer, which assigns the agents.
-- **No open questions in a `ready` plan.** If understanding is incomplete, that's `spec` work, not `plan` work. A plan with open questions is a spec wearing the wrong hat.
+- **Box-native composition only — no native plan mode, ever.** The box `plan` produces a document track and an item plan, executed later by `box do`. Claude Code's native plan mode and `ExitPlanMode` gate *code* execution and are the wrong shape. (`/create-plan` is the retired skill this verb's template was harvested from; do not route to it.)
+- **WHAT not HOW; no open questions in a `ready` plan.** An item plan names units + acceptance + constraints + context, not a script of tool calls — that's `box do`'s harness layer. If understanding is incomplete, that's `spec` work, not `plan` work.
 - **Per-phase deps + `[P]` are load-bearing.** They're the exact signal `box do` reads to choose serial vs parallel dispatch. Don't leave dependency implied by order.
-- **A box is for many items.** When the track collapses to one mono-item, prompt to decompose — the head item is usually a decomposition/design item that projects the others.
 - Item lines must match `templates/plan-item.md` exactly: a checklist line with a trailing `` `[state]` `` tag. Don't invent alternative state syntax.

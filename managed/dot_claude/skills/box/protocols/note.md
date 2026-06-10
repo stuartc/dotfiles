@@ -15,7 +15,7 @@ Use it for the thing you'll want to know *why* about in five days: a choice made
 
 ### 1. Resolve
 
-Resolve the box root (per the contract's box-root resolution rule): `.context/stuart/boxes/<slug>/` relative to `pwd`, or the box the user pointed at (`box is here: <path>`), or the most-recently-modified box under `.context/stuart/boxes/`. If it's genuinely ambiguous, ask.
+Resolve the box root per the contract's box-root resolution rule. If it's genuinely ambiguous, ask.
 
 ### 2. Classify
 
@@ -75,7 +75,7 @@ If you can't confidently match the text to a single `Q<id>`, ask rather than gue
 
 ### 7. Commit
 
-Commit-before-edit applies. Snapshot the current state first (`box: snapshot before note`), then write. Resolve the repo root via `readlink -f .context` and run git with `git -C <repo> …`; do **not** `cd` into the target. After writing, `git -C <repo> add -A` and `git -C <repo> commit -m "box: note <slug>"` — or `box: question-resolved Q<n> <slug>` for a resolution. No co-author lines, no skip-hooks. If the working tree has unrelated changes, stop and ask rather than sweeping them in.
+Commit-before-edit applies (snapshot `box: snapshot before note`, then write). The final commit is `box: note <slug>` — or `box: question-resolved Q<n> <slug>` for a resolution.
 
 ### 8. Report
 

@@ -12,7 +12,7 @@ Manual only. There is no auto-trigger — Stu runs this by hand when the README 
 
 ### 1. Resolve
 
-Resolve the box root per the contract: `.context/stuart/boxes/<slug>/` relative to `pwd`, or the box the user pointed at (`box is here: <path>`), or the most-recently-modified box under `.context/stuart/boxes/`. Ask only if genuinely ambiguous.
+Resolve the box root per the contract. Ask only if genuinely ambiguous.
 
 ### 2. Read the source-of-truth files
 
@@ -113,9 +113,9 @@ If the markers are missing — someone hand-edited them out — **warn the user 
 
 ### 6. Commit-before-edit, then write
 
-Per the contract: before editing, stage and commit the current state — `box: snapshot before rollup`. If the working tree has unrelated changes, stop and ask rather than sweeping them in. `.context/` is usually its own git repo (often a symlink) — resolve the repo root via `readlink -f .context` and run git with `git -C <repo> …`; do **not** `cd` into the target.
+Snapshot before editing per the contract's commit-before-edit rule (`box: snapshot before rollup`).
 
-Write the README projected zone and any `archive/` demotions. Append a `rolled-up` Log event (short: timestamp, that the projection was regenerated, the counts). Then `git -C <repo> add -A` and `git -C <repo> commit -m "box: rollup <slug>"`. No co-author lines, no skip-hooks.
+Write the README projected zone and any `archive/` demotions. Append a `rolled-up` Log event (short: timestamp, that the projection was regenerated, the counts). Then commit `box: rollup <slug>`.
 
 ### 7. Report
 

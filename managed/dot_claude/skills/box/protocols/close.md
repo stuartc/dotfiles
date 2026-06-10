@@ -14,7 +14,7 @@ End the box. Reconcile every open follow-up to a terminal disposition, demote do
 
 ### 1. Resolve
 
-Resolve the box root (per the contract's box-root resolution rule): `.context/stuart/boxes/<slug>/` relative to `pwd`, or the box the user pointed at (`box is here: <path>`), or the most-recently-modified box under `.context/stuart/boxes/`. If it's genuinely ambiguous, ask — closing the wrong box is expensive.
+Resolve the box root per the contract's box-root resolution rule. If it's genuinely ambiguous, ask — closing the wrong box is expensive.
 
 ### 2. Refresh the view first
 
@@ -24,7 +24,7 @@ Closing against a stale head is how a follow-up gets missed. The refresh is not 
 
 ### 2a. Snapshot first (commit-before-edit)
 
-Steps 3–5 all edit the box, so snapshot the pre-close state **before** any of them — matching the up-front snapshot every other write-verb takes (`park` §3a, `plan` §8, `spec` §6, `migrate` §2, `rollup` §6). Resolve the repo root once: `CONTEXT_REPO=$(readlink -f .context)` (use `greadlink -f` if `readlink -f` is unavailable). If `git -C "$CONTEXT_REPO" status --porcelain` shows **unrelated** changes, stop and ask rather than sweeping them in; if it's only box state, `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: snapshot before close"`. If the tree is clean, skip the snapshot silently. If `.context/` isn't a git repo, skip and tell Stu there's no safety net. Do **not** `cd` into the target.
+Steps 3–5 all edit the box, so snapshot the pre-close state **before** any of them per the contract's commit-before-edit rule (`box: snapshot before close`) — matching the up-front snapshot every other write-verb takes.
 
 ### 3. Reconcile every open follow-up
 
@@ -77,16 +77,14 @@ If the terminal state is `abandoned` or `spun-out` with nothing merged, there ma
 
 ### 7. Closing Log event + commit
 
-The pre-close snapshot was taken at step 2a. Run git with `git -C "$CONTEXT_REPO" …` (the `$CONTEXT_REPO` resolved at step 2a); do **not** `cd` into the target. No co-author lines, no skip-hooks.
-
-Write the closing Log event `log/YYYY-MM-DDTHH-MM-closed.md` from `${CLAUDE_SKILL_DIR}/templates/log-entry.md` (event type `closed`). It records:
+The pre-close snapshot was taken at step 2a. Write the closing Log event `log/YYYY-MM-DDTHH-MM-closed.md` from `${CLAUDE_SKILL_DIR}/templates/log-entry.md` (event type `closed`). It records:
 
 - The terminal state.
 - A per-`F<id>` follow-up reconciliation summary — each open follow-up and where it went (`→ issue` + URL, `→ new box` + slug, done + pointer, or dropped + reason).
 - Any still-open questions, recorded by `Q<id>` (the deliberate "closed with Q2, Q4 unresolved" from step 5) — they keep their IDs and stay visible in the README.
 - The outcome in one line, and any deliberate loose ends acknowledged in step 5.
 
-The Log is append-only — never edit an event after writing it. After writing everything, `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: close <slug>"`. If `.context/` isn't a git repo, skip the commit and tell Stu.
+The Log is append-only — never edit an event after writing it. After writing everything, commit `box: close <slug>`.
 
 ### 8. Report
 

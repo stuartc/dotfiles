@@ -24,7 +24,7 @@ Migration only ever moves **forward**. If `box_schema` reads *higher* than the c
 
 ### 2. Snapshot (commit-before-edit)
 
-This verb rewrites many files, so the snapshot matters more here than anywhere. Resolve the repo root once: `CONTEXT_REPO=$(readlink -f .context)` (use `greadlink -f` if `readlink -f` is unavailable). Stage and commit the current state: `git -C "$CONTEXT_REPO" add -A && git -C "$CONTEXT_REPO" commit -m "box: snapshot before migrate"`. If the working tree has **unrelated** changes, **stop and ask** — never sweep a half-migrated tree in with someone else's work. If `git -C "$CONTEXT_REPO" status --porcelain` is empty, skip the snapshot silently. If `.context/` isn't a git repo, tell the user there's no safety net and ask before proceeding.
+This verb rewrites many files, so the snapshot matters more here than anywhere. Take it per the contract's commit-before-edit rule (`box: snapshot before migrate`). The one heightened nuance: if `.context/` isn't a git repo, don't just skip silently — tell the user there's no safety net and ask before proceeding.
 
 ### 3. Split follow-ups → `follow-ups/<F-id>.md`
 
@@ -66,7 +66,7 @@ immediately above the `# Box: <slug>` heading. This stamp is the durable fix for
 
 ### 7. Commit & report
 
-If anything changed: `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: migrate <slug> → 1.3"`. No co-author lines, no skip-hooks. If nothing changed (an already-1.3 box, step 1), there is no commit.
+If anything changed, commit `box: migrate <slug> → 1.3`. If nothing changed (an already-1.3 box, step 1), there is no commit.
 
 Report, in this order:
 
