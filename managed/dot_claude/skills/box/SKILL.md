@@ -1,7 +1,7 @@
 ---
 name: box
 description: A file-first work-driver for a single multi-day/week body of work. Use when work spans sessions and needs a durable spine that outlives session churn — the box is the continuity layer the disposable session leans on.
-argument-hint: "new · open · status · plan · spec · do · migrate · park · note · handoff · pickup · rollup · close"
+argument-hint: "new · import · open · status · plan · spec · do · migrate · park · note · handoff · pickup · rollup · close"
 # Scoped git pre-approval for the commit-before-edit convention. Only matters
 # outside bypassPermissions/acceptEdits mode — in Stu's normal setup these are
 # largely moot, but they narrow tool exposure for default-permission runs,
@@ -86,6 +86,7 @@ The README keeps a short **track** — the ordered item list with states and one
 | Verb | Purpose | Produces | Protocol |
 |---|---|---|---|
 | `new <slug> [--pr REF \| --issue REF]` | Open a box. Backfill origin from the live session, **or** seed from a PR/issue. Scaffold README (+ first Log entry). | box tree | `protocols/new.md` |
+| `import [<slug>] [--corpus PATH]` | Bring a body of work that **predates the box** into a well-formed box without breaking invariants. Inventory the corpus by role, reconcile stale state, then replay it through the verbs (`new → plan → note → park → rollup`) into a box **born mature**. Produces an artefact and **stops**. | box tree (born mature) | `protocols/import.md` |
 | `open [path]` | Resume an existing box: resolve the box root (explicit path, or most-recently-modified box), load vocabulary, read the README head, flag any handoffs, and orient. The explicit front door for picking a box back up across sessions. | conversation only | `protocols/open.md` |
 | `status` | Read-only orientation — re-orients when the box is already open. Prints the README head: state, next moves, open follow-ups, open questions. No edits. | conversation only | `protocols/status.md` |
 | `plan` | **Arg-dependent.** Bare/steer = manage the **track**: add/reorder items, set states, record the items a decomposition produced; `plan next` surfaces the next `ready` item (orientation only). With an item id, `plan <id>` = compose/refine `items/<id>/plan.md` — the `needs-discovery → ready` transition. Box-native composition; **no plan mode**. Offers three doors: action now / write into the box / just discuss. | track edit in README, or `items/<id>/plan.md` | `protocols/plan.md` |

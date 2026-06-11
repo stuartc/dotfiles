@@ -8,6 +8,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v1.3.2] — 2026-06-11
+
+The `import` protocol, promoted. `import` (bring a body of work that predates the box into a well-formed box) had existed as a detailed but unwired draft, written in pre-v1.3 vocabulary — a single inline "Plan" split to `plan.md`, a monolithic `follow-ups.md`. Rewritten to the v1.3 item model and wired into the verb table.
+
+### Added
+
+- **`import` verb** — now in the SKILL.md verb table and `argument-hint`. Bring a pre-existing corpus (scattered docs, a plan, findings, git history, a memory file) into a box **born mature** without breaking invariants: inventory by role → reconcile stale state → seed (`new`) → lay the track and items → replay findings/decisions (`note`) → assign Q/F ids (`note`/`park`) → reference-vs-archive → project the head (`rollup`) → report and stop. Composes existing verbs; introduces no new state. Protocol: `protocols/import.md`. (`import.md` is now chezmoi-tracked — it had never been added.)
+
+### Changed
+
+- **`import.md` rewritten to `box_schema: 1.3`** — the unit of work is the **item** (`items/<id>/` with `spec.md`/`plan.md`), the README is a projected **track** over items (no inline plan body, ever), follow-ups are `follow-ups/F<n>.md` (folder, not a monolithic file), and the box carries the `box_schema: 1.3` stamp. Commit boundaries already use the v1.3.1 pathspec contract. Preserved the draft's strong ideas: replay-not-dump, born-mature as the one accretion exception, role-bucketing inventory, reconcile-stale-state-first, backdated log filenames, reference-vs-archive death-banners, ID discipline, the invariants checklist, the discovery rule.
+
+---
+
 ## [v1.3.1] — 2026-06-11
 
 Commit-scoping bugfix. A scribe box whose tracking files live inside the Workbook repo ran `git add -A` during a `do`, sweeping six unrelated `git mv` renames from a concurrent interactive session into its `box: do scribe` commit (`f9de4d1`). Root cause: the commit contract staged the **whole working tree**, relying on the agent to notice and stop on "unrelated changes" — a judgement-based guard that lost to routine boilerplate.
