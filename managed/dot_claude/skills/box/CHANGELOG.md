@@ -8,6 +8,35 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v1.3] — 2026-06-10
+
+The spec/plan split. A usage sweep over four real boxes (flaky-tests, pr-4751-sso-review, dependabot-remediation, quickbeam-openfn-spike) showed box "plans" were thin — closer to a spec than a hand-to-an-agent plan — and the heaviest box had already grown a per-item plan folder by hand. v1.3 ratifies that: the unit of work is now the **item**, each addressable at `items/<id>/`, with the README a projected index over them.
+
+### Added
+
+- **`spec <id>` verb** — composes `items/<id>/spec.md`: what/why and the load-bearing architectural *how*, with open questions **allowed** and recorded as inline `[NEEDS CLARIFICATION]` markers. Dispatches fresh research agents per area. Box-native — no Claude Code plan mode anywhere in the path. A readiness checklist at its foot gates the `needs-discovery → ready` transition. Protocol: `protocols/spec.md`; template: `templates/spec.md`.
+- **`do <id>` verb** — the resourceful executor. Reads `spec.md` **and** `plan.md`, gauges the work using the plan's explicit per-phase dependencies and `[P]` parallel-safe markers, and chooses an approach (single agent / fan-out / dynamic `Workflow` / a per-box `workflow.js` it authors on demand) — no hardcoded implement→review→simplify→check pipeline. Output location is box-type-dependent: a review writes findings and a draft *into* the box; a build writes code to the *real repo* and leaves only thinking in the box (never commits a build into `.context`). Runs only on an explicit go; logs its outcome to `log/`, then offers to mark the item `done` and `rollup`. Protocol: `protocols/do.md`.
+- **`migrate` verb** — brings an older box up to `box_schema: 1.3`: splits `follow-ups.md` → `follow-ups/F<n>.md`, hoists the plan into `items/<id>/`, normalises log filenames, and re-stamps the schema. Idempotent (a 1.3 box is a no-op); never renumbers F-/Q-IDs; reports a diff plus a "needs manual attention" list. Protocol: `protocols/migrate.md`.
+- **Item folders** — the unit of work is now the item at `items/<id>/`, with up to two artefacts: `spec.md` (at `needs-discovery`) and `plan.md` (at `ready`). The state→artefact mapping: `stub` (no artefact) → `needs-discovery` (`spec.md`) → `ready` (`plan.md`) → `done` (demoted to `archive/`). Not every item needs both: spec is optional when there is nothing to discover; a mechanical item can be plan-only.
+- **`box_schema` frontmatter stamp** — `new` stamps `box_schema: 1.3`; every future review round reads it to compare like-for-like, and `migrate` is the lever to converge stragglers.
+- **Follow-ups as a folder** — `follow-ups/<F-id>.md`, one file per parked follow-up (was the lone monolithic `follow-ups.md`). F-IDs still never reused or renumbered; the README projected zone aggregates the open ones.
+- **Handoff dead-ends field** — `handoff` and `park`'s carry-forward now carry a `do-not` / dead-ends field (approaches already ruled out — negative knowledge) plus a `validation-evidence` line, so a fresh session does not re-walk dead paths.
+- **"A box is for many items" principle** — surfaced prominently in `SKILL.md`: the items, plural, are the work; the opening move is orient + decompose; the decomposition/design is the head item that projects the others. The skill does not default to a single all-encompassing item.
+- **Templates** — `templates/spec.md` (Problem/Current/Desired triple, EARS acceptance criteria, Assumptions distinct from Open Questions, `[NEEDS CLARIFICATION]` markers, readiness checklist) and `templates/plan.md` (phases phrased WHAT-not-HOW, per-phase Automated/Manual success criteria, requirement back-reference, explicit dependencies + `[P]` markers).
+
+### Changed
+
+- **`plan` is box-native** — the `plan` verb no longer uses Claude Code's native plan mode. With an item id, `plan <id>` composes `items/<id>/plan.md` (the → `ready` transition); bare/steer `plan` manages the track (add/reorder/set-state, `plan next` surfaces the next ready item). Phases are phrased as WHAT (units + acceptance + constraints + context), not a HOW command script — `do` decides how to dispatch them. The plan refuses to finalise while any open question remains. All `ExitPlanMode` / native-plan-mode coupling removed.
+- **`argument-hint`** — now lists all 13 verbs: `new · open · status · plan · spec · do · migrate · park · note · handoff · pickup · rollup · close`.
+- **README is a projected index over items** — it carries the track (ordered items + states + one-liners) in its projected zone; the substance lives in `items/<id>/`. No inline plan body.
+- **Done-item demotion ownership made explicit** — `rollup` folds a `done` item off the active track view but leaves its body at `items/<id>/` (addressable during active work); `close` performs the one terminal relocation of the body to `archive/items/<id>/`. A done item is *completed*, not *superseded*, so it carries no `superseded_by` banner. (Resolves the rollup-vs-close boundary the build review flagged.)
+
+### Removed
+
+- **Claude Code native plan mode coupling** from `plan` — and the `/create-plan` legacy routing note it replaced. Composition is box-native end to end.
+
+---
+
 ## [v1.2] — 2026-06-08
 
 Driven by Stu's feedback after the first real use of the skill. Six changes, all aimed at discoverability and ergonomics.

@@ -29,8 +29,8 @@ This is the box-root-resolution convention: once resolved, this path is `$BOX_RO
 Read — fast orientation, the same read that `status` does:
 
 - The projected zone of `README.md` — the content between the `<!-- BOX: BEGIN PROJECTED -->` / `<!-- BOX: END PROJECTED -->` markers. This is `## Where things stand`.
-- The `## Plan` — inline in `README.md`, or `plan.md` if it has split out.
-- Open entries in `follow-ups.md` (if it exists).
+- The **track** — the ordered item list with states, from the README's `## Track` / projected zone. Item bodies live under `items/<id>/`; don't open them here.
+- Open entries under `follow-ups/` (each `follow-ups/F<id>.md`, if the folder exists).
 - The last ~10 `log/*.md` filenames (titles only — do not open the bodies).
 
 If the projected-zone markers are missing, say so and fall back to whatever the README shows; do not reconstruct.
@@ -60,8 +60,8 @@ Created: <date from the `born` log event>
 State: <the one-line state>
 
 Next moves:
-  <next Plan item>  `[ready]`
-  <next Plan item>  `[needs-discovery]`
+  <next track item>  `[ready]`
+  <next track item>  `[needs-discovery]`
   ...
 
 Open follow-ups:
@@ -79,7 +79,7 @@ Recent activity (last ~5–10):
   ...
 ```
 
-Call out `needs-discovery` Plan items explicitly — they're not actionable until engaged. If a section is empty (no follow-ups, no open questions), say so in one line rather than printing an empty heading.
+Call out `needs-discovery` track items explicitly — they're not actionable until engaged. If a section is empty (no follow-ups, no open questions), say so in one line rather than printing an empty heading.
 
 If a handoff was found in step 3, add a line to the report:
 
@@ -92,8 +92,9 @@ Handoff: handoffs/<filename>  — run `box pickup` to resume from it
 Based on the state, offer one or two short, optional questions. Keep them terse and easy to wave off:
 
 - Handoff detected → "Want to pick up from the handoff (`box pickup`)?"
-- No Plan items ready (all `stub`/`needs-discovery`/`done`) → suggest `box plan`.
-- A `ready` item exists → "Want to start on <item>?"
+- No items ready, but `needs-discovery` items exist → suggest `box spec <id>` for the next one (then `box plan <id>` to take it to `ready`).
+- A near-empty or all-stub box → steer toward decomposition: `box plan` to sketch the track, or `box spec D1` to work the decomposition item.
+- A `ready` item exists → "Want to start on <item> (`box do <id>`)?"
 - Stale projected zone or signs of a burst of activity since last rollup → suggest `box rollup`.
 
 Phrase as a question. If the user wants to do something off the back of the orientation, they fire the next subcommand.

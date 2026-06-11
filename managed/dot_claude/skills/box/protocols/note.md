@@ -15,7 +15,7 @@ Use it for the thing you'll want to know *why* about in five days: a choice made
 
 ### 1. Resolve
 
-Resolve the box root (per the contract's box-root resolution rule): `.context/stuart/boxes/<slug>/` relative to `pwd`, or the box the user pointed at (`box is here: <path>`), or the most-recently-modified box under `.context/stuart/boxes/`. If it's genuinely ambiguous, ask.
+Resolve the box root per the contract's box-root resolution rule. If it's genuinely ambiguous, ask.
 
 ### 2. Classify
 
@@ -75,7 +75,7 @@ If you can't confidently match the text to a single `Q<id>`, ask rather than gue
 
 ### 7. Commit
 
-Commit-before-edit applies. Snapshot the current state first (`box: snapshot before note`), then write. Resolve the repo root via `readlink -f .context` and run git with `git -C <repo> …`; do **not** `cd` into the target. After writing, `git -C <repo> add -A` and `git -C <repo> commit -m "box: note <slug>"` — or `box: question-resolved Q<n> <slug>` for a resolution. No co-author lines, no skip-hooks. If the working tree has unrelated changes, stop and ask rather than sweeping them in.
+Commit-before-edit applies (snapshot `box: snapshot before note`, then write). The final commit is `box: note <slug>` — or `box: question-resolved Q<n> <slug>` for a resolution.
 
 ### 8. Report
 
@@ -85,7 +85,7 @@ One line: the type recorded (`decision` / `open-question` / `note`) and the even
 
 The park-vs-note line, drawn clearly:
 
-- **`park`** — an actionable follow-up. It carries a **disposition** naming where it goes (`in-scope-later` / `→ issue` / `→ new box` / `dropped`), gets a permanent `F<id>`, lands in `follow-ups.md`, and may spin off a carry-forward handoff. At `close` it must reconcile to a terminal disposition. Park is for *work that still needs doing or routing*.
+- **`park`** — an actionable follow-up. It carries a **disposition** naming where it goes (`in-scope-later` / `→ issue` / `→ new box` / `dropped`), gets a permanent `F<id>`, lands under `follow-ups/` (its own `F<id>.md`), and may spin off a carry-forward handoff. At `close` it must reconcile to a terminal disposition. Park is for *work that still needs doing or routing*.
 - **`note`** — provenance into the Log. No disposition, no `F<id>`, no handoff, nothing to reconcile at `close`. Note is for *something worth remembering*, not something to do.
 
 The test: if it needs to be done or routed somewhere, it's a `park`. If it just needs to be remembered, it's a `note`. A decision you've already made is a `note` (`decision`); a decision you still have to make is usually an `open-question` note, and only becomes a `park` once acting on it is itself a unit of work.

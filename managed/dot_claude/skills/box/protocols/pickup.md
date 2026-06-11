@@ -35,7 +35,7 @@ Do not read every box file before acting — the handoff is the brief; the READM
 
 Compare the handoff's "State at handoff" with the current README projected zone and any log entries more recent than the handoff's timestamp. Note any obvious drift:
 
-- Plan items the handoff calls "todo" that now show `done`.
+- Track items the handoff calls "todo" that now show `done`.
 - New log entries since the handoff was written (a burst of commits, a rollup, a new follow-up).
 - Missing files the handoff references.
 
@@ -44,6 +44,8 @@ If the drift is significant (the handoff's todos are already done, or the box ha
 ### 4. Orient and act
 
 **Treat the handoff as a brief to act on, not a summary to acknowledge.** Read it, orient, and proceed with the first concrete action it names — unless that action is genuinely ambiguous, in which case state your read of it and confirm before starting.
+
+Before acting, read the handoff's **Dead ends / do-not** field and treat it as binding — do not re-attempt an approach listed there without a stated reason to revisit it. Trust the **Validation evidence** for the Done items rather than re-running it from scratch, unless drift (step 3) suggests it's stale.
 
 Print a brief orientation (3–5 lines) acknowledging the box, the handoff's stated purpose, and the first action you're about to take:
 
@@ -62,6 +64,8 @@ If the handoff's "Suggested skills" section names skills beyond `box`, invoke th
 ## Notes
 
 `pickup` does **not** commit anything of its own. It is read-mostly and action-oriented: read, orient, then proceed. Any commits arise from the work that follows, not from the `pickup` itself.
+
+**Respect the dead-ends.** A handoff's `Dead ends / do-not` list is negative knowledge from the prior session; re-walking it is the waste pickup exists to prevent.
 
 **Box vocabulary is loaded.** Because this protocol runs inside the box skill, terms like `box plan`, `box park`, `box note`, `F<id>`, `Q<id>`, and projected-zone mechanics are all in context. The standalone `/pickup` skill lacks this — if you try to resume a box handoff with the standalone skill, the vocabulary will be missing and the handoff will be harder to act on correctly. That's the reason `pickup` exists as a box verb.
 
