@@ -7,9 +7,9 @@ argument-hint: "new · open · status · plan · spec · do · migrate · park �
 # largely moot, but they narrow tool exposure for default-permission runs,
 # headless/cron contexts, and other users.
 allowed-tools:
-  - "Bash(git -C * add -A)"
+  - "Bash(git -C * add -- *)"
   - "Bash(git -C * commit -m *)"
-  - "Bash(git -C * status --porcelain)"
+  - "Bash(git -C * status --porcelain -- *)"
   - "Bash(readlink -f *)"
   - "Bash(greadlink -f *)"
 ---
@@ -159,11 +159,21 @@ The **`needs-discovery → ready` transition *is* the spec → plan progression*
 - `superseded:<doc>` — a document demoted to `archive/`
 - `closed` — box closed, terminal state recorded
 
-**Commit-before-edit.** Baked into every state-modifying verb (`plan`, `spec`, `do`, `migrate`, `park`, `note`, `rollup`, `close`). Before the edit, stage and commit the current state with a generic message: `box: snapshot before <verb>`; after the edit, commit `box: <verb> <slug>`. `new` is the exception — there's no prior state to snapshot, so it commits just once after scaffolding (`box: new <slug>`), giving the box birth a clean boundary in the history. No co-author lines, no skip-hooks. If the working tree has **unrelated** changes, **stop and ask** rather than sweeping them in.
+**Commit-before-edit.** Baked into every state-modifying verb (`plan`, `spec`, `do`, `migrate`, `park`, `note`, `rollup`, `close`). Before the edit, stage and commit the current state with a generic message: `box: snapshot before <verb>`; after the edit, commit `box: <verb> <slug>`. `new` is the exception — there's no prior state to snapshot, so it commits just once after scaffolding (`box: new <slug>`), giving the box birth a clean boundary in the history. No co-author lines, no skip-hooks.
 
-`.context/` is usually its own git repo, often a symlink. Run git against the resolved repo root with `-C` — **do NOT `cd` into the target**, because a command starting with `cd` can never be pre-approved. Resolve the repo root once per invocation: `CONTEXT_REPO=$(readlink -f .context)` (use `greadlink -f` if `readlink -f` is unavailable; it's native on macOS 12.3+). Then `git -C "$CONTEXT_REPO" add -A` and `git -C "$CONTEXT_REPO" commit -m "box: <verb> <slug>"`. If `.context/` isn't a git repo, skip the commit and tell the user.
+**Stage and commit only the box's own paths — never the whole tree.** This is non-negotiable. The box often lives inside a repo that carries unrelated work (a workbook, a context repo a human is also editing in another session). A blanket `git add -A` will sweep that work into a `box:` commit — this has happened and corrupted another session's in-flight staging. The box always knows its own root, so scope **every** git operation to it via a `-- <pathspec>` and never use `add -A`:
 
-**Clean-tree skip.** If `git -C "$CONTEXT_REPO" status --porcelain` is empty, skip the snapshot commit silently and proceed to the edit. The clean-tree skip applies only to the snapshot step — unrelated changes still mean **stop and ask**.
+```sh
+BOX_ROOT="<absolute path to this box's own directory>"   # e.g. .../boxes/<slug>
+git -C "$REPO" add -- "$BOX_ROOT"
+git -C "$REPO" commit -m "box: <verb> <slug>" -- "$BOX_ROOT"
+```
+
+The pathspec on `commit` is the real safety net: `git commit -- <pathspec>` commits **only** matching paths regardless of what else is already staged in the index, so a concurrent session's staged work is physically untouchable. Pathspec on `add` keeps the index clean too. If the box legitimately needs to touch a file outside its own root (rare), stage that path explicitly by name — never widen back to `add -A`.
+
+Resolve `$REPO`: **do NOT `cd` into the target**, because a command starting with `cd` can never be pre-approved — use `-C` for every call. When the box lives in a `.context/` repo (usually its own git repo, often a symlink), resolve it once: `REPO=$(readlink -f .context)` (use `greadlink -f` if `readlink -f` is unavailable; it's native on macOS 12.3+). When the box lives directly inside a workbook/repo, `$REPO` is that repo root and `$BOX_ROOT` is the box's subdirectory within it. If the target isn't a git repo, skip the commit and tell the user.
+
+**Clean-tree skip.** Check status **scoped to the box root**: if `git -C "$REPO" status --porcelain -- "$BOX_ROOT"` is empty, skip the snapshot commit silently and proceed to the edit. Scoping the check to the box root is deliberate — unrelated changes elsewhere in the repo are none of the box's business and must not influence whether it snapshots. If there are **unrelated changes within the box root itself** (something you didn't make this session), **stop and ask** rather than committing them.
 
 **Discovery before commitment.** Any dispatched subagent about to run something potentially long (big SQL, codebase-wide grep, large fan-out, PR/issue fetch with pagination) **must** spend ≤5 tool calls confirming the data shape exists before committing to the work. This is the stuck-agent insurance.
 

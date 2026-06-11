@@ -59,7 +59,7 @@ Fill it: slug, created ISO datetime, origin/refs (the PR/issue ref, or "live ses
 
 ### 5. Commit
 
-This is creation, not modification, so there's no prior state to snapshot — `new` is the contract's commit-before-edit exception. Just stage and commit the new tree once: `box: new <slug>` (via `git -C` per the contract; if `.context/` isn't a git repo, skip and tell the user).
+This is creation, not modification, so there's no prior state to snapshot — `new` is the contract's commit-before-edit exception. Just stage and commit the new tree once: `box: new <slug>`. Stage and commit **only the box's own root** via pathspec (`git -C "$REPO" add -- "$BOX_ROOT"` then `git -C "$REPO" commit -m "box: new <slug>" -- "$BOX_ROOT"`) — never `add -A`, per the contract. If the target isn't a git repo, skip and tell the user.
 
 ### 6. Report
 

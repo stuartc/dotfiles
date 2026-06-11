@@ -8,6 +8,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v1.3.1] — 2026-06-11
+
+Commit-scoping bugfix. A scribe box whose tracking files live inside the Workbook repo ran `git add -A` during a `do`, sweeping six unrelated `git mv` renames from a concurrent interactive session into its `box: do scribe` commit (`f9de4d1`). Root cause: the commit contract staged the **whole working tree**, relying on the agent to notice and stop on "unrelated changes" — a judgement-based guard that lost to routine boilerplate.
+
+### Changed
+
+- **Pathspec-scoped git, never `add -A`.** Every git operation in the commit contract is now scoped to the box's own root via `-- "$BOX_ROOT"`: `git -C "$REPO" add -- "$BOX_ROOT"`, `git -C "$REPO" commit -m … -- "$BOX_ROOT"`, and the clean-tree check `git -C "$REPO" status --porcelain -- "$BOX_ROOT"`. The pathspec on `commit` is the real safety net — `git commit -- <pathspec>` commits only matching paths regardless of index state, so a concurrent session's staged work is physically untouchable. Updated in SKILL.md (commit-before-edit + clean-tree skip) and protocols `new.md`, `import.md`.
+- **`$CONTEXT_REPO` → `$REPO` + `$BOX_ROOT`.** The contract now distinguishes the repo root (`$REPO`, resolved via `readlink -f .context` for context-repo boxes, or the workbook root for boxes living directly in a repo) from the box's own subdirectory (`$BOX_ROOT`). Clean-tree skip and the "unrelated changes → stop and ask" guard now scope to the box root, not the whole tree.
+
+---
+
 ## [v1.3] — 2026-06-10
 
 The spec/plan split. A usage sweep over four real boxes (flaky-tests, pr-4751-sso-review, dependabot-remediation, quickbeam-openfn-spike) showed box "plans" were thin — closer to a spec than a hand-to-an-agent plan — and the heaviest box had already grown a per-item plan folder by hand. v1.3 ratifies that: the unit of work is now the **item**, each addressable at `items/<id>/`, with the README a projected index over them.
