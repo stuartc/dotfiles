@@ -204,6 +204,46 @@ return {
   -- blink.cmp completion engine
   { import = "nvchad.blink.lazyspec" },
 
+  -- Project-wordlist completion via blink's existing buffer source.
+  -- If the cwd contains a `.nvim-dict.txt`, its lines are loaded into a
+  -- hidden buffer and fed through the buffer source — so a project's domain
+  -- vocabulary completes everywhere, not just from currently-open buffers.
+  -- Inert by default: projects without the file behave exactly as before.
+  -- (Generate the wordlist however suits the project, e.g. a Taskfile target.)
+  {
+    "saghen/blink.cmp",
+    opts = {
+      sources = {
+        providers = {
+          buffer = {
+            opts = {
+              get_bufnrs = function()
+                -- All "normal" buffers (NvChad default is visible-only)...
+                local bufs = vim.tbl_filter(function(b)
+                  return vim.bo[b].buftype == ""
+                end, vim.api.nvim_list_bufs())
+
+                -- ...plus the project wordlist, if one exists in the cwd.
+                local dict = vim.fn.getcwd() .. "/.nvim-dict.txt"
+                if vim.fn.filereadable(dict) == 1 then
+                  local bufnr = vim.fn.bufnr(dict)
+                  if bufnr == -1 then
+                    bufnr = vim.fn.bufadd(dict)
+                    vim.fn.bufload(bufnr)
+                    vim.bo[bufnr].buflisted = false
+                  end
+                  table.insert(bufs, bufnr)
+                end
+
+                return bufs
+              end,
+            },
+          },
+        },
+      },
+    },
+  },
+
   -- nvim-treesitter `main` branch: no .configs.setup(), no ensure_installed
   -- in opts. Install via Lua API, enable highlight+indent via FileType
   -- autocmd. Parser list lives in configs/tools.lua. Note: `config` here
