@@ -1,36 +1,36 @@
 # Protocol: handoff
 
-Write a standalone carry-forward prompt that a fresh session can act on immediately. `handoff` is a **first-class verb** — it commits the current state, composes the document, writes it into the box's `handoffs/` directory, and logs the event. `park` may invoke the same carry-forward mechanism for future-session dispositions; `handoff` is the canonical producer.
+Write a standalone carry-forward prompt that a fresh session can act on immediately. `handoff` commits the current state, composes the document, writes it into the box's `handoffs/` directory, and logs the event. `park` may invoke the same mechanism for future-session dispositions; `handoff` is the canonical producer.
 
 ## Args
 
 `handoff [text]` — optional steer.
 
-- With text → use it as extra context when composing the handoff (e.g. the intended next session's focus, a specific concern to emphasise).
+- With text → use it as extra context when composing (e.g. the next session's intended focus, a specific concern to emphasise).
 - Without text → compose from the current box and session state. Ask only if the intent is genuinely unrecoverable from context.
 
 ## Steps
 
 ### 1. Resolve and read
 
-Resolve the box root per the contract. Read:
+Resolve the box root per SKILL.md. Read:
 
 - The full `README.md` static zone (prize, origin, repo facts) and the projected zone.
-- The **track** in the README's `## Track` / projected zone (ordered items + states), and the `items/<id>/` folders for any items in play — each item's `spec.md` and/or `plan.md`.
-- Open entries under `follow-ups/` (each `follow-ups/F<id>.md`, if the folder exists).
+- The **track** (ordered items + states), and the `items/<id>/` folders for any items in play — each item's `spec.md` and/or `plan.md`.
+- Open entries under `follow-ups/` (if the folder exists).
 - The last several `log/*.md` filenames, plus the bodies of the ~3–5 most recent.
 
 This is more depth than `status` reads — the handoff must stand alone without the session, so it needs the substance, not just the head.
 
-### 2. Snapshot commit
+### 2. Snapshot
 
-Snapshot before editing per the contract's commit-before-edit rule (`box: snapshot before handoff`).
+Per the commit contract in SKILL.md (`box: snapshot before handoff`).
 
 ### 3. Compose the handoff document
 
-The document must be **self-contained and standalone** — no "as discussed earlier", no references to the live session. A fresh session with only this file and the box must be able to orient and act.
+The document must be **self-contained** — no "as discussed earlier", no references to the live session. A fresh session with only this file and the box must be able to orient and act.
 
-Structure the document as follows:
+Structure:
 
 ---
 
@@ -54,7 +54,7 @@ This handoff lives inside a box. To resume with full vocabulary loaded:
 
 Box vocabulary will load automatically. Do not try to interpret this handoff without the box skill loaded.
 
-> Note: this handoff lives in a private box (`handoffs/` is not public). The box's internal vocabulary (`F<id>`, `Q<id>`, slugs, `plan.md` pointers) is safe to use here. If this handoff were ever forwarded to a **public surface**, it would need to be translated into plain English before sending.
+> Note: this handoff lives in a private box (`handoffs/` is not public). The box's internal vocabulary (`F<id>`, `Q<id>`, slugs, `plan.md` pointers) is safe to use here. If this handoff were ever forwarded to a **public surface**, it would need to be translated into plain English first.
 
 ## Purpose
 
@@ -64,8 +64,8 @@ Box vocabulary will load automatically. Do not try to interpret this handoff wit
 
 Read these first, in order, before acting:
 
-1. `README.md` — the head: prize, state, next moves (the `## Track`)
-2. `items/<id>/` for the in-play items — each item's `spec.md` and/or `plan.md`, the current work
+1. `README.md` — prize, state, next moves (the `## Track`)
+2. `items/<id>/` for the in-play items — each item's `spec.md` and/or `plan.md`
 3. `follow-ups/` — open parked follow-ups, one `F<id>.md` each (if it exists)
 4. <any specific log entries worth calling out, by filename>
 
@@ -108,31 +108,29 @@ Open questions still unresolved:
 
 ---
 
-The **Dead ends / do-not** field is negative knowledge — without it a fresh session re-walks the same dead paths the last one did; record every approach already ruled out and why. The **Validation evidence** field is the concrete output (test counts, lint/dialyzer status) proving the Done items are real, not assumed. Both may read `_None._` if genuinely empty.
+**Dead ends / do-not** records approaches already ruled out and why — without it a fresh session re-walks the same dead paths. **Validation evidence** is the concrete output (test counts, lint status) proving the Done items are real, not assumed. Both may read `_None._` if genuinely empty.
 
-Fold any trailing `[text]` steer from the user into the Purpose or Concrete-work section as additional context. Do not invent structure for it — incorporate it naturally.
+Fold any trailing `[text]` steer into the Purpose or Concrete-work section. Don't invent structure for it.
 
-Keep the document 30–80 lines. Long enough to stand alone; short enough to read in 90 seconds.
+Keep the document 30–80 lines: long enough to stand alone, short enough to read in 90 seconds.
 
 ### 4. Derive a slug and write the file
 
-From the box state and the handoff content, derive a `<short-slug>` — kebab-case, 2–4 words, naming what this handoff is handing off (e.g. `loader-version-mismatch`, `plan-phase-3`, `worker-retry-refactor`). Not the box slug itself; what's being carried forward.
+From the handoff content, derive a `<short-slug>` — kebab-case, 2–4 words, naming what's being carried forward (e.g. `loader-version-mismatch`, `plan-phase-3`). Not the box slug itself.
 
-Create `$BOX_ROOT/handoffs/` if it doesn't exist. Write the document to:
+Create `$BOX_ROOT/handoffs/` if it doesn't exist. Write to:
 
 ```
 handoffs/YYYY-MM-DDTHH-MM-<short-slug>.md
 ```
 
-Use today's date and the current time (or a close approximation if the current time is unavailable).
+### 5. Append the log event
 
-### 5. Append the Log event
-
-Create `log/YYYY-MM-DDTHH-MM-handoff.md` from `${CLAUDE_SKILL_DIR}/templates/log-entry.md`, mapping the template fields: `{{EVENT_TYPE}}` → `handoff`; `{{ISO_DATETIME}}` → now; `{{ARTEFACT_POINTER}}` → the `handoffs/…` file path; `{{WHAT_CHANGED}}` and `{{ONE_LINE_CONTEXT}}` → one line naming what's being handed forward. Don't drop `{{ONE_LINE_CONTEXT}}`. 5–10 lines.
+Create `log/YYYY-MM-DDTHH-MM-handoff.md` from `${CLAUDE_SKILL_DIR}/templates/log-entry.md`: event type `handoff`, artefact pointer to the `handoffs/…` file, one line naming what's being handed forward. 5–10 lines.
 
 ### 6. Commit
 
-After writing, commit `box: handoff <slug>`.
+`box: handoff <slug>`.
 
 ### 7. Report
 
@@ -147,7 +145,5 @@ No recap of the handoff body. The file is the artefact.
 
 ## Notes
 
-- **Standalone is non-negotiable.** A session reading this file cannot reach back into the conversation history. Every pointer is a path or a reference; every claim stands on its own. The RESUME PROTOCOL section must instruct loading the box skill — otherwise a naive pickup stumbles over `box plan`, `F<id>`, projected-zone markers, and so on.
-- **Box vocabulary is safe inside a handoff** (`handoffs/` is private). If it were ever forwarded to a public surface it would need a leak-free translation first — the RESUME PROTOCOL says as much.
-- **Carry negative knowledge forward.** The **Dead ends / do-not** field records approaches already ruled out — the single highest-value thing to hand a fresh session, because re-walking a dead path is pure waste. The **Validation evidence** field pins the Done claims to real output so the next session trusts them. `park`'s carry-forward fusion inherits both.
-- **`park` and `handoff`.** `park` offers the carry-forward prompt for future-session dispositions and writes the same handoff format, pointing here as the canonical form rather than duplicating the steps. `handoff` produces the same artefact without a new `F<id>`.
+- **Standalone is non-negotiable.** A session reading this file cannot reach back into the conversation history. The RESUME PROTOCOL section must instruct loading the box skill — otherwise a fresh session stumbles over `box plan`, `F<id>`, and projected-zone markers.
+- Box vocabulary is safe inside a handoff (`handoffs/` is private); a public forward would need translation per the public-leak rule in SKILL.md.

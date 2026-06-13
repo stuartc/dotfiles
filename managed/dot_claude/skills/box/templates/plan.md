@@ -5,9 +5,9 @@ state: ready
 
 # Plan — {{ID}}: {{TITLE}}
 
-_**Agent-actionable.** Where the spec proves understanding, the plan is **distinctly executable by an agent**: PRD-like, phased, much closer to real code than the spec, and with **zero open questions** by the time it's final. The plan is the thing `box do {{ID}}` runs against._
+_**Agent-actionable.** Where the spec proves understanding, the plan is executable by an agent: PRD-like, phased, much closer to real code than the spec, and with **zero open questions** by the time it's final. The plan is the thing `box do {{ID}}` runs against._
 
-_Phrase phases as **WHAT, not HOW**: name the unit of work, its acceptance, its constraints, and the context a fresh agent needs — **not** a script of tool calls or a fixed agent assignment. `do` is the harness layer: it reads the plan and decides **how** to dispatch (single agent, fan-out, dynamic workflow, or a per-box `workflow.js`). The plan names phases as units of work; it does **not** script their execution and never invokes plan mode._
+_Phrase phases as **WHAT, not HOW**: name the unit of work, its acceptance, its constraints, and the context a fresh agent needs — **not** a script of tool calls or a fixed agent assignment. `do` reads the plan and decides **how** to dispatch (single agent, fan-out, dynamic workflow, or a per-box `workflow.js`). The plan names phases as units of work; it does not script their execution._
 
 ## Overview
 
@@ -84,4 +84,4 @@ _Each phase is a **unit of work**, not a command script. A fresh agent could be 
 
 ---
 
-_**No open questions.** Every decision is made before this plan is final — if a question is still open, it belongs in the spec, and this item is not yet `ready`. `do` will not run a plan that still reasons out loud._
+_**No open questions.** Every decision is made before this plan is final — if a question is still open, it belongs in the spec, and this item is not yet `ready`. A plan with unresolved questions is not ready, and `do` will not run it._

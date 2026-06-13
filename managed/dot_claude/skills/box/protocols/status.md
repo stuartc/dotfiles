@@ -1,6 +1,6 @@
 # Protocol: status
 
-Print current box state without editing anything. Read-only orientation for fresh sessions or quick check-ins — the conversational front door. Run this and you're loaded, without re-reading the whole box.
+Print the current box state without editing anything. Read-only — a quick re-orient when the box is already open this session. (`open` is for the start of a session; it resolves and loads the box first.)
 
 ## Args
 
@@ -10,24 +10,24 @@ Print current box state without editing anything. Read-only orientation for fres
 
 ### 1. Resolve
 
-Resolve the box root per the contract's box-root resolution rule. If multiple recent boxes exist and there's no clear context, list them and ask which one.
+Resolve the box root per the rule in SKILL.md. If multiple recent boxes exist and there's no clear context, list them and ask.
 
 ### 2. Read
 
-Read only — fast orientation, under a second of reading:
+Read only — fast orientation:
 
-- `README.md` — just the projected zone (`## Where things stand`, between the `<!-- BOX: BEGIN PROJECTED -->` / `<!-- BOX: END PROJECTED -->` markers).
-- The **track** — the ordered item list with states, from the README's `## Track` / projected zone. Item bodies live under `items/<id>/`; don't open them.
-- The open entries under `follow-ups/` (each `follow-ups/F<id>.md`, if the folder exists).
-- The last ~5–10 `log/*.md` filenames (just the titles — don't open the bodies).
+- `README.md` — just the projected zone (`## Where things stand`, between the markers).
+- The **track** — the ordered item list with states. Item bodies live under `items/<id>/`; don't open them.
+- Open entries under `follow-ups/` (if the folder exists).
+- The last ~5–10 `log/*.md` filenames (titles only — don't open the bodies).
 
 Do not read every file. If the projected-zone markers are missing, say so and fall back to whatever the README shows; don't reconstruct.
 
-**Open-question caveat.** `status` reads only the last ~5–10 `log/` filenames, so a `question-resolved-Q<n>` event in a long-lived box can fall outside that window — making a settled question still look open. The projected zone (from the last rollup) is the more reliable source for the count here. If the open-question count looks off, run `box rollup` first — it scans the **full** `log/` set (raised minus resolved) and refreshes the projection.
+**Open-question count: use the projected zone.** `status` reads only the last ~5–10 `log/` filenames, so a `question-resolved-Q<n>` event in a long-lived box can fall outside that window and make a settled question look open. The projected zone (from the last rollup) is the source of truth for the open-question count here. If the projection looks stale, suggest `box rollup` — it scans the full `log/` set (raised minus resolved) and refreshes the projection.
 
 ### 3. Compose the report
 
-Print to the conversation (do not write to any file). Shape it on the README projected zone:
+Print to the conversation (never to a file):
 
 ```
 Box: <slug>
@@ -47,8 +47,7 @@ Open follow-ups:
   ...
 
 Open questions:
-  Q1  <unresolved question, still visible>
-  Q3  <unresolved question, still visible>
+  Q1  <unresolved question>
   ...
 
 Recent activity (last ~5–10):
@@ -57,19 +56,19 @@ Recent activity (last ~5–10):
   ...
 ```
 
-Call out `needs-discovery` track items explicitly — they're not actionable until engaged. If a section is empty (no follow-ups, no open questions), say so in one line rather than printing an empty heading.
+Call out `needs-discovery` items explicitly — they're not actionable until specced. If a section is empty, say so in one line rather than printing an empty heading.
 
 ### 4. Suggest next steps
 
-Based on the state, offer one or two short, optional questions — the "point me at" prompt. Stu redirects easily, so keep them terse and easy to wave off:
+Offer one or two short, optional questions — terse and easy to wave off:
 
-- No items ready (all `stub`/`needs-discovery`/`done`) → suggest `box spec <id>` for the next `needs-discovery` item, or `box plan` to flesh out the track.
-- A `ready` item exists → "Want to pick up <item>?" (it becomes `box do <id>`).
-- Stale, or the projected zone looks out of sync with the source files → suggest `box rollup`.
-- Lots of open follow-ups → flag they'll need reconciling at `box close`.
+- No items ready → suggest `box spec <id>` for the next `needs-discovery` item, or `box plan` to flesh out the track.
+- A `ready` item exists → "Want to pick up <item>?" (`box do <id>`).
+- The projected zone looks out of sync with the source files → suggest `box rollup`.
+- Lots of open follow-ups → flag that they'll need reconciling at `box close`.
 
-Phrase as a question: "Want to pick up the loader fix?" — short, optional, easy to redirect. If the user wants to *do* something off the back of the status, they fire the next subcommand.
+If the user wants to act on the status, they fire the next subcommand.
 
 ## Notes
 
-`status` never writes, never commits, never dispatches subagents. It's a thinking-out-loud command — read the head, report, suggest. All the doing happens in the other verbs.
+`status` never writes, never commits, never dispatches subagents.

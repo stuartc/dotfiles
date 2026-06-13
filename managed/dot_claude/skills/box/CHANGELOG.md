@@ -8,6 +8,33 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v2.0] — 2026-06-12
+
+Prose and structure rewrite, from an audit of the v1.1-era text. No behaviour change: verbs, routing, file layouts, state machine, ID rules, commit conventions, the plan-vs-execute boundary, and the public-leak rule are all preserved. A backup of the pre-rewrite skill lives at `~/.claude-personal/skill-backups/box-v1.1-2026-06-12` (outside `skills/` so it doesn't register as a skill).
+
+### Changed
+
+- **SKILL.md slimmed to a router — roughly half its previous size** (~6.9k → ~4.2k tokens). Deleted "Resolved design decisions" (history now lives in README/CHANGELOG) and "Pickup ergonomics" (covered by `open.md`/`pickup.md`/`status.md`). The verb table's Purpose column is now one short sentence per verb; the protocol file is the spec.
+- **Shared conventions stated once.** Each cross-cutting rule (commit contract, public-leak rule, projected-zone markers, optional spec, permanent IDs, box-native composition, discovery-before-commitment, the three-door offer, plan-vs-execute boundary, and others) now has a single canonical statement in SKILL.md's Conventions; protocols point to it instead of restating. Protocol `## Notes` sections that re-summarised their own steps were deleted.
+- **Full de-jargoning pass across SKILL.md, all protocols, and all templates.** The figurative register (gate/graduate/promote/demote/hydrate/mint/fuse/tome/spine/eject/death-banner/"load-bearing" and the rest) is rewritten in plain English. Genuine structure names — track, projected zone, disposition, readiness checklist — are kept and defined once in SKILL.md's Vocabulary. The follow-up template field "Load-bearing facts" is renamed "Key facts". The Style rule stands: skill vocabulary stays in artefacts; conversational output is plain English.
+- **Frontmatter `description` rewritten** to a plain trigger description (it loads into every session of every project).
+- **Log event-type list moved** from SKILL.md to `protocols/rollup.md` (the only verb that scans all of them); SKILL.md keeps a one-line pointer.
+- **README.md** updated to match: same de-jargoning, restatements of SKILL.md removed, design history retained.
+
+### Fixed
+
+Five consistency bugs:
+
+1. SKILL.md's item-state table now includes `superseded` (previously only in `plan.md`/`templates/plan-item.md`).
+2. `do.md` no longer treats a `ready` item with no `plan.md` as possibly legitimate: `ready` requires a `plan.md` (thin is fine); a ready item without one is an inconsistency to surface, not a legal state.
+3. `plan.md`'s item-id example ("i3") corrected to the `D1`/`1`/`2` convention.
+4. `status.md` now names the projected zone as the source of truth for the open-question count (its windowed log-filename scan can miss resolutions).
+5. SKILL.md's subagent sentence corrected to include `import`: "most verbs run inline; `spec`, `do`, and `import` may dispatch subagents".
+
+Post-rewrite verification pass fixed six more: `plan`'s track-edit modes regained the box-root resolution step; `plan next` now skips `superseded` as well as `done`; "head" defined in the Vocabulary; `close` now archives `superseded` item bodies (with banner + `superseded_by:`) alongside done ones; the `superseded:` event definition covers both docs and items; the commit-contract verb list includes `handoff` (and notes `import`'s per-phase commits); the routing inferences for `handoff`/`pickup`/`migrate` and the disposition glosses were restored; the `log/` layout comment corrected (`new` writes the first event).
+
+---
+
 ## [v1.3.2] — 2026-06-11
 
 The `import` protocol, promoted. `import` (bring a body of work that predates the box into a well-formed box) had existed as a detailed but unwired draft, written in pre-v1.3 vocabulary — a single inline "Plan" split to `plan.md`, a monolithic `follow-ups.md`. Rewritten to the v1.3 item model and wired into the verb table.

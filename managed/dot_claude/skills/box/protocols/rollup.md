@@ -1,8 +1,28 @@
 # Protocol: rollup
 
-Regenerate the README's projected zone from the source-of-truth files, and demote done/superseded material out of the active view. The source files (the track + `items/<id>/`, `follow-ups/`, `log/`, `archive/`) are the truth; the projected zone is a *view* composed from them. `rollup` recomposes that view and keeps the active surface small — it never invents state the sources don't carry.
+Regenerate the README's projected zone from the source-of-truth files, and move done/superseded material out of the active view. The source files (the track + `items/<id>/`, `follow-ups/`, `log/`, `archive/`) are the truth; the projected zone is a view composed from them. `rollup` recomposes that view and keeps the active surface small — it never invents state the sources don't carry.
 
-Manual only. There is no auto-trigger — Stu runs this by hand when the README feels out of sync, after a burst of activity, or before bootstrapping a fresh session.
+Manual only. There is no auto-trigger — Stu runs this when the README feels out of sync, after a burst of activity, or before bootstrapping a fresh session.
+
+## Event types
+
+The full set of log event types (each writing protocol names the ones it emits; `rollup` is the verb that scans across all of them). Filename rule per SKILL.md: a `:` becomes `-`.
+
+- `born` — box created
+- `seeded-from-pr` / `seeded-from-issue` — box seeded from a public ref
+- `plan-updated` — track items added / reordered / state-changed
+- `spec-written` — an item's `spec.md` authored or refined
+- `plan-written` — an item's `plan.md` authored or refined (the `→ ready` transition)
+- `do-ran` — an item executed; points at where the output landed
+- `followup-parked:F<id>` — one event per park (or one covering several parked together)
+- `note` — a logged discovery / observation
+- `decision` — a decision recorded
+- `open-question:Q<id>` — an unresolved question raised; stays visible in the README until settled
+- `question-resolved:Q<id>` — a previously raised question settled; drops off the README, stays in the log forever
+- `rolled-up` — README projected zone regenerated
+- `handoff` — a carry-forward prompt written (points at the `handoffs/` file)
+- `superseded:<doc-or-id>` — a document moved to `archive/`, or an item (or several) marked `superseded` on the track; the body moves at `close`
+- `closed` — box closed, terminal state recorded
 
 ## Args
 
@@ -12,19 +32,17 @@ Manual only. There is no auto-trigger — Stu runs this by hand when the README 
 
 ### 1. Resolve
 
-Resolve the box root per the contract. Ask only if genuinely ambiguous.
+Resolve the box root per SKILL.md. Ask only if genuinely ambiguous.
 
 ### 2. Read the source-of-truth files
 
-These are the truth. The projected zone is derived from them, not the other way round.
+- **The track** — the ordered item list in the README; read every item's trailing `` `[state]` `` tag. Item bodies live under `items/<id>/` — rollup derives states from the track, it doesn't open the bodies.
+- **`follow-ups/`** — each `follow-ups/F<id>.md`, for open entries and their dispositions. Reconciled or dropped entries are not "open".
+- **The open-question set** — derive it from the `log/` **filenames** (the append-only truth, not the README): all `…-open-question-Q<n>.md` files **minus** any `Q<n>` that also appears in a `…-question-resolved-Q<n>.md` filename. Scan the full set — a resolution can predate the latest events.
+- **The last several `log/*.md`** — filenames are timestamped, so sort by name and read the latest ~5–8 bodies. The `decision` and `note` events inform the one-line state.
+- **The `archive/` listing** — for docs already archived, so the document map can name them as superseded rather than re-moving them.
 
-- **The track** — for item states. The ordered item list in the README's `## Track` / projected zone; read every item's trailing `` `[state]` `` tag (`stub` / `needs-discovery` / `ready` / `done`). Item bodies live under `items/<id>/` (`spec.md` / `plan.md`) — rollup derives states from the track, it doesn't open the bodies.
-- **`follow-ups/`** — read each `follow-ups/F<id>.md` for open entries and their dispositions (`in-scope-later` / `→ issue` / `→ new box` / `dropped`). Reconciled or dropped entries are not "open".
-- **The open-question set** — derive it from `log/` **filenames** (the append-only truth, not the README): the open questions are all `…-open-question-Q<n>.md` files **minus** any `Q<n>` that also appears in a `…-question-resolved-Q<n>.md` filename. Scan the full set for this — a resolution can predate the latest events.
-- **The last several `log/*.md`** — filenames are timestamped, so sort by name and read the latest N (≈5–8). Care most about `decision` and `note` events to inform the one-line state. (Open questions come from the filename scan above, not from reading these bodies.)
-- **The `archive/` listing** — for docs already demoted, so the document map can name them as superseded rather than re-demoting them.
-
-Apply the discovery-before-commitment rule: this is all local file reads, so no fan-out — but don't paginate through the entire log history; the latest several events are enough.
+All local file reads — no fan-out, and don't read the entire log history; the filename scan plus the latest several bodies is enough.
 
 ### 3. Compose the projected zone
 
@@ -56,74 +74,52 @@ _Last rolled up: <ISO datetime>_
 
 ### Open follow-ups
 
-<open `F<id>` entries, one line each, with disposition; reconciled/dropped ones drop off here>
-
 - F1 — <one-line summary>  `[in-scope-later]`
 - F3 — <one-line summary>  `[→ issue]`
 
 ### Open questions
 
-<raised minus resolved: every `open-question-Q<n>` filename whose `Q<n>` has no matching `question-resolved-Q<n>` — these stay visible even while undecided>
-
 - Q<n> — <question>  (raised <date>, still open)
 ```
 
-Notes on composition:
+Composition rules:
 
-- **State** is one honest line about the present, not a status badge. Derive it from the latest plan/log activity — what's actively being worked (the nearest `ready` item), what just landed, what's blocked.
-- **Document map** is current vs superseded. Live docs sit in the box root; superseded docs live in `archive/` and are named as such, each pointing at what replaced it.
-- **Next moves** lists only track items not yet `done`, in track order, the next few. A `needs-discovery` item is called out as such — never dressed up as `ready`. Done items do not appear here (see step 4).
-- **Open follow-ups** shows only open `F<id>` entries. An entry that has been reconciled or `dropped` falls off this list; its ID lives on as `follow-ups/F<id>.md` (IDs are never reused; the file is never deleted, only its disposition tag changes).
-- **Open questions** is the raised-minus-resolved set from the `log/` filenames (step 2): every `open-question-Q<n>` with no matching `question-resolved-Q<n>`. Each bullet carries its `Q`-ID. **These stay visible even while undecided — never demote an undecided question.** Visibility over tidiness.
-- **Empty sections.** An empty section writes `_None yet._` as its sole body line — never omit a `###` sub-section. The structure stays constant whether or not there's content, so the live-adds (`park`/`note`) always have a coherent head to replace into.
+- **State** is one accurate line about the present, not a status badge: what's actively being worked, what just landed, what's blocked.
+- **Document map** is current vs superseded. Live docs sit in the box root; superseded docs live in `archive/`, each pointing at what replaced it.
+- **Next moves** lists only items not yet `done`/`superseded`, in track order. A `needs-discovery` item is named as such — never presented as `ready`.
+- **Open follow-ups** shows only open `F<id>` entries. A reconciled or `dropped` entry falls off this list; its file stays under `follow-ups/` (per the ID rules in SKILL.md, IDs are never reused and files never deleted — only the disposition tag changes).
+- **Open questions** is the raised-minus-resolved set from step 2, each bullet carrying its `Q`-ID. **An undecided question is never removed from this list** — only a `question-resolved` event drops it.
+- **Empty sections** write `_None yet._` as their sole body line — never omit a `###` sub-section. The structure stays constant so the live-adds from `park`/`note` always have a section to replace into.
 
-### 4. Demote done & superseded (archival without pollution)
+### 4. Move done and superseded material out of the active view
 
-The discipline that keeps the active surface small. Drive status honestly by construction — `rollup` owns these transitions so they don't rot the way hand-maintained status does.
-
-- **Done items** stay ticked in place — `rollup`'s Next moves excludes them by construction (the section lists only items not yet `done`). There is no recording step: no Log entry, no `## Done` tail, no move. `plan` sets the `done` state; `rollup` stops surfacing it and leaves the body at `items/<id>/` (still addressable during active work). `rollup` never relocates a done item — `close` performs the one terminal body demotion to `archive/items/<id>/` at end-of-box.
-- **Superseded docs** move to `archive/`. Each demoted doc gets, at the very top of its body, the death-banner:
+- **Done items** stay ticked in place — Next moves excludes them by construction. No log entry, no move: `plan` sets the `done` state; `rollup` stops listing it and leaves the body at `items/<id>/` (still addressable during active work). `close` performs the one terminal move to `archive/items/<id>/` at end-of-box.
+- **Superseded docs** move to `archive/`. Each gets, at the very top of its body, the SUPERSEDED banner:
 
   ```
   **SUPERSEDED (<date>) — see <X>. Do not act on this.**
   ```
 
-  and a `superseded_by: <X>` field in its YAML frontmatter. Log one `superseded:<doc>` event per demotion (timestamp, what was demoted, what replaced it, one line of why).
-- **Keep open questions visible.** Archival demotes the *done* and the *superseded*, never the *undecided*. An open question stays in the projection until it is genuinely resolved.
+  and a `superseded_by: <X>` field in its YAML frontmatter. Log one `superseded:<doc>` event per move (timestamp, what was moved, what replaced it, one line of why).
+- **Open questions stay visible.** Archiving is for the done and the superseded, never the undecided.
 
-The goal: the active box root shows only live material. Don't rely on a hand-maintained current-vs-archaeology table — the demotion plus the death-banner is the defence.
+The goal: the active box root shows only live material, kept that way by construction rather than by a hand-maintained status table.
 
 ### 5. Write the README
 
-Read the current `README.md`. Preserve everything **outside** the markers — the static zone above is hand-curated and `rollup` never touches it. Replace **only** the content between:
+Read the current `README.md`. Preserve everything outside the projected-zone markers — the static zone is hand-written and `rollup` never touches it. Replace only the content between the markers with the freshly composed block from step 3.
 
-```
-<!-- BOX: BEGIN PROJECTED -->
-```
+If the markers are missing — someone hand-edited them out — warn the user and ask before reconstructing them. Don't silently re-insert markers over hand-edited content.
 
-and
+### 6. Commit
 
-```
-<!-- BOX: END PROJECTED -->
-```
-
-with the freshly composed `## Where things stand` block from step 3.
-
-If the markers are missing — someone hand-edited them out — **warn the user and ask** before reconstructing them. Don't silently re-insert markers and overwrite hand-edited content.
-
-### 6. Commit-before-edit, then write
-
-Snapshot before editing per the contract's commit-before-edit rule (`box: snapshot before rollup`).
-
-Write the README projected zone and any `archive/` demotions. Append a `rolled-up` Log event (short: timestamp, that the projection was regenerated, the counts). Then commit `box: rollup <slug>`.
+Per the commit contract in SKILL.md (`box: snapshot before rollup` … `box: rollup <slug>`). Append a `rolled-up` log event (short: timestamp, that the projection was regenerated, the counts).
 
 ### 7. Report
 
-One line: the projected zone was regenerated, with counts — N items, M open follow-ups, K open questions (raised minus resolved), any `Q<id>`s resolved since the last rollup, and any docs demoted this run.
+One line: the projected zone was regenerated, with counts — N items, M open follow-ups, K open questions (raised minus resolved), any `Q<id>`s resolved since the last rollup, and any docs archived this run.
 
 ## Notes
 
-- **Rollup is derived data.** The projected zone is replaceable; the source files (the track + `items/<id>/`, `follow-ups/F<id>.md`, `log/*.md`, `archive/`) are the truth. To recover from a botched rollup, delete the projected zone between the markers and re-run — nothing is lost.
-- **The static zone is hand-curated and never touched.** The prize, repo facts, and origin live above the `<!-- BOX: BEGIN PROJECTED -->` marker. If they need updating, edit them by hand — `rollup` only ever rewrites between the markers.
-- **Archival demotes the done, never the undecided.** Done items and superseded docs leave the active view; open questions stay visible until resolved. Visibility over tidiness.
-- **`close` also demotes.** `rollup` and `close` share the archival machinery. `rollup` excludes done items from Next moves by construction **and** demotes superseded docs to `archive/` — it's the demoter for *documents*. `close` additionally reconciles every open follow-up to a terminal disposition, records terminal state, and is the demoter for *done item bodies* (`items/<id>/` → `archive/items/<id>/`, the one terminal relocation). `plan` sets `done` states but never archives.
+- **The projected zone is derived data.** To recover from a botched rollup, delete the content between the markers and re-run — nothing is lost.
+- **`rollup` and `close` split the archiving.** `rollup` stops listing done items and moves superseded *documents* to `archive/`; `close` additionally reconciles every open follow-up and moves done item *bodies* (`items/<id>/` → `archive/items/<id>/`). `plan` sets `done` states but never archives.
