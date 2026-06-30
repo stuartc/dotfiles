@@ -28,7 +28,7 @@ AI_SETTINGS = {
     "AITermAPI": 7,
     "AIVectorStore": 0,
     "AiMaxTokens": 200000,
-    "AiModel": "claude-opus-4-6",
+    "AiModel": "claude-opus-4-8",
     "AiResponseMaxTokens": 128000,
     "AitermURL": "https://api.anthropic.com/v1/messages",
 }
@@ -78,12 +78,22 @@ GLOBAL_KEYMAP = {
     "0xf703-0x380000-0x7c": {  # Right -> prefix + l
         "Action": 11, "Apply Mode": 0, "Escaping": 2, "Text": "0x00 0x6c", "Version": 2,
     },
+    # Cmd+Opt+[ / ] -> CSI 40~ / 41~ (tmux User3/User4 = shuffle window left/right).
+    # Intercepts the chord before "Option sends Esc+" mangles it into a bare ESC[
+    # / ESC] (CSI/OSC introducers, unbindable). Action 10 prepends ESC to Text;
+    # mods 0x180000 = Cmd+Opt (no numpad flag, unlike the arrows). char-mods-keyCode.
+    "0x5b-0x180000-0x21": {  # [
+        "Action": 10, "Apply Mode": 0, "Escaping": 2, "Text": "[40~", "Version": 2,
+    },
+    "0x5d-0x180000-0x1e": {  # ]
+        "Action": 10, "Apply Mode": 0, "Escaping": 2, "Text": "[41~", "Version": 2,
+    },
 }
 
 # Default profile settings (applied to "New Bookmarks" array, first profile)
 DEFAULT_PROFILE_SETTINGS = {
     # Font
-    "Normal Font": "FiraCodeNFP-Reg 13",
+    "Normal Font": "FiraCodeNFM-Light 13",
     "ASCII Ligatures": True,
     "ASCII Anti Aliased": True,
 
