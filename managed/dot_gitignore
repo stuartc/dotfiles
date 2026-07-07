@@ -5,3 +5,10 @@
 # Can be overridden in individual repos with !.claude/handoffs/ in repo .gitignore
 # Or force-add specific files with: git add -f .claude/handoffs/file
 .claude/handoffs/
+
+# Context symlinks into the central context repo — git-ignored everywhere.
+# Telescope visibility is handled per-repo via a .ignore file containing !.context.
+.context
+
+# Per-repo re-include helpers for fd/ripgrep (e.g. !.context) — don't show in git status.
+.ignore
