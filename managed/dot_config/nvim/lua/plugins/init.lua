@@ -487,6 +487,35 @@ return {
     },
   },
 
+  -- Git worktrees (create/switch/remove, snacks picker frontend)
+  {
+    "Juksuu/worktrees.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    cmd = { "GitWorktreeCreate", "GitWorktreeCreateExisting", "GitWorktreeSwitch", "GitWorktreeRemove" },
+    keys = {
+      { "<leader>gws", function() Snacks.picker.worktrees() end, desc = "Git worktree switch" },
+      { "<leader>gwn", function() Snacks.picker.worktrees_new() end, desc = "Git worktree new" },
+      { "<leader>gwr", function() Snacks.picker.worktrees_remove() end, desc = "Git worktree remove" },
+    },
+    opts = {
+      -- Grouped as <project>/<branch> here; the default ("..") drops bare branch
+      -- names alongside the repo, i.e. straight into $PROJECTS.
+      worktree_path = "~/Sourcecode/.worktrees",
+      hooks = {
+        on_before_switch = function()
+          -- root_dir is fixed when a client attaches, so clients started in the
+          -- old worktree keep resolving paths there after the cwd moves.
+          vim.lsp.stop_client(vim.lsp.get_clients())
+        end,
+        on_switch = function(_, to)
+          pcall(function()
+            require("nvim-tree.api").tree.change_root(to)
+          end)
+        end,
+      },
+    },
+  },
+
   -- Snacks.nvim (command palette via picker)
   {
     "folke/snacks.nvim",
