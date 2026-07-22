@@ -75,7 +75,9 @@ return {
 
       opts.pickers = opts.pickers or {}
       opts.pickers.find_files = {
-        -- find_command = { "rg", "--files", "--hidden", "--follow", "--glob", "!.git" },
+        -- fd (not rg) so we can --follow into the .context symlink; it respects
+        -- each repo's .gitignore, and a per-repo .ignore (!.context) re-includes it.
+        find_command = { "fd", "--type", "f", "--hidden", "--follow" },
         path_display = { "filename_first" },
         previewer = true,
         sorting_strategy = "ascending",
