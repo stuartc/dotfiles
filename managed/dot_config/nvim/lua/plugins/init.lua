@@ -218,6 +218,56 @@ return {
       sources = {
         providers = {
           buffer = {
+            -- Sentence starts: typing a capital offers the capitalised form of
+            -- lowercase candidates. Never the reverse — downcasing to match a
+            -- lowercase prefix would wreck OpenFn, Thunderbolt and every
+            -- camelCase identifier in the wordlist. Both `label` and
+            -- `insertText` must be set; `label` alone only changes the menu.
+            -- Runs once per completion session (the buffer source reports
+            -- complete, so blink caches), which is fine: only the first typed
+            -- character is ever inspected.
+            transform_items = function(ctx, items)
+              if not ctx.get_keyword():sub(1, 1):match("%u") then
+                return items
+              end
+
+              -- Words already offered in a mixed-case spelling: "openfn" is
+              -- left alone when "OpenFn" is on the menu, rather than becoming
+              -- "Openfn". Only a capital past the first character counts —
+              -- "Headphones" is just a sentence start, not a spelling.
+              local canonical = {}
+              for _, item in ipairs(items) do
+                local word = item.insertText or item.label
+                if word and word:sub(2):find("%u") then
+                  canonical[word:lower()] = true
+                end
+              end
+
+              local seen, out = {}, {}
+              for _, item in ipairs(items) do
+                local word = item.insertText or item.label
+                -- Anything carrying an internal capital is an identifier, not
+                -- prose: accountId must not become AccountId.
+                if
+                  word
+                  and word:match("^%l")
+                  and not word:find("%u")
+                  and not canonical[word:lower()]
+                then
+                  word = word:sub(1, 1):upper() .. word:sub(2)
+                  item.insertText, item.label = word, word
+                end
+                -- Capitalising can collide with an entry that was already
+                -- capitalised, so drop the repeats.
+                if not word or not seen[word] then
+                  if word then
+                    seen[word] = true
+                  end
+                  out[#out + 1] = item
+                end
+              end
+              return out
+            end,
             opts = {
               get_bufnrs = function()
                 -- All "normal" buffers (NvChad default is visible-only)...
