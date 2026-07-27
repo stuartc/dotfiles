@@ -553,15 +553,31 @@ return {
       -- Grouped as <project>/<branch> here; the default ("..") drops bare branch
       -- names alongside the repo, i.e. straight into $PROJECTS.
       worktree_path = "~/Sourcecode/.worktrees",
+      -- Default is "Ex", but netrw is disabled (see configs/lazy.lua), and the
+      -- resulting E492 aborts the switch mid-way, leaving the cwd behind. The
+      -- on_switch hook lands us somewhere instead.
+      switch_file_command = false,
       hooks = {
         on_before_switch = function()
           -- root_dir is fixed when a client attaches, so clients started in the
           -- old worktree keep resolving paths there after the cwd moves.
-          vim.lsp.stop_client(vim.lsp.get_clients())
+          for _, client in ipairs(vim.lsp.get_clients()) do
+            client:stop()
+          end
         end,
         on_switch = function(_, to)
-          pcall(function()
-            require("nvim-tree.api").tree.change_root(to)
+          -- Deferred twice: the swap to the counterpart file is itself scheduled
+          -- from within this callback's schedule, so a single defer still sees
+          -- the outgoing buffer.
+          vim.schedule(function()
+            vim.schedule(function()
+              local api = require("nvim-tree.api")
+              api.tree.change_root(to)
+              -- No counterpart to the old file here, so the tree beats a blank screen.
+              if vim.api.nvim_buf_get_name(0) == "" then
+                api.tree.open({ path = to })
+              end
+            end)
           end)
         end,
       },
