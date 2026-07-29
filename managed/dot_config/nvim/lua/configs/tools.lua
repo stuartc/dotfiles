@@ -16,12 +16,15 @@
 -- To add a formatter/linter: append the Mason package name to `extras`.
 -- To add a TS parser: append the parser name to `parsers`.
 return {
-  lsp = { "html", "cssls", "ts_ls", "expert", "beancount" },
+  -- `ruff` is both the LSP and the CLI formatter conform shells out to, so it
+  -- belongs here rather than in `extras` — one Mason package covers both.
+  lsp = { "html", "cssls", "ts_ls", "expert", "beancount", "basedpyright", "ruff" },
   extras = { "stylua", "prettierd" },
   parsers = {
     "vim", "lua", "vimdoc",
     "html", "css", "beancount",
     "typescript", "elixir", "heex",
     "markdown", "markdown_inline",
+    "python", "toml",
   },
 }
