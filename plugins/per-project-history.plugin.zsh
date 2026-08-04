@@ -197,6 +197,17 @@ function _per-project-history-change-directory-impl() {
 }
 
 function _per-project-history-addhistory() {
+  # The `fc -p` below leaves this shell reading its project file rather than the
+  # global one, so it never picks up what other shells write. Import here, before
+  # the new command joins the list, so it stays the newest entry and up-arrow
+  # still gives you your own last command rather than another shell's.
+  fc -RI $HISTFILE
+
+  # A bare Enter at an empty prompt still reaches this hook, and the `print -Sr`
+  # below would file it as the newest entry — up-arrow would hand you a blank
+  # line. Returning non-zero keeps zsh from saving it either.
+  [[ -z ${1//[[:space:]]/} ]] && return 1
+
   # respect hist_ignore_space
   if [[ -o hist_ignore_space ]] && [[ "$1" == \ * ]]; then
       true
@@ -214,13 +225,8 @@ function _per-project-history-addhistory() {
 }
 
 function _per-project-history-precmd() {
-  # The `fc -p` in the zshaddhistory hook points this shell's history file at
-  # the project file, so
-  # SHARE_HISTORY's per-prompt import reads that instead of $HISTFILE. Without
-  # this line a shell never sees history written by any other shell after the
-  # moment it started.
-  fc -RI $HISTFILE
-
+  # Importing here would append other shells' commands after your own, so
+  # up-arrow would hand you theirs. It happens in the zshaddhistory hook instead.
   if [[ $_per_project_history_initialized == false ]]; then
     _per_project_history_initialized=true
     # Layer project history on top of already-loaded global history
