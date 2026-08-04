@@ -214,6 +214,13 @@ function _per-project-history-addhistory() {
 }
 
 function _per-project-history-precmd() {
+  # The `fc -p` in the zshaddhistory hook points this shell's history file at
+  # the project file, so
+  # SHARE_HISTORY's per-prompt import reads that instead of $HISTFILE. Without
+  # this line a shell never sees history written by any other shell after the
+  # moment it started.
+  fc -RI $HISTFILE
+
   if [[ $_per_project_history_initialized == false ]]; then
     _per_project_history_initialized=true
     # Layer project history on top of already-loaded global history

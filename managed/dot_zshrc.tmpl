@@ -81,6 +81,8 @@ export SAVEHIST=10000
 # History sharing and real-time updates
 setopt SHARE_HISTORY          # Share history between all sessions
 setopt INC_APPEND_HISTORY     # Write to history file immediately after each command
+setopt EXTENDED_HISTORY       # Timestamp entries; SHARE_HISTORY does not imply this,
+                              # and without it writes land in the file unstamped
 
 # setopt HIST_SAVE_NO_DUPS         # Don't write duplicate entries in history file
 
