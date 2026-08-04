@@ -147,6 +147,12 @@ alias e='$EDITOR'
 alias ytd='yt-dlp -o "%(title)s.%(ext)s"'
 alias t='task'
 
+# Command prefixes, chainable in any order: `nomcp personal claude -c`.
+# The trailing space is what lets the following word expand as an alias too.
+alias nomcp='ENABLE_CLAUDEAI_MCP_SERVERS=false '
+alias personal='CLAUDE_CONFIG_DIR=$HOME/.claude-personal '
+alias work='CLAUDE_CONFIG_DIR=$HOME/.claude '
+
 export ENABLE_LSP_TOOL=1
 export TMUX_PLUGIN_MANAGER_PATH=$HOME/.config/tmux/plugins/tpm
 
