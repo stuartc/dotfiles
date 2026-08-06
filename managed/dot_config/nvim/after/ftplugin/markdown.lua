@@ -81,3 +81,55 @@ for _, lhs in ipairs({ "<leader>tt", "<M-l>" }) do
   vim.keymap.set("x", lhs, toggle_visual, { buffer = true, desc = "Toggle/convert markdown todos in selection" })
 end
 vim.keymap.set("i", "<M-l>", toggle_current, { buffer = true, desc = "Toggle/convert markdown todo" })
+
+-- Add or strip `> ` across an inclusive row range. Strips only when every line
+-- is already quoted; otherwise it quotes the rest and leaves quoted lines be,
+-- so a partly-quoted selection evens out instead of nesting to `> >`. Blank
+-- lines get a bare `>` — without it a renderer ends the quote at the gap and
+-- starts a second one below.
+local function quote_range(start_row, end_row)
+  local lines = vim.api.nvim_buf_get_lines(0, start_row - 1, end_row, false)
+  local all_quoted = true
+  for _, line in ipairs(lines) do
+    if not line:match("^%s*>") then
+      all_quoted = false
+      break
+    end
+  end
+  for i, line in ipairs(lines) do
+    if all_quoted then
+      lines[i] = (line:gsub("^(%s*)>%s?", "%1", 1))
+    elseif line:match("^%s*>") then
+      lines[i] = line
+    elseif line:match("^%s*$") then
+      lines[i] = ">"
+    else
+      lines[i] = "> " .. line
+    end
+  end
+  vim.api.nvim_buf_set_lines(0, start_row - 1, end_row, false, lines)
+end
+
+-- Quote the current line; keep the cursor on the same text.
+local function quote_current()
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+  local before = vim.api.nvim_get_current_line()
+  quote_range(row, row)
+  local delta = #vim.api.nvim_get_current_line() - #before
+  vim.api.nvim_win_set_cursor(0, { row, math.max(0, col + delta) })
+end
+
+-- Quote every line in the current visual selection, then leave visual.
+local function quote_visual()
+  local s = vim.fn.line("v")
+  local e = vim.fn.line(".")
+  if s > e then
+    s, e = e, s
+  end
+  quote_range(s, e)
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
+end
+
+vim.keymap.set("n", "<M-q>", quote_current, { buffer = true, desc = "Toggle markdown blockquote" })
+vim.keymap.set("x", "<M-q>", quote_visual, { buffer = true, desc = "Toggle markdown blockquote on selection" })
+vim.keymap.set("i", "<M-q>", quote_current, { buffer = true, desc = "Toggle markdown blockquote" })

@@ -101,6 +101,11 @@ vim.keymap.del("n", "<leader>h")   -- Frees <leader>h* for gitsigns hunks
 --   Ss                Surround selection with ~~strikethrough~~ (markdown only)
 --   S{char}           Surround selection (visual mode)
 --
+-- MARKDOWN (buffer-local, see after/ftplugin/markdown.lua)
+--   <M-l>         Toggle/convert todo checkbox (normal, visual, insert)
+--   <leader>tt    Same todo toggle (normal, visual)
+--   <M-q>         Toggle `> ` blockquote (normal, visual, insert)
+--
 -- MACROS
 --   <leader>ma    Apply macro 'a' to lines matching word under cursor
 --   <leader>m/    Apply macro 'a' to lines matching last search pattern
