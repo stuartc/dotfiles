@@ -152,6 +152,8 @@ vim.keymap.del("n", "<leader>h")   -- Frees <leader>h* for gitsigns hunks
 -- MISC
 --   ;             Enter command mode (custom)
 --   jj            Exit insert mode (custom)
+--   <A-j>         Blank line below, cursor stays (custom)
+--   <A-k>         Blank line above, cursor stays (custom)
 --   <leader>cp    Copy relative path (custom)
 --   <leader>cP    Copy absolute path (custom)
 --   <leader>cR    Reload options.lua (custom)
@@ -178,6 +180,10 @@ map("n", "<leader>tx", "<cmd>tabclose<cr>", { desc = "Tab close" })
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jj", "<ESC>")
 map("n", "<leader>ln", "<cmd>set nu!<cr>", { desc = "Toggle line numbers" })
+
+-- Blank line above/below, cursor stays put
+map("n", "<A-j>", "m`o<Esc>``", { desc = "Blank line below" })
+map("n", "<A-k>", "m`O<Esc>``", { desc = "Blank line above" })
 
 -- Terminal
 map("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Terminal Exit insert mode" })
