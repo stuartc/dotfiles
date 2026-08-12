@@ -1,6 +1,10 @@
 font-family = "FiraCode Nerd Font Mono Ret"
 cursor-style = block
-shell-integration-features = no-cursor
+# ssh-terminfo installs xterm-ghostty on a host the first time you connect
+# (cached per user@host, falls back to xterm-256color if `tic` is missing), so
+# `tmux a` works on boxes that don't run this zshrc. Only wraps ssh from an
+# interactive shell — not git/rsync/scp, and it conflicts with RemoteCommand.
+shell-integration-features = no-cursor,ssh-env,ssh-terminfo
 theme = "Github Dark Dimmed"
 font-size = 14
 
