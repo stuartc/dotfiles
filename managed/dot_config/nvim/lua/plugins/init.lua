@@ -661,4 +661,27 @@ return {
       },
     },
   },
+
+  -- Markdown Preview (browser preview with mermaid + katex)
+  {
+    "selimacerbas/markdown-preview.nvim",
+    dependencies = { "selimacerbas/live-server.nvim" },
+    ft = { "markdown" },
+    cmd = { "MarkdownPreview", "MarkdownPreviewStop", "MarkdownPreviewRefresh" },
+    keys = {
+      { "<leader>mp", "<cmd>MarkdownPreview<cr>", desc = "Markdown preview" },
+      { "<leader>mP", "<cmd>MarkdownPreviewStop<cr>", desc = "Markdown preview stop" },
+      { "<leader>mr", "<cmd>MarkdownPreviewRefresh<cr>", desc = "Markdown preview refresh" },
+    },
+    config = function()
+      require("markdown_preview").setup({
+        instance_mode = "takeover",
+        port = 8421,
+        open_browser = true,
+        default_theme = "dark",
+        debounce_ms = 300,
+        scroll_sync = true,
+      })
+    end,
+  },
 }
