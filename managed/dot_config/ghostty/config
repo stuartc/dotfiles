@@ -10,6 +10,9 @@ font-size = 13
 
 unfocused-split-opacity = 1
 macos-option-as-alt = true
+# Fullscreen in the current space instead of a new one. Disables macOS native
+# tabs, which need the titlebar this mode removes.
+macos-non-native-fullscreen = padded-notch
 window-padding-x = 4
 
 keybind = alt+enter=text:\x1b[13;3u
