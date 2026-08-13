@@ -1,4 +1,4 @@
-font-family = "FiraCode Nerd Font Mono Ret"
+font-family = "FiraCode Nerd Font Mono Light"
 cursor-style = block
 # ssh-terminfo installs xterm-ghostty on a host the first time you connect
 # (cached per user@host, falls back to xterm-256color if `tic` is missing), so
@@ -6,7 +6,7 @@ cursor-style = block
 # interactive shell — not git/rsync/scp, and it conflicts with RemoteCommand.
 shell-integration-features = no-cursor,ssh-env,ssh-terminfo
 theme = "Github Dark Dimmed"
-font-size = 14
+font-size = 13
 
 unfocused-split-opacity = 1
 macos-option-as-alt = true
