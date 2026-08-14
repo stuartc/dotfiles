@@ -66,12 +66,74 @@ return {
         end
       end
 
+      -- Pickers name the file differently: find_files sets .path, grep pickers
+      -- set .filename, others only have .value.
+      local entry_path = function(entry)
+        return entry and (entry.path or entry.filename or entry.value)
+      end
+
+      local yank_paths = function(prompt_bufnr, modifier, after)
+        local picker = action_state.get_current_picker(prompt_bufnr)
+        local entries = picker:get_multi_selection()
+        if vim.tbl_isempty(entries) then
+          entries = { action_state.get_selected_entry() }
+        end
+
+        local paths = {}
+        for _, entry in ipairs(entries) do
+          local path = entry_path(entry)
+          if path then
+            table.insert(paths, vim.fn.fnamemodify(path, modifier))
+          end
+        end
+        if vim.tbl_isempty(paths) then
+          return
+        end
+
+        local text = table.concat(paths, "\n")
+        vim.fn.setreg("+", text)
+        vim.fn.setreg('"', text)
+        vim.notify("Yanked " .. text)
+
+        if after then
+          after(prompt_bufnr)
+        else
+          actions.close(prompt_bufnr)
+        end
+      end
+
+      local yank_relative = function(prompt_bufnr)
+        yank_paths(prompt_bufnr, ":.")
+      end
+
+      local yank_absolute = function(prompt_bufnr)
+        yank_paths(prompt_bufnr, ":p")
+      end
+
+      local yank_relative_and_open = function(prompt_bufnr)
+        yank_paths(prompt_bufnr, ":.", actions.select_default)
+      end
+
+      local yank_absolute_and_open = function(prompt_bufnr)
+        yank_paths(prompt_bufnr, ":p", actions.select_default)
+      end
+
       opts.defaults = opts.defaults or {}
       opts.defaults.mappings = opts.defaults.mappings or {}
       opts.defaults.mappings.i = opts.defaults.mappings.i or {}
       opts.defaults.mappings.n = opts.defaults.mappings.n or {}
       opts.defaults.mappings.i["<C-o>"] = open_external
       opts.defaults.mappings.n["<C-o>"] = open_external
+      -- <C-S-y> needs the terminal to disambiguate shifted ctrl keys (kitty
+      -- protocol / CSI u); without it the shifted maps just never fire.
+      opts.defaults.mappings.i["<C-y>"] = yank_relative
+      opts.defaults.mappings.n["<C-y>"] = yank_relative
+      opts.defaults.mappings.i["<C-S-y>"] = yank_absolute
+      opts.defaults.mappings.n["<C-S-y>"] = yank_absolute
+      opts.defaults.mappings.i["<M-y>"] = yank_relative_and_open
+      opts.defaults.mappings.n["<M-y>"] = yank_relative_and_open
+      opts.defaults.mappings.i["<M-S-y>"] = yank_absolute_and_open
+      opts.defaults.mappings.n["<M-S-y>"] = yank_absolute_and_open
 
       opts.pickers = opts.pickers or {}
       opts.pickers.find_files = {

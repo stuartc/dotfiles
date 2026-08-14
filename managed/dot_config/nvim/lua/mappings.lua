@@ -26,6 +26,12 @@ vim.keymap.del("n", "<leader>h")   -- Frees <leader>h* for gitsigns hunks
 --   <leader>cm    Git commits
 --   <leader>th    Pick theme
 --   <C-q>         (in picker) Send results to quickfix list
+--   <C-o>         (in picker) Open selection in external app
+--   <C-y>         (in picker) Yank relative path, don't open
+--   <C-S-y>       (in picker) Yank absolute path, don't open
+--   <M-y>         (in picker) Yank relative path and open
+--   <M-S-y>       (in picker) Yank absolute path and open
+--                 (yanks work on <Tab> multi-selections too)
 --
 -- QUICKFIX (after <C-q> from Telescope)
 --   :copen        Open quickfix window
