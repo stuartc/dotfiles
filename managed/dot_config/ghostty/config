@@ -6,7 +6,7 @@ cursor-style = block
 # interactive shell — not git/rsync/scp, and it conflicts with RemoteCommand.
 shell-integration-features = no-cursor,ssh-env,ssh-terminfo
 theme = "Github Dark Dimmed"
-font-size = 13
+font-size = 14
 
 unfocused-split-opacity = 1
 macos-option-as-alt = true
@@ -17,13 +17,6 @@ window-padding-x = 4
 
 keybind = alt+enter=text:\x1b[13;3u
 
-# F17–F19 (Keychron Q1 Pro: right-cmd, fn+pgup, fn+pgdn). Emit fixed escape
-# sequences so tmux user-keys match the same bytes in both terminals. F13–F16
-# are skipped because macOS hijacks F14/F15 at the HID layer for brightness.
-keybind = f17=text:\x1b[31~
-keybind = f18=text:\x1b[32~
-keybind = f19=text:\x1b[33~
-
 mouse-hide-while-typing
 clipboard-read = allow
 
@@ -32,3 +25,9 @@ keybind = super+alt+left=text:\x00h
 keybind = super+alt+right=text:\x00l
 keybind = super+alt+up=text:\x00k
 keybind = super+alt+down=text:\x00j
+
+# Cmd+Opt+[ / ] → slide the current tmux window along the tab bar. The escape
+# sequences are arbitrary spares; tmux picks them up via user-keys, and iTerm2
+# is set to send the same two.
+keybind = super+alt+bracket_left=text:\x1b[40~
+keybind = super+alt+bracket_right=text:\x1b[41~
