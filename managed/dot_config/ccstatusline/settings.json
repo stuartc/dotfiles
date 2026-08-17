@@ -34,25 +34,29 @@
         "id": "7ce81256-e639-470c-b60c-98baa61d3621",
         "type": "reset-timer",
         "rawValue": true
-      },
-      {
-        "id": "5",
-        "type": "git-branch",
-        "color": "magenta"
-      },
-      {
-        "id": "7",
-        "type": "git-changes",
-        "color": "yellow"
       }
     ],
-    [],
+    [
+      {
+        "id": "85f61141-c370-4ff8-91a5-49eb0380d187",
+        "type": "git-branch"
+      },
+      {
+        "id": "cec87848-e9d4-4c6a-85c2-5434028b197f",
+        "type": "git-changes"
+      },
+      {
+        "id": "db0d074f-75a5-4905-88be-8278f3a0301b",
+        "type": "git-worktree"
+      }
+    ],
     []
   ],
-  "flexMode": "full-minus-40",
+  "flexMode": "full-until-compact",
   "compactThreshold": 60,
-  "colorLevel": 2,
+  "colorLevel": 3,
   "defaultPadding": " ",
+  "defaultPaddingSide": "both",
   "inheritSeparatorColors": false,
   "globalBold": false,
   "gitCacheTtlSeconds": 5,
