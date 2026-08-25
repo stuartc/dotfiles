@@ -1,20 +1,24 @@
-# Fix readability for dark terminal themes (GitHub Dark Dimmed)
+# Fix readability for dark terminal themes (Tokyo Night)
 # Tig defaults use colored backgrounds (green cursor, blue titles) that are
 # unreadable against this palette. Override everything to use colored TEXT on
-# default backgrounds, with neutral gray backgrounds only for cursor & titles.
+# default backgrounds, apart from the cursor and the title bars.
 #
-# 256-color grays: 237 ≈ #3a3a3a, 238 ≈ #444444, 240 ≈ #585858
+# Tig has no hex colors. Named colors resolve to the terminal's ANSI palette,
+# so they track Tokyo Night on their own; color 8 is bright black (#414868).
+# The 256-color grayscale ramp is not remapped by a terminal theme, so its
+# neutral greys read muddy against this blue-tinted background — 235 is the
+# one background still drawn from it.
 
-# Cursor/selection — gray bg, keeps per-element text colors
-color cursor           default  240
-color cursor-blur      default  237
+# Cursor/selection — dim bg, keeps per-element text colors
+color cursor           default  8
+color cursor-blur      default  235
 
 # Title bars (tig default: white on blue)
-color title-focus      white    238  bold
-color title-blur       default  237
+color title-focus      black    blue  bold
+color title-blur       default  8
 
 # Status bar at bottom (tig default: white on green)
-color status           white    238
+color status           black    blue
 
 # Status view sections (tig default: green bg on headers)
 color status.header    yellow   default  bold

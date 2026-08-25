@@ -5,7 +5,7 @@ cursor-style = block
 # `tmux a` works on boxes that don't run this zshrc. Only wraps ssh from an
 # interactive shell — not git/rsync/scp, and it conflicts with RemoteCommand.
 shell-integration-features = no-cursor,ssh-env,ssh-terminfo
-theme = "Github Dark Dimmed"
+theme = "TokyoNight Night"
 font-size = 14
 
 unfocused-split-opacity = 1
