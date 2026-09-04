@@ -175,6 +175,32 @@ source <(fzf --zsh)
 
 if command -v direnv &> /dev/null; then
   eval "$(direnv hook zsh)"
+
+  # compinit only scans $fpath once, at shell startup, so completions a
+  # project adds to $fpath later (e.g. via .envrc: export FPATH="$PWD/bin/completions:$FPATH")
+  # are otherwise invisible until something re-triggers registration.
+  # This diffs $fpath on every prompt/cd and registers any newly-visible
+  # #compdef-tagged file directly, without a full compinit rerun.
+  typeset -ga _fpath_sync_seen
+  _fpath_sync_seen=($fpath)
+  _fpath_sync() {
+    local -a new_dirs=(${fpath:|_fpath_sync_seen})
+    _fpath_sync_seen=($fpath)
+    (( ${#new_dirs} )) || return
+    local dir file line
+    for dir in $new_dirs; do
+      [[ -d $dir ]] || continue
+      for file in $dir/*(N.); do
+        IFS= read -r line <"$file"
+        [[ $line == '#compdef '* ]] || continue
+        autoload -Uz "$file"
+        compdef ${file:t} ${(z)${line#\#compdef }}
+      done
+    done
+  }
+  autoload -Uz add-zsh-hook
+  add-zsh-hook precmd _fpath_sync
+  add-zsh-hook chpwd _fpath_sync
 fi
 
 if command -v zoxide &> /dev/null; then
