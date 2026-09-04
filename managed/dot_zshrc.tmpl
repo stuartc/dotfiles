@@ -177,30 +177,16 @@ if command -v direnv &> /dev/null; then
   eval "$(direnv hook zsh)"
 
   # compinit only scans $fpath once, at shell startup, so completions a
-  # project adds to $fpath later (e.g. via .envrc: export FPATH="$PWD/bin/completions:$FPATH")
-  # are otherwise invisible until something re-triggers registration.
-  # This diffs $fpath on every prompt/cd and registers any newly-visible
-  # #compdef-tagged file directly, without a full compinit rerun.
-  typeset -ga _fpath_sync_seen
-  _fpath_sync_seen=($fpath)
-  _fpath_sync() {
-    local -a new_dirs=(${fpath:|_fpath_sync_seen})
-    _fpath_sync_seen=($fpath)
-    (( ${#new_dirs} )) || return
-    local dir file line
-    for dir in $new_dirs; do
-      [[ -d $dir ]] || continue
-      for file in $dir/*(N.); do
-        IFS= read -r line <"$file"
-        [[ $line == '#compdef '* ]] || continue
-        autoload -Uz "$file"
-        compdef ${file:t} ${(z)${line#\#compdef }}
-      done
-    done
-  }
-  autoload -Uz add-zsh-hook
-  add-zsh-hook precmd _fpath_sync
-  add-zsh-hook chpwd _fpath_sync
+  # project adds later (e.g. via a project's .envrc:
+  # export XDG_DATA_DIRS="$PWD/share:$XDG_DATA_DIRS", with the completion
+  # file at share/zsh/site-functions/_name) are otherwise invisible until
+  # something re-triggers registration. This registers newly-visible
+  # #compdef-tagged files directly on each prompt/cd (falling back to a
+  # full compinit rerun only when fpath shrinks, e.g. on cd out). Cloned by
+  # chezmoi via .chezmoiexternal.toml.
+  if [[ -f "$HOME/.local/share/zsh-completion-sync/zsh-completion-sync.plugin.zsh" ]]; then
+    source "$HOME/.local/share/zsh-completion-sync/zsh-completion-sync.plugin.zsh"
+  fi
 fi
 
 if command -v zoxide &> /dev/null; then

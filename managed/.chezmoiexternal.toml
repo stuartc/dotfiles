@@ -4,3 +4,10 @@
     refreshPeriod = "168h"
     [".local/share/git-completion".clone]
         args = ["--depth=1"]
+
+[".local/share/zsh-completion-sync"]
+    type = "git-repo"
+    url = "https://github.com/BronzeDeer/zsh-completion-sync.git"
+    refreshPeriod = "168h"
+    [".local/share/zsh-completion-sync".clone]
+        args = ["--depth=1"]
