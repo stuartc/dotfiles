@@ -1,0 +1,5 @@
+# AWS CLI completion (aws_completer ships alongside the aws binary)
+if command -v aws_completer &> /dev/null; then
+  autoload -U +X bashcompinit && bashcompinit
+  complete -C "$(command -v aws_completer)" aws
+fi

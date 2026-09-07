@@ -137,8 +137,12 @@ elif [[ -d "$HOME/.asdf" ]]; then
   export PATH="$ASDF_DATA_DIR/shims:$PATH"
 fi
 
-[[ -d "/opt/homebrew/share/google-cloud-sdk/bin" ]] && export PATH="$PATH:/opt/homebrew/share/google-cloud-sdk/bin"
 [[ -d "/opt/homebrew/opt/libpq/bin" ]] && export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+
+# Third-party CLI completions (one file per tool, dropped in to keep this file neat)
+for completion in $DOTFILES_DIR/completions/*(N); do
+  source "$completion"
+done
 
 export PATH="$HOME/.cargo/bin:$HOME/.bun/bin:$PATH"
 export PATH="$HOME/.bin:$HOME/.local/bin:$PATH"
