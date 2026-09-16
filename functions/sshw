@@ -1,0 +1,11 @@
+#!/bin/zsh
+#
+# ssh, but waits for a rebooting box to come back.
+#
+#   sshw box
+#
+# Retries the TCP connect for up to ~10 minutes. Once the connection lands,
+# normal ssh rules apply: a bad key or changed host key still fails straight
+# away rather than spinning.
+
+ssh -o ConnectionAttempts=120 -o ConnectTimeout=5 "$@"
