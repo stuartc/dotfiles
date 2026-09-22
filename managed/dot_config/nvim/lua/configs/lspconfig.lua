@@ -57,6 +57,47 @@ vim.api.nvim_create_autocmd("LspAttach", {
 -- lspconfig names to Mason package names.
 vim.lsp.enable(require("configs.tools").lsp)
 
+-- TypeScript 7 (the Go port) ships no tsserver.js, so ts_ls silently falls
+-- back to its bundled TS 6. Those projects get TS 7's own `tsc --lsp`
+-- instead, which comes from the project's node_modules rather than Mason.
+-- Each project gets exactly one of the two, decided by what's installed.
+local function ts7_root(bufnr)
+  local root = vim.fs.root(bufnr, "node_modules")
+  if
+    root
+    and vim.uv.fs_stat(root .. "/node_modules/typescript/lib/tsserver.js") == nil
+    and vim.uv.fs_stat(root .. "/node_modules/.bin/tsc") ~= nil
+  then
+    return root
+  end
+end
+
+local ts_ls_root_dir = vim.lsp.config.ts_ls.root_dir
+vim.lsp.config("ts_ls", {
+  root_dir = function(bufnr, on_dir)
+    if not ts7_root(bufnr) then
+      ts_ls_root_dir(bufnr, on_dir)
+    end
+  end,
+})
+
+-- Replaces lspconfig's own root_dir and cmd, which share a binary cache that
+-- breaks once the config is read twice, leaving cmd on whatever `tsc` is on
+-- PATH.
+vim.lsp.config("tsc", {
+  root_dir = function(bufnr, on_dir)
+    local root = ts7_root(bufnr)
+    if root then
+      on_dir(root)
+    end
+  end,
+  cmd = function(dispatchers, config)
+    local tsc = config.root_dir .. "/node_modules/.bin/tsc"
+    return vim.lsp.rpc.start({ tsc, "--lsp", "--stdio" }, dispatchers)
+  end,
+})
+vim.lsp.enable("tsc")
+
 -- Per-server custom config example:
 -- vim.lsp.config("lua_ls", {
 --   settings = {
