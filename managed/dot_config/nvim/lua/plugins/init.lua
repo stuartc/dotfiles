@@ -52,6 +52,21 @@ return {
 		opts = require("configs.conform"),
 	},
 
+	-- Starts rust-analyzer itself, so `rust_analyzer` must stay out of configs/tools.lua.
+	{
+		"mrcjkb/rustaceanvim",
+		version = "^9",
+		lazy = false,
+	},
+
+	{
+		"saecki/crates.nvim",
+		event = "BufRead Cargo.toml",
+		opts = {
+			lsp = { enabled = true, actions = true, completion = true, hover = true },
+		},
+	},
+
 	{
 		"nvim-telescope/telescope.nvim",
 		opts = function(_, opts)

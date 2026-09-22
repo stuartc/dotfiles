@@ -6,17 +6,20 @@ local options = {
     heex = { "mix" },
     eelixir = { "mix" },
     python = { "ruff_organize_imports", "ruff_format" },
+    rust = { "rustfmt" },
     -- css = { "prettier" },
     -- html = { "prettier" },
   },
 
-  -- Python only — ruff is fast enough to be invisible on save, and formatting
-  -- is settled enough in that ecosystem not to fight anyone. Every other
-  -- filetype stays manual via the "LSP: Format file" palette entry; return nil
-  -- to skip. Note this needs `event = "BufWritePre"` on the conform spec,
-  -- otherwise the plugin is never loaded by the time a write happens.
+  -- Python and Rust only — ruff and rustfmt are fast enough to be invisible on
+  -- save, and formatting is settled enough in those ecosystems not to fight
+  -- anyone. Every other filetype stays manual via the "LSP: Format file"
+  -- palette entry; return nil to skip. Note this needs `event = "BufWritePre"`
+  -- on the conform spec, otherwise the plugin is never loaded by the time a
+  -- write happens.
   format_on_save = function(bufnr)
-    if vim.bo[bufnr].filetype ~= "python" then
+    local ft = vim.bo[bufnr].filetype
+    if ft ~= "python" and ft ~= "rust" then
       return nil
     end
     return { timeout_ms = 1000, lsp_format = "fallback" }

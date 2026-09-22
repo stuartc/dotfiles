@@ -25,6 +25,6 @@ return {
     "html", "css", "beancount",
     "typescript", "elixir", "heex",
     "markdown", "markdown_inline",
-    "python", "toml",
+    "python", "rust", "toml",
   },
 }
