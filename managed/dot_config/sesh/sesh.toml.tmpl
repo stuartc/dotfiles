@@ -9,6 +9,9 @@
 
 # --- Generic sessions (shared across machines) ---
 
+# Hide tmux-floax's floating scratch session from the picker.
+blacklist = ["scratch"]
+
 # (none yet — add [[session]] blocks here when they're safe to publish)
 {{ $privateSessions := joinPath .chezmoi.homeDir ".private/sesh/sessions.toml" -}}
 {{ if stat $privateSessions }}
