@@ -18,3 +18,8 @@ __pycache__
 .config/karabiner
 Library
 {{- end }}
+
+{{- if not (hasKey . "claudeMd") }}
+# Global CLAUDE.md is private; only linked where local config sets claudeMd
+.claude/CLAUDE.md
+{{- end }}
