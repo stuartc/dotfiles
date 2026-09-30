@@ -8,12 +8,12 @@ This file contains useful information for debugging Raycast script commands.
 
 Raycast script commands support different output modes via the `@raycast.mode` header:
 
-- **`silent`** - No output shown (used by our project scripts)
+- **`silent`** - Window closes; last line of stdout shown as a HUD popup (used by our project scripts)
 - **`compact`** - Last line of stdout shown in toast
 - **`fullOutput`** - Entire output shown in separate view (like a terminal)
 - **`inline`** - First line shown directly in command item
 
-To see output from a silent script, temporarily change the mode to `fullOutput` in the script header.
+To see full output from a silent script, temporarily change the mode to `fullOutput` in the script header.
 
 ### Enabling Debug Logs for vscode-open
 

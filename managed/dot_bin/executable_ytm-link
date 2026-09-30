@@ -1,0 +1,30 @@
+#!/usr/bin/env -S /opt/homebrew/bin/uv run --script
+# /// script
+# dependencies = ["ytmusicapi"]
+# ///
+# @raycast.schemaVersion 1
+# @raycast.title Copy YT Music Link
+# @raycast.mode silent
+# @raycast.packageName Music
+
+# Copies a YouTube Music link for the track currently playing in Music.app.
+
+import subprocess, sys
+from ytmusicapi import YTMusic
+
+r = subprocess.run(["osascript", "-e",
+    'tell application "Music" to tell current track to return name & tab & artist & tab & (duration as integer)'],
+    capture_output=True, text=True)
+if r.returncode:
+    sys.exit(print("Nothing playing in Music"))
+title, artist, dur = r.stdout.strip().split("\t")
+
+hits = YTMusic().search(f"{title} {artist}", filter="songs", limit=5)
+if not hits:
+    sys.exit(print(f"No match for {title}"))
+best = next((h for h in hits if abs((h.get("duration_seconds") or 0) - int(dur)) <= 3), None)
+pick = best or hits[0]
+
+url = f"https://music.youtube.com/watch?v={pick['videoId']}"
+subprocess.run("pbcopy", input=url, text=True)
+print(f"Copied: {pick['title']} – {pick['artists'][0]['name']}" + ("" if best else " (unsure)"))
