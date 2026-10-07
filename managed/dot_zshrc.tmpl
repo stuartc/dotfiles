@@ -138,6 +138,15 @@ elif [[ -d "$HOME/.asdf" ]]; then
 fi
 
 [[ -d "/opt/homebrew/opt/libpq/bin" ]] && export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+{{- if eq .chezmoi.os "darwin" }}
+
+# Erlang's build only looks for `wx-config`, but Homebrew's wxwidgets@3.2
+# installs it as `wx-config-3.2`, so asdf/mise silently build Erlang without
+# wx (and so without Observer).
+if (( ! $+commands[wx-config] )) && [[ -x /opt/homebrew/bin/wx-config-3.2 ]]; then
+  export WX_CONFIG_NAME=/opt/homebrew/bin/wx-config-3.2
+fi
+{{- end }}
 
 # Third-party CLI completions (one file per tool, dropped in to keep this file neat)
 for completion in $DOTFILES_DIR/completions/*(N); do
