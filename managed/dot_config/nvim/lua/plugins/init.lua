@@ -771,17 +771,17 @@ return {
 
 	-- Markdown Preview (browser preview with mermaid + katex)
 	{
-		"selimacerbas/markdown-preview.nvim",
-		dependencies = { "selimacerbas/live-server.nvim" },
+		"selimacerbas/mdkite.nvim",
+		dependencies = { "selimacerbas/kitehost.nvim" },
 		ft = { "markdown" },
-		cmd = { "MarkdownPreview", "MarkdownPreviewStop", "MarkdownPreviewRefresh" },
+		cmd = { "MdKite" },
 		keys = {
-			{ "<leader>mp", "<cmd>MarkdownPreview<cr>", desc = "Markdown preview" },
-			{ "<leader>mP", "<cmd>MarkdownPreviewStop<cr>", desc = "Markdown preview stop" },
-			{ "<leader>mr", "<cmd>MarkdownPreviewRefresh<cr>", desc = "Markdown preview refresh" },
+			{ "<leader>mp", "<cmd>MdKite start<cr>", desc = "Markdown preview" },
+			{ "<leader>mP", "<cmd>MdKite stop<cr>", desc = "Markdown preview stop" },
+			{ "<leader>mr", "<cmd>MdKite refresh<cr>", desc = "Markdown preview refresh" },
 		},
 		config = function()
-			require("markdown_preview").setup({
+			require("mdkite").setup({
 				instance_mode = "takeover",
 				port = 8421,
 				open_browser = true,
