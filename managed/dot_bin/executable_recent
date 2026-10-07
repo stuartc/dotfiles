@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<EOF
+Usage: recent [-m] [DAYS | YYYY-MM-DD]
+
+List files under the current directory created in the last DAYS days
+(default 7) or since a date, grouped by day, newest first.
+
+  -m   use modified time instead of creation time
+EOF
+}
+
+time_flag=B
+while getopts "mh" opt; do
+  case $opt in
+    m) time_flag=m ;;
+    h) usage; exit 0 ;;
+    *) usage >&2; exit 1 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+since=${1:-7}
+if [[ $since =~ ^[0-9]+$ ]]; then
+  since=$(date -v-"${since}"d +%F)
+elif ! [[ $since =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+  usage >&2; exit 1
+fi
+
+if [ -t 1 ]; then
+  day_colour=$'\e[1;34m' dim=$'\e[2m' reset=$'\e[0m'
+else
+  day_colour='' dim='' reset=''
+fi
+
+tab=$'\t'
+find . \( -name .git -o -name .obsidian -o -name node_modules \) -prune -o \
+  -type f -not -name .DS_Store -newer${time_flag}t "$since" \
+  -exec stat -f "%S${time_flag}${tab}%N" -t "%Y-%m-%d %H:%M${tab}%a %d %b" {} + \
+  | sort -r \
+  | awk -F'\t' -v day="$day_colour" -v dim="$dim" -v reset="$reset" '
+      {
+        split($1, dt, " ")
+        path = $3; sub(/^\.\//, "", path)
+        if ($2 != current) {
+          if (NR > 1) print ""
+          print day $2 reset
+          current = $2
+        }
+        print "  " dim dt[2] reset "  " path
+      }'
