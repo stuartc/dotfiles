@@ -10,6 +10,19 @@ if ok then
     -- Disable the default `b` alias (which maps to `)`) so our buffer-local
     -- `b` surround below is actually reached; aliases resolve before lookup.
     aliases = { b = false },
+    -- Markdown's indentexpr indents an HTML block only up to the first blank
+    -- line, so tags wrapped around prose come out half-indented. Leave prose
+    -- alone and only reindent inside fenced code blocks.
+    indent_lines = function(start, stop)
+      local node = vim.treesitter.get_node({ pos = { start - 1, 0 } })
+      while node and node:type() ~= "fenced_code_block" do
+        node = node:parent()
+      end
+      if node and start < stop then
+        vim.cmd(string.format("silent normal! %dG=%dG", start, stop))
+        require("nvim-surround.cache").set_callback("")
+      end
+    end,
     surrounds = {
       ["b"] = {
         add = { "**", "**" },
