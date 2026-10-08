@@ -292,6 +292,19 @@ return {
 	{
 		"saghen/blink.cmp",
 		opts = {
+			-- blink counts `-` as a keyword character, so a lone `-` or a `---`
+			-- rule opens the menu with the whole wordlist (there's nothing to
+			-- match on) and then <CR> accepts the top entry. Stay quiet for
+			-- dashes with no word in front of them; `foo-` still completes.
+			enabled = function()
+				local before = vim.api.nvim_get_current_line():sub(1, vim.fn.col(".") - 1)
+				return not (before:match("%-$") and not before:match("%w%-*$"))
+			end,
+
+			-- <Tab> accepts (auto_insert is on, so cycling inserts). Leave <CR>
+			-- to break the line, always.
+			keymap = { ["<CR>"] = { "fallback" } },
+
 			sources = {
 				providers = {
 					buffer = {
