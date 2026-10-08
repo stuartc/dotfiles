@@ -1,0 +1,138 @@
+#!/usr/bin/env bun
+// Puts Linear issues, or a project's milestones, in the order given. Issue order shows in any
+// list view set to "Manual" ordering; manual order is shared by the whole workspace, so
+// everyone sees it. Milestone order is the order milestones are listed in within their project.
+//
+// Needs: bun, and LINEAR_API_KEY set to a personal API key
+// (Linear > Settings > Security & access > Personal API keys), sent as-is with no "Bearer".
+//
+// Usage: linear-order CON-1 CON-7 CON-3 ... [--apply]
+//        linear-order --project "<project name>" "<milestone>" "<milestone>" ... [--apply]
+// Without --apply it is a dry run: it prints current and proposed order and writes nothing.
+//
+// The listed items hand round the sortOrder values they already hold, lowest to the first, so
+// they keep their place among everything not listed. A partial list only rearranges the items
+// in it: `linear-order CON-7 CON-3` swaps two issues and leaves the rest alone. If two listed
+// items share a sortOrder, the values are spread evenly between the lowest and highest instead.
+// Lower sortOrder sits higher. In a grouped view (e.g. by status) the order applies within each
+// group. Only sortOrder changes; items whose value would not change are skipped.
+//
+// It warns, without refusing, when an issue would sit above one that blocks it. Milestones
+// are not checked. It refuses an unknown or repeated item, and a project name that matches no
+// project or several. On an API error, or an update without success, it stops; some updates
+// may already have landed, and re-running is safe.
+
+type Item = { id: string; label: string; sortOrder: number };
+type Issue = Item & { blockedBy: string[] };
+
+if (Bun.argv.includes("--help") || Bun.argv.includes("-h")) {
+  const lines = (await Bun.file(import.meta.path).text()).split("\n").slice(1);
+  const header = lines.slice(0, lines.findIndex((l) => !l.startsWith("//")));
+  console.log(header.map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
+  process.exit(0);
+}
+
+const apply = Bun.argv.includes("--apply");
+const args = Bun.argv.slice(2).filter((a) => a !== "--apply");
+const projectName = args[0] === "--project" ? args[1] : undefined;
+const wanted = projectName ? args.slice(2) : args.map((a) => a.toUpperCase());
+const key = process.env.LINEAR_API_KEY;
+if (wanted.length === 0 || !key) {
+  console.error(
+    'usage: LINEAR_API_KEY=... linear-order (CON-1 CON-2 ... | --project "<project>" "<milestone>" ...) [--apply]',
+  );
+  process.exit(2);
+}
+if (new Set(wanted).size !== wanted.length) throw new Error("an item is listed twice");
+
+async function gql<T>(query: string, variables: object = {}): Promise<T> {
+  const res = await fetch("https://api.linear.app/graphql", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: key! },
+    body: JSON.stringify({ query, variables }),
+  });
+  if (!res.ok) throw new Error(`Linear answered ${res.status}: ${await res.text()}`);
+  const body = (await res.json()) as { data?: T; errors?: { message: string }[] };
+  if (body.errors) throw new Error(JSON.stringify(body.errors));
+  return body.data!;
+}
+
+async function fetchIssues(identifiers: string[]): Promise<Issue[]> {
+  const fields = `id identifier title sortOrder
+    inverseRelations(first: 100) { nodes { type issue { identifier } } }`;
+  const query = identifiers.map((idf, n) => `i${n}: issue(id: ${JSON.stringify(idf)}) { ${fields} }`);
+  type Raw = {
+    id: string;
+    identifier: string;
+    title: string;
+    sortOrder: number;
+    inverseRelations: { nodes: { type: string; issue: { identifier: string } }[] };
+  };
+  const data = await gql<Record<string, Raw | null>>(`query { ${query.join("\n")} }`);
+  return identifiers.map((idf, n) => {
+    const raw = data[`i${n}`];
+    if (!raw) throw new Error(`no issue ${idf}`);
+    return {
+      id: raw.id,
+      label: `${raw.identifier}  ${raw.title}`,
+      sortOrder: raw.sortOrder,
+      blockedBy: raw.inverseRelations.nodes.filter((r) => r.type === "blocks").map((r) => r.issue.identifier),
+    };
+  });
+}
+
+async function fetchMilestones(project: string, names: string[]): Promise<Item[]> {
+  const { projects } = await gql<{
+    projects: { nodes: { projectMilestones: { nodes: { id: string; name: string; sortOrder: number }[] } }[] };
+  }>(
+    `query($p: String!) {
+      projects(first: 2, filter: { name: { eq: $p } }) {
+        nodes { projectMilestones(first: 250) { nodes { id name sortOrder } } }
+      }
+    }`,
+    { p: project },
+  );
+  if (projects.nodes.length !== 1) throw new Error(`project name "${project}" matches ${projects.nodes.length} projects`);
+  const all = projects.nodes[0].projectMilestones.nodes;
+  return names.map((name) => {
+    const m = all.find((m) => m.name === name);
+    if (!m) throw new Error(`no milestone "${name}" in "${project}"; it has: ${all.map((m) => m.name).join(", ")}`);
+    return { id: m.id, label: m.name, sortOrder: m.sortOrder };
+  });
+}
+
+function slots(items: Item[]): number[] {
+  const values = items.map((t) => t.sortOrder).sort((a, b) => a - b);
+  if (new Set(values).size === values.length) return values;
+  const [lo, hi] = [values[0], values[values.length - 1]];
+  const step = hi > lo ? (hi - lo) / (values.length - 1) : 1;
+  return values.map((_, n) => lo + n * step);
+}
+
+const items = projectName ? await fetchMilestones(projectName, wanted) : await fetchIssues(wanted);
+const plan = slots(items).map((sortOrder, n) => ({ item: items[n], sortOrder }));
+
+const show = (list: Item[]) => list.map((t) => `  ${t.label}`).join("\n");
+console.log(`current (should match the screen, top to bottom):\n${show([...items].sort((a, b) => a.sortOrder - b.sortOrder))}\n`);
+console.log(`proposed:\n${show(items)}\n`);
+
+if (!projectName) {
+  const position = new Map(wanted.map((idf, n) => [idf, n]));
+  for (const [n, issue] of (items as Issue[]).entries())
+    for (const blocker of issue.blockedBy)
+      if ((position.get(blocker) ?? -1) > n) console.log(`warning: ${wanted[n]} sits above ${blocker}, which blocks it`);
+}
+
+const changed = plan.filter((m) => m.sortOrder !== m.item.sortOrder);
+if (!apply) {
+  console.log(`dry run; ${changed.length} of ${items.length} would move; pass --apply to write`);
+  process.exit(0);
+}
+if (changed.length) {
+  const field = projectName ? "projectMilestoneUpdate" : "issueUpdate";
+  const calls = changed.map((m, n) => `u${n}: ${field}(id: "${m.item.id}", input: { sortOrder: ${m.sortOrder} }) { success }`);
+  const result = await gql<Record<string, { success: boolean }>>(`mutation { ${calls.join("\n")} }`);
+  const failed = changed.filter((_, n) => !result[`u${n}`]?.success).map((m) => m.item.label);
+  if (failed.length) throw new Error(`no success for ${failed.join(", ")}; re-running is safe`);
+}
+console.log(`moved ${changed.length} of ${items.length}`);
